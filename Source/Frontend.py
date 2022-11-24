@@ -34,7 +34,7 @@ def button(message):
 
 @bot.message_handler(regexp="yes")
 def handle_message(message):
-    bot.send_message(message.chat.id, "No")
+    bot.send_message(message.chat.id, "No, hier ist ethemBranch")
 
 
 @bot.message_handler(commands=['faq'])
@@ -53,4 +53,3 @@ def tip(message):
 
 
 bot.polling()
-
