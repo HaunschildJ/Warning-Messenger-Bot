@@ -18,7 +18,7 @@ def dice(message):
 
 @bot.message_handler(commands=['ort'])
 def ort(message):
-    bot.send_poll(message.chat.id, "Wo lebst du?", ["Hessen", "Darmstadt", "Nicht dort"])
+    bot.send_poll(message.chat.id, "Wo lebst du?", ["Hessen", "Darmstadt", "Berlin", "Nicht dort"])
 
 
 @bot.message_handler(commands=['type'])
@@ -34,7 +34,7 @@ def button(message):
 
 @bot.message_handler(regexp="yes")
 def handle_message(message):
-    bot.send_message(message.chat.id, "No")
+    bot.send_message(message.chat.id, "No, hier ist ethemBranch")
 
 
 @bot.message_handler(commands=['faq'])
@@ -53,4 +53,3 @@ def tip(message):
 
 
 bot.polling()
-
