@@ -14,4 +14,3 @@ def corona(chat_id, city_name):
     message = message.replace("%death", "10")
     message = message.replace("%date", "10.10.2010")
     ChatSender.send_message(chat_id, city_name+":\n"+message)
-
