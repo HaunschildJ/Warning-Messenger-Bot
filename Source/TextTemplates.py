@@ -7,9 +7,9 @@ def get_greeting_string() -> string:
 
 def get_corona_string() -> string:
     return """
-Corona Inzidenz: %inzidenz 
-Aktuelle Fallzahlen %case 
-Aktuelle Todeszahlen %death 
-Informationen vom %date """
+%inzidenz 
+%bund 
+%kreis 
+%tips """
 
 
