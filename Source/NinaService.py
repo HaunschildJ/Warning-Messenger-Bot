@@ -1,4 +1,5 @@
 import requests
+import NinaStringHelper
 
 baseUrl = "https://warnung.bund.de/api31"
 
@@ -55,12 +56,17 @@ def get_covid_infos(city_name) -> CovidInfos:
     general_tips = response["generalInfo"]
     return CovidInfos(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
 
+
+
+
+
+
 info = get_covid_infos("")
 print(info.general_tips)
+print(NinaStringHelper.filter_html_tags(info.general_tips))
 
 
 
-#TODO ParseHTML Tags
 
 
 
