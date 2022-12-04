@@ -16,7 +16,7 @@ def filter_html_tags(s : str) -> str:
          if c == '>':
              opened_brackets_counter -= 1
              if opened_brackets_counter == 0 and i+1 < len(s) and  s[i + 1] != '<':
-                filtered_string += ' '
+                filtered_string += '\n'
 
     return  filtered_string
 

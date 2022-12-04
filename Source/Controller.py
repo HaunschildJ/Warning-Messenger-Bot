@@ -1,5 +1,6 @@
 import ChatSender
 import TextTemplates
+import NinaService
 
 
 def start(chat_id):
@@ -8,9 +9,10 @@ def start(chat_id):
 
 def corona(chat_id, city_name):
     ChatSender.send_chat_action(chat_id, "typing")
+    infos = NinaService.get_covid_infos(city_name)
     message = TextTemplates.get_corona_string()
-    message = message.replace("%inzidenz", "10")
-    message = message.replace("%case", "10")
-    message = message.replace("%death", "10")
-    message = message.replace("%date", "10.10.2010")
+    message = message.replace("%inzidenz", infos.infektion_danger_level)
+    message = message.replace("%bund", infos.sieben_tage_inzidenz_bundesland)
+    message = message.replace("%kreis", infos.sieben_tage_inzidenz_kreis)
+    message = message.replace("%tips", infos.general_tips)
     ChatSender.send_message(chat_id, city_name+":\n"+message)
