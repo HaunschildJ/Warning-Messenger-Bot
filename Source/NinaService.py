@@ -1,4 +1,5 @@
 from dataclasses import  dataclass
+from enum import Enum
 import requests
 import NinaStringHelper
 import NinaPlaces
@@ -69,9 +70,59 @@ def get_covid_infos(city_name) -> CovidInfos:
     return CovidInfos(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
 
 
-info = get_covid_rules("Berlin")
 
-#get_covid_infos("Berlin")
+class WarningSeverity(Enum):
+    Severe = 1
+
+class WarningType(Enum):
+    Alert = 1
+
+@dataclass
+class General_Warning:
+    id: str;
+    version: int;
+    severity: WarningSeverity;
+    type: WarningType;
+    title: str;
+
+
+def poll_biwapp_warning() -> list[General_Warning]:
+    kat_warn_API = "/biwapp/mapData.json"
+    responseRaw = requests.get(baseUrl + kat_warn_API)
+    response = responseRaw.json()
+
+    warningList = []
+
+    if (response is None):
+        return warningList
+
+    for i in range(0, len(list(response))):
+        id = response[i]["id"]
+        version = response[i]["version"]
+        severity = WarningSeverity.Severe
+        type = WarningType.Alert
+        title = response[i]["i18nTitle"]["de"]
+        warningList.append(General_Warning(id = id, version= version,severity=severity, type= type, title= title))
+
+    return warningList
+
+"""
+warningList = poll_biwapp_warning()
+
+print(warningList[0].id)
+print(warningList[0].version)
+print(warningList[0].severity)
+print(warningList[0].type)
+print(warningList[0].title)
+"""
+
+
+
+
+
+
+
+
 
 
 
