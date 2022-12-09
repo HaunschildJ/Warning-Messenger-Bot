@@ -1,0 +1,26 @@
+[
+    {
+        "chat_id": "1",
+        "receive_warnings": "false",
+        "warn_level": "none",
+        "warn_type": "none",
+        "receive_covid_information": "never",
+        "locations": [
+            "Darmstadt",
+            "Frankfurt"
+        ],
+        "language": "german"
+    },
+    {
+        "chat_id": "2",
+        "receive_warnings": "false",
+        "warn_level": "none",
+        "warn_type": "none",
+        "receive_covid_information": "never",
+        "locations": [
+            "Darmstadt",
+            "Frankfurt"
+        ],
+        "language": "german"
+    }
+]

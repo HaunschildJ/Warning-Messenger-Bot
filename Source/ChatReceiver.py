@@ -25,5 +25,11 @@ def corona(message):
     Controller.corona(message.chat.id, message.text.split('/corona ')[1])
 
 
+@bot.message_handler(commands=['save'])
+def save(message):
+    Controller.save(message.chat.id, message.text)
+
+
+
 bot.polling()
 
