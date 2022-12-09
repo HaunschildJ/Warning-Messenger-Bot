@@ -5,7 +5,7 @@ from types import SimpleNamespace
 # See the MVP document for all possible options
 
 file_path = "./Data/data.json"
-
+#file_path = "C:/Users/ethem/OneDrive - stud.tu-darmstadt.de/WiSe22_23/BP/Projekt/Warning-Messenger-Bot/Source/Data/data.json"
 
 class WarnType(Enum):
     WEATHER = "weather"
@@ -32,11 +32,25 @@ class Attributes(Enum):
 
 
 class UserData:
+    """
+    User Data in concise form. Is read from a JSON file.
+    """
     def __init__(self, chat_id,
                  receive_warnings=False,
                  receive_covid_information=ReceiveInformation.NEVER.value,
                  locations=None,
                  language=Language.GERMAN.value):
+        """
+        Initializes the User Data Attributes. Chat ID is only mandatory parameter. Other ones can be set later.
+
+        Arguments:
+            chat_id: Integer used to identify Telegram Chat. Needed to identify User.
+            receive_warnings: boolean whether User wants to receive warnings or not.
+            receive_covid_information: Enum (ReceiveInformation) whether and if yes,
+                   how often User wants to receive covid information or not.
+            locations: Array of Dictionaries. Mainly set through methods.
+            language: Enum with various languages. Default case German.
+        """
         self.user_entry = {
             Attributes.CHAT_ID.value: chat_id,
             Attributes.RECEIVE_WARNINGS.value: receive_warnings,
@@ -46,31 +60,52 @@ class UserData:
         }
 
     def change_entry(self, attribute, value):
+        """
+        Changes attribute to value.
+
+        Arguments:
+            attribute: Enum (Attributes) which represents Element of attribute one wants to change.
+            value: Any Type depends on Type of attribute. Value of desired value.
+        """
         self.user_entry[attribute.value] = value
 
     def set_location(self, location_name, warning, warning_level):
-        all_users = self.user_entry[Attributes.LOCATIONS.value]
-        if all_users is None:
+        """
+        Either sets or replaces location with given parameter.
+
+        Arguments:
+            location_name: String, which location is to be changed.
+            warning: Enum, what kind of warning is to be changed.
+            warning_level: Integer, what warning level is wished for given location.
+        """
+        all_locations = self.user_entry[Attributes.LOCATIONS.value]
+        if all_locations is None:
             self.user_entry[Attributes.LOCATIONS.value] = [{
                 "name": location_name, "warning_level": [warning_level], "warnings": [warning.name]
             }]
             return
-        for user in all_users:
-            if user["name"] == location_name:
+        for location in all_locations:
+            if location["name"] == location_name:
                 i = 0
-                for warning_old in user["warnings"]:
+                for warning_old in location["warnings"]:
                     if warning_old == warning.name:
-                        user["warning_level"][i] = warning_level
+                        location["warning_level"][i] = warning_level
                         return
                     i = i+1
-                user["warnings"].append(warning.name)
-                user["warning_level"].append(warning_level)
+                location["warnings"].append(warning.name)
+                location["warning_level"].append(warning_level)
                 return
-        all_users.append({
+        all_locations.append({
                 "name": location_name, "warning_level": [warning_level], "warnings": [warning.name]
             })
 
     def remove_location(self, location_name):
+        """
+        Removes given location.
+
+        Arguments:
+            location_name: String of location one wants to remove.
+        """
         current_locations = self.user_entry[Attributes.LOCATIONS.value].copy()
         for location in current_locations:
             if location["name"] == location_name:
@@ -82,9 +117,15 @@ class UserData:
 
 
 def write_file(user_data):
-    file_object = open(file_path, "r")
-    json_content = file_object.read()
-    user_entries = json.loads(json_content)
+    """
+    Writes parameter user_data into a JSON file. Replacing it if already existing.
+
+    Arguments:
+        user_data: UserData instance containing information, that one wants to add to the JSON file.
+    """
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        user_entries = json.loads(json_content)
 
     chat_id = user_data.user_entry[Attributes.CHAT_ID.value]
 
@@ -98,9 +139,9 @@ def write_file(user_data):
 
 
 def remove_user(chat_id):
-    file_object = open(file_path, "r")
-    json_content = file_object.read()
-    user_entries = json.loads(json_content)
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        user_entries = json.loads(json_content)
 
     for entry in user_entries:
         if entry[Attributes.CHAT_ID.value] == chat_id:
@@ -115,9 +156,21 @@ def get_data_model(data) -> dict:
 
 
 def read_user(chat_id) -> UserData:
-    file_object = open(file_path, "r")
-    json_content = file_object.read()
-    user_entries = json.loads(json_content)
+    """
+    Returns an instance of UserData depending on given chat_id. If JSON file does not contain the user yet,
+    the user gets constructed, solely with given chat_id.
+
+    Does not write into the JSON file.
+
+    Arguments:
+        chat_id: Integer, which represents the user.
+
+    Returns:
+        Instance of UserData. Either from JSON DATA or newly constructed with chat_id.
+    """
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        user_entries = json.loads(json_content)
 
     for entry in user_entries:
         if entry[Attributes.CHAT_ID.value] == chat_id:
@@ -132,20 +185,5 @@ def read_user(chat_id) -> UserData:
                 if i == 0:
                     result.set_location(location.name, [], [])
             return result
+    # not found in JSON file -> return new one
     return UserData(chat_id)
-
-
-a = UserData(10)
-print(a.user_entry)
-a.change_entry(Attributes.RECEIVE_WARNINGS, True)
-print(a.user_entry)
-a.set_location("Darmstadt", WarnType.WEATHER, 5)
-print(a.user_entry)
-a.set_location("Darmstadt", WarnType.WEATHER, 7)
-print(a.user_entry)
-a.set_location("Hamburg", WarnType.WEATHER, 3)
-print(a.user_entry)
-
-write_file(a)
-
-print(read_user(10).user_entry)
