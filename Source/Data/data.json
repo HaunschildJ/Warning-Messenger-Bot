@@ -1,28 +1,9 @@
 [
     {
-        "chat_id": 10,
+        "chat_id": 11,
         "receive_warnings": true,
-        "receive_covid_information": 0,
-        "locations": [
-            {
-                "name": "Darmstadt",
-                "warning_level": [
-                    7
-                ],
-                "warnings": [
-                    "WEATHER"
-                ]
-            },
-            {
-                "name": "Hamburg",
-                "warning_level": [
-                    3
-                ],
-                "warnings": [
-                    "WEATHER"
-                ]
-            }
-        ],
+        "receive_covid_information": 2,
+        "locations": null,
         "language": "german"
     }
 ]

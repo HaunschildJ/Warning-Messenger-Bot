@@ -4,8 +4,8 @@ from types import SimpleNamespace
 
 # See the MVP document for all possible options
 
-file_path = "./Data/data.json"
-#file_path = "C:/Users/ethem/OneDrive - stud.tu-darmstadt.de/WiSe22_23/BP/Projekt/Warning-Messenger-Bot/Source/Data/data.json"
+file_path = "../Source/Data/data.json"
+
 
 class WarnType(Enum):
     WEATHER = "weather"
@@ -151,7 +151,7 @@ def remove_user(chat_id):
         json.dump(user_entries, writefile, indent=4)
 
 
-def get_data_model(data) -> dict:
+def _get_data_model(data) -> dict:
     return json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
 
 
@@ -174,9 +174,11 @@ def read_user(chat_id) -> UserData:
 
     for entry in user_entries:
         if entry[Attributes.CHAT_ID.value] == chat_id:
-            model = get_data_model(json.dumps(entry, indent=4))
+            model = _get_data_model(json.dumps(entry, indent=4))
             result = UserData(chat_id, receive_warnings=model.receive_warnings,
                               receive_covid_information=model.receive_covid_information, language=model.language)
+            if model.locations is None:
+                return result
             for location in model.locations:
                 i = 0
                 for warning in location.warnings:
@@ -187,3 +189,4 @@ def read_user(chat_id) -> UserData:
             return result
     # not found in JSON file -> return new one
     return UserData(chat_id)
+
