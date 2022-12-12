@@ -28,6 +28,12 @@ def filter_main_button(message) -> bool:
     return False
 
 
+def filter_corona_for_inline(message) -> bool:
+    if message.text == Controller.CORONA_RULES_TEXT or message.text == Controller.CORONA_INFO_TEXT:
+        return True
+    return False
+
+
 # bot message handlers -------------------------------------------------------------------------------------------------
 
 
@@ -45,14 +51,6 @@ def start(message):
     Controller.start(message.chat.id)
 
 
-# message handlers for the main buttons
-
-
-@bot.message_handler(func=filter_main_button)
-def settings(message):
-    Controller.main_button_pressed(message.chat.id, message.text)
-
-
 @bot.message_handler(func=filter_corona)
 def corona(message):
     """
@@ -62,32 +60,37 @@ def corona(message):
     corona_helper(message.chat.id, message.text)
 
 
-@bot.message_handler(regexp="Corona Infos")
-def corona_with_inline_buttons(message):
+# ------------------------ message handlers for buttons
+
+
+@bot.message_handler(func=filter_main_button)
+def settings(message):
+    Controller.main_button_pressed(message.chat.id, message.text)
+
+
+@bot.message_handler(func=filter_corona_for_inline)
+def corona_for_inline(message):
     """
-    When 'Corona Infos' is sent in a chat this method gets called (mainly for the keyboard buttons) and will then
-    call the method to show the corresponding inline buttons in the chat
+    When 'Corona Infos' (Controller.CORONA_INFO_TEXT) or 'Corona Rules' (Controller.CORONA_RULES_TEXT) is sent in a chat
+    this method gets called (mainly for the keyboard buttons) and will then call the method to show the corresponding
+    inline buttons in the chat
 
     Arguments:
         message: the message that the user sent in the chat
     Returns:
         Nothing
     """
-    Controller.show_inline_button(message.chat.id, Controller.ButtonType.CORONA_INFO)
+    Controller.show_inline_button(message.chat.id, message.text)
 
 
-@bot.message_handler(regexp="Corona Rules")
-def corona_with_inline_buttons(message):
-    """
-    When 'Corona Rules' is sent in a chat this method gets called (mainly for the keyboard buttons) and will then
-    call the method to show the corresponding inline buttons in the chat
+@bot.message_handler(regexp=Controller.BIWAPP_TEXT)
+def biwapp_button_pressed(message):
+    Controller.biwapp(message.chat.id)
 
-    Arguments:
-        message: the message that the user sent in the chat
-    Returns:
-        Nothing
-    """
-    Controller.show_inline_button(message.chat.id, Controller.ButtonType.CORONA_RULES)
+
+@bot.message_handler(regexp=Controller.BACK_TO_MAIN_TEXT)
+def back_to_main_keyboard(message):
+    Controller.back_to_main_keyboard(message.chat.id)
 
 
 # bot callback handlers ------------------------------------------------------------------------------------------------

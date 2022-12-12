@@ -4,16 +4,16 @@ import Bot
 bot = Bot.bot
 
 
-def send_message(chat_id, message_string, reply_markup=None):
+def send_message(chat_id, message_string, reply_markup=None) -> telebot.types.Message:
     """
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
         message_string: a string for the message that is sent
         reply_markup: optional reply_markup
     Returns:
-        Nothing
+        The message that was sent
     """
-    bot.send_message(chat_id, message_string, reply_markup=reply_markup)
+    return bot.send_message(chat_id, message_string, reply_markup=reply_markup)
 
 
 def send_chat_action(chat_id, action):
