@@ -16,3 +16,4 @@ def corona(chat_id, city_name):
     message = message.replace("%kreis", infos.sieben_tage_inzidenz_kreis)
     message = message.replace("%tips", infos.general_tips)
     ChatSender.send_message(chat_id, city_name+":\n"+message)
+
