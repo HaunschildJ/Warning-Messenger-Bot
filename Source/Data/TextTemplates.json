@@ -1,0 +1,102 @@
+[
+  {
+    "topic" :
+    {
+      "covid" :
+      {
+        "covid_info" :
+        {
+          "0":
+          {
+            "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
+            "text": "Die Infektionsgefahr Stufe beträgt: %infektion_danger_level."
+          },
+          "1":
+          {
+            "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
+            "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis."
+          },
+          "2":
+          {
+            "description": "Schreib unten im text %sieben_tage_inzidenz_bundesland an die Stelle, wo die 7-Tage-Inzidenz im Bundesland stehen soll.",
+            "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland."
+          },
+          "3":
+          {
+            "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
+            "text": "Allgemeine Hinweise sind: %general_tips."
+          }
+        },
+        "covid_rules" :
+        {
+          "0":
+          {
+            "description": "Schreib unten im text %vaccine_info an die Stelle, wo Impf-Infos stehen sollen.",
+            "text": "Infos über die Impfung: %vaccine_info."
+          },
+          "1":
+          {
+            "description": "Schreib unten im text %contact_terms an die Stelle, wo Abstandsregeln stehen sollen.",
+            "text": "Die Abstandsregeln lauten: %vaccine_info."
+          },
+          "2":
+          {
+            "description": "Schreib unten im text %school_kita_rules an die Stelle, wo Regeln für Kitas/Schulen stehen sollen.",
+            "text": "Regeln für Kitas/Schulen lauten: %school_kita_rules."
+          },
+          "3":
+          {
+            "description": "Schreib unten im text %hospital_rules an die Stelle, wo Regeln für Kliniken stehen sollen.",
+            "text": "Regeln für Kliniken lauten: %hospital_rules."
+          },
+          "4":
+          {
+            "description": "Schreib unten im text %travelling_rules an die Stelle, wo Regeln für Reisen stehen sollen.",
+            "text": "Regeln für Reisen lauten: %travelling_rules."
+          },
+          "5":
+          {
+            "description": "Schreib unten im text %fines an die Stelle, wo Infos über Bußgelder stehen sollen.",
+            "text": "Infos über Bußgelder: %fines."
+          }
+        }
+      },
+      "generel_warning" :
+      {
+        "biwapp_warning" :
+        {
+          "0" :
+          {
+            "description" : "Schreibe %id an die Stelle, wo die ID der Warnung stehen soll.",
+            "text" : "Die ID der Warnung ist: %version"
+          },
+          "1" :
+          {
+            "description" : "Schreibe %version an die Stelle, wo die Version der Warnung stehen soll.",
+            "text" : "Die Warnung erfolte mit der folgenden Version: %version"
+          },
+          "2" :
+          {
+            "description" : "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
+            "text" : "Die Warnung gilt seit: %start_date"
+          },
+          "3" :
+          {
+            "description" : "Schreibe %severity an die Stelle, wo die Dringlichkeit der Warnung stehen soll.",
+            "text" : "Die Dringlichkeit der Warnung ist: %severity"
+          },
+          "4" :
+          {
+            "description" : "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
+            "text" : "Die Dringlichkeit der Warnung ist: %type"
+          },
+          "5" :
+          {
+            "description" : "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
+            "text" : "Der Titel der Warnung ist: %title"
+          }
+        }
+      }
+    }
+  }
+]

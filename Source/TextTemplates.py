@@ -11,5 +11,3 @@ def get_corona_string() -> string:
 %bund 
 %kreis 
 %tips """
-
-
