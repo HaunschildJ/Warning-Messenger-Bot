@@ -18,7 +18,7 @@ class Commands(Enum):
     """
     this enum is used to have all commands in one place
     current possible commands:
-    CORONA + (CORONA_INFO || CORONA_RULES)
+    CORONA + (CORONA_INFO || CORONA_RULES) + "string"
     """
     CORONA = "/corona"
     CORONA_INFO = "info"
@@ -29,9 +29,17 @@ class ErrorCodes(Enum):
     """
     this enum is used to handle errors
     """
+    NOT_IMPLEMENTED_YET = 0
     UNKNOWN_COMMAND = 1
     ONLY_PART_OF_COMMAND = 2
 
+
+# global variables -----------------------------------------------------------------------------------------------------
+# get these from TextTemplates when implemented
+SETTING_BUTTON_TEXT = "Einstellung"
+WARNING_BUTTON_TEXT = "Warnungen"
+TIP_BUTTON_TEXT = "Notfalltipps"
+HELP_BUTTON_TEXT = "Hilfe"
 
 # methods called from the ChatReceiver ---------------------------------------------------------------------------------
 
@@ -48,11 +56,28 @@ def start(chat_id):
         Nothing
     """
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    button1 = ChatSender.create_button("Corona Infos")
-    button2 = ChatSender.create_button("Corona Rules")
-    keyboard.add(button1, button2)
-    keyboard.add(ChatSender.create_button("Send location", request_location=True))
+    button1 = ChatSender.create_button(SETTING_BUTTON_TEXT)
+    button2 = ChatSender.create_button(WARNING_BUTTON_TEXT)
+    button3 = ChatSender.create_button(TIP_BUTTON_TEXT)
+    button4 = ChatSender.create_button(HELP_BUTTON_TEXT)
+    keyboard.add(button1).add(button2).add(button3, button4)
     ChatSender.send_message(chat_id, TextTemplates.get_greeting_string(), keyboard)
+
+
+# methods for main buttons
+
+
+def main_button_pressed(chat_id, button_text):
+    if button_text == SETTING_BUTTON_TEXT:
+        ChatSender.send_message(chat_id, "settings")
+    elif button_text == WARNING_BUTTON_TEXT:
+        ChatSender.send_message(chat_id, "warnings")
+    elif button_text == TIP_BUTTON_TEXT:
+        ChatSender.send_message(chat_id, "tips")
+    elif button_text == HELP_BUTTON_TEXT:
+        ChatSender.send_message(chat_id, "help")
+    else:
+        error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
 
 
 def corona_info(chat_id, city_name):

@@ -5,6 +5,7 @@ from Controller import ErrorCodes
 
 bot = Bot.bot
 
+
 # filter for message handlers ------------------------------------------------------------------------------------------
 
 
@@ -18,6 +19,14 @@ def filter_callback_corona(call) -> bool:
     if call.data.split(' ')[0] == Commands.CORONA.value:
         return True
     return False
+
+
+def filter_main_button(message) -> bool:
+    if message.text == Controller.SETTING_BUTTON_TEXT or message.text == Controller.WARNING_BUTTON_TEXT or \
+            message.text == Controller.TIP_BUTTON_TEXT or message.text == Controller.HELP_BUTTON_TEXT:
+        return True
+    return False
+
 
 # bot message handlers -------------------------------------------------------------------------------------------------
 
@@ -34,6 +43,14 @@ def start(message):
         Nothing
     """
     Controller.start(message.chat.id)
+
+
+# message handlers for the main buttons
+
+
+@bot.message_handler(func=filter_main_button)
+def settings(message):
+    Controller.main_button_pressed(message.chat.id, message.text)
 
 
 @bot.message_handler(func=filter_corona)
@@ -116,4 +133,3 @@ def corona_helper(chat_id, message_string):
 
 
 bot.polling()
-
