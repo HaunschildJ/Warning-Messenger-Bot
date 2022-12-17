@@ -21,6 +21,19 @@ def filter_callback_corona(call) -> bool:
     return False
 
 
+def filter_callback_cancel(call) -> bool:
+    if call.data == Commands.CANCEL_INLINE.value:
+        return True
+    return False
+
+
+def filter_callback_auto_warning(call) -> bool:
+    split_data = call.data.split(' ')
+    if split_data[0] == Commands.AUTO_WARNING.value and (split_data[1] == "True" or split_data[1] == "False"):
+        return True
+    return False
+
+
 def filter_main_button(message) -> bool:
     if message.text == Controller.SETTING_BUTTON_TEXT or message.text == Controller.WARNING_BUTTON_TEXT or \
             message.text == Controller.TIP_BUTTON_TEXT or message.text == Controller.HELP_BUTTON_TEXT:
@@ -28,8 +41,17 @@ def filter_main_button(message) -> bool:
     return False
 
 
+def filter_buttons_in_settings(message) -> bool:
+    text = message.text
+    if text == Controller.SETTING_AUTO_WARNING_TEXT or text == Controller.SETTING_SUGGESTION_LOCATION_TEXT or \
+            text == Controller.SETTING_SUBSCRIPTION_TEXT or text == Controller.SETTING_AUTO_COVID_INFO_TEXT or \
+            text == Controller.SETTING_LANGUAGE_TEXT:
+        return True
+    return False
+
+
 def filter_corona_for_inline(message) -> bool:
-    if message.text == Controller.CORONA_RULES_TEXT or message.text == Controller.CORONA_INFO_TEXT:
+    if message.text == Controller.WARNING_COVID_RULES_TEXT or message.text == Controller.WARNING_COVID_INFO_TEXT:
         return True
     return False
 
@@ -64,8 +86,13 @@ def corona(message):
 
 
 @bot.message_handler(func=filter_main_button)
-def settings(message):
+def main_menu_button(message):
     Controller.main_button_pressed(message.chat.id, message.text)
+
+
+@bot.message_handler(func=filter_buttons_in_settings)
+def button_in_settings_pressed(message):
+    Controller.button_in_settings_pressed(message.chat.id, message.text)
 
 
 @bot.message_handler(func=filter_corona_for_inline)
@@ -83,7 +110,7 @@ def corona_for_inline(message):
     Controller.show_inline_button(message.chat.id, message.text)
 
 
-@bot.message_handler(regexp=Controller.BIWAPP_TEXT)
+@bot.message_handler(regexp=Controller.WARNING_BIWAPP_TEXT)
 def biwapp_button_pressed(message):
     Controller.biwapp(message.chat.id)
 
@@ -111,10 +138,40 @@ def corona_button(call):
     Controller.delete_message(chat_id, call.message.id)
 
 
+@bot.callback_query_handler(func=filter_callback_auto_warning)
+def auto_warning_button(call):
+    """
+    This method is a callback_handler for the automatic warning inline buttons and will call the methods needed to set
+    the automatic warning boolean in the database to what the user wants\n
+    It will also delete the inline buttons
+
+    Arguments:
+        call: Data that has been sent by the inline button
+    """
+    chat_id = call.message.chat.id
+    value = False
+    if call.data == Commands.AUTO_WARNING.value + " True":
+        value = True
+    Controller.change_auto_warning_in_database(chat_id, value)
+    Controller.delete_message(chat_id, call.message.id)
+
+
+@bot.callback_query_handler(func=filter_callback_cancel)
+def cancel_button(call):
+    """
+    This method is a callback_handler for cancel inline buttons and will delete the inline buttons
+
+    Arguments:
+        call: Data that has been sent by the inline button
+    """
+    Controller.delete_message(call.message.chat.id, call.message.id)
+    Controller.back_to_main_keyboard(call.message.chat.id)
+
+
 # helper methods -------------------------------------------------------------------------------------------------------
 
 
-def corona_helper(chat_id, message_string):
+def corona_helper(chat_id: int, message_string: str):
     """
     This is a helper method for the user input handlers above \n
     With the message/text the user/button sent (message_string) this method will then call the corresponding method in
