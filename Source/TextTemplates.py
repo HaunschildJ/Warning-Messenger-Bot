@@ -4,7 +4,6 @@ from enum import Enum
 
 file_path = "../Source/Data/TextTemplates.json"
 
-# TODO immer erweitern mit neuen Topics und dann auch in der json file ergänzen
 class Topic(Enum):
     COVID_INFO = "covid_info"
     COVID_RULES = "covid_rules"
@@ -21,7 +20,24 @@ class Button(Enum):
     HELP = "help"
     BIWAPP = "biwapp"
     BACK_TO_MAIN_MENU = "back_to_main_menu"
+    AUTO_WARNING = "auto_warning"
+    SUGGESTION_LOCATION = "suggestion_location"
+    SUBSCRIPTION = "subscription"
+    AUTO_COVID_INFO = "auto_covid_info"
+    LANGUAGE = "language"
+    CANCEL = "cancel"
 
+
+class Answers(Enum):
+    YES = "yes"
+    NO = "no"
+    SETTINGS = "settings"
+    WARNINGS = "warnings"
+    HELP = "help"
+    AUTO_WARNINGS_ENABLE = "auto_warnings_enable"
+    AUTO_WARNINGS_DISABLE = "auto_warnings_disable"
+    NO_CURRENT_WARNINGS = "no_current_warnings"
+    BACK_TO_MAIN_POWER = "back_to_main_menu"
 
 def get_button_name(button : Button) -> string:
     """
@@ -39,15 +55,35 @@ def get_button_name(button : Button) -> string:
 
     for i in data:
         if i['topic'] == "buttons":
-            for j in i['names']:
-                return j[button.value]
+            return i['names'][button.value]
 
 
-
-
-
-def get_topic_info(topic : Topic) -> string:
+def get_answers(answer : Answers) -> string:
     """
+    Returns a string containing the desired answer text.
+
+    Arguments:
+        answer: an Answers to determine what answer text you want to be returned
+
+    Returns:
+        A String containing the desired answer text.
+    """
+
+    with open(file_path, "r") as file:
+        data = json.load(file)
+
+    for i in data:
+        if i['topic'] == "answers":
+            return i['text'][answer.value]
+
+# TODO tests
+
+
+
+def get_replacable_answer(topic : Topic) -> string:
+    """
+    Only applicable for text with replacable elements. Returned string will
+    contain the following form: %to_be_replaced.
     Takes a value of the Enum and returns a string with formated info from a JSON file.
 
     Arguments:
@@ -62,9 +98,11 @@ def get_topic_info(topic : Topic) -> string:
         data = json.load(file)
 
     for i in data:
-        if i['topic'] == topic.value:
-            for j in i['information']:
-                result += j['text'] + "\n"
+        if i['topic'] == "replacable_answers":
+            for j in i['all_answers']:
+                if j['topic'] == topic.value:
+                    for k in j['information']:
+                        result += k['text'] + "\n"
 
     return result
 

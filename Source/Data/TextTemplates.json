@@ -1,105 +1,119 @@
 [
   {
-    "topic": "covid_info",
-    "information": [
+    "topic": "replacable_answers",
+    "all_answers": [
       {
-        "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
-        "text": "Die Infektionsgefahr Stufe beträgt: %infektion_danger_level."
+        "topic": "covid_info",
+        "information": [
+          {
+            "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
+            "text": "Die Infektionsgefahr Stufe beträgt: %infektion_danger_level."
+          },
+          {
+            "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
+            "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis."
+          },
+          {
+            "description": "Schreib unten im text %sieben_tage_inzidenz_bundesland an die Stelle, wo die 7-Tage-Inzidenz im Bundesland stehen soll.",
+            "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland."
+          },
+          {
+            "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
+            "text": "Allgemeine Hinweise sind: %general_tips."
+          }
+        ]
       },
       {
-        "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
-        "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis."
+        "topic": "covid_rules",
+        "information": [
+          {
+            "description": "Schreib unten im text %vaccine_info an die Stelle, wo Impf-Infos stehen sollen.",
+            "text": "Infos über die Impfung: %vaccine_info."
+          },
+          {
+            "description": "Schreib unten im text %contact_terms an die Stelle, wo Abstandsregeln stehen sollen.",
+            "text": "Die Abstandsregeln lauten: %contact_terms."
+          },
+          {
+            "description": "Schreib unten im text %school_kita_rules an die Stelle, wo Regeln für Kitas/Schulen stehen sollen.",
+            "text": "Regeln für Kitas/Schulen lauten: %school_kita_rules."
+          },
+          {
+            "description": "Schreib unten im text %hospital_rules an die Stelle, wo Regeln für Kliniken stehen sollen.",
+            "text": "Regeln für Kliniken lauten: %hospital_rules."
+          },
+          {
+            "description": "Schreib unten im text %travelling_rules an die Stelle, wo Regeln für Reisen stehen sollen.",
+            "text": "Regeln für Reisen lauten: %travelling_rules."
+          },
+          {
+            "description": "Schreib unten im text %fines an die Stelle, wo Infos über Bußgelder stehen sollen.",
+            "text": "Infos über Bußgelder: %fines."
+          }
+        ]
       },
       {
-        "description": "Schreib unten im text %sieben_tage_inzidenz_bundesland an die Stelle, wo die 7-Tage-Inzidenz im Bundesland stehen soll.",
-        "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland."
-      },
-      {
-        "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
-        "text": "Allgemeine Hinweise sind: %general_tips."
-      }
-    ]
-  },
-  {
-    "topic": "covid_rules",
-    "information": [
-      {
-        "description": "Schreib unten im text %vaccine_info an die Stelle, wo Impf-Infos stehen sollen.",
-        "text": "Infos über die Impfung: %vaccine_info."
-      },
-      {
-        "description": "Schreib unten im text %contact_terms an die Stelle, wo Abstandsregeln stehen sollen.",
-        "text": "Die Abstandsregeln lauten: %contact_terms."
-      },
-      {
-        "description": "Schreib unten im text %school_kita_rules an die Stelle, wo Regeln für Kitas/Schulen stehen sollen.",
-        "text": "Regeln für Kitas/Schulen lauten: %school_kita_rules."
-      },
-      {
-        "description": "Schreib unten im text %hospital_rules an die Stelle, wo Regeln für Kliniken stehen sollen.",
-        "text": "Regeln für Kliniken lauten: %hospital_rules."
-      },
-      {
-        "description": "Schreib unten im text %travelling_rules an die Stelle, wo Regeln für Reisen stehen sollen.",
-        "text": "Regeln für Reisen lauten: %travelling_rules."
-      },
-      {
-        "description": "Schreib unten im text %fines an die Stelle, wo Infos über Bußgelder stehen sollen.",
-        "text": "Infos über Bußgelder: %fines."
-      }
-    ]
-  },
-  {
-    "topic": "biwapp_warning",
-    "information": [
-      {
-        "description": "Schreibe %id an die Stelle, wo die ID der Warnung stehen soll.",
-        "text": "Die ID der Warnung ist: %id"
-      },
-      {
-        "description": "Schreibe %version an die Stelle, wo die Version der Warnung stehen soll.",
-        "text": "Die Warnung erfolte mit der folgenden Version: %version"
-      },
-      {
-        "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
-        "text": "Die Warnung gilt seit: %start_date"
-      },
-      {
-        "description": "Schreibe %severity an die Stelle, wo die Dringlichkeit der Warnung stehen soll.",
-        "text": "Die Dringlichkeit der Warnung ist: %severity"
-      },
-      {
-        "description": "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
-        "text": "Die Dringlichkeit der Warnung ist: %type"
-      },
-      {
-        "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
-        "text": "Der Titel der Warnung ist: %title"
-      }
-    ]
-  },
-  {
-    "topic": "greeting",
-    "information": [
-      {
-        "description": "Schreibe eine Begrüßung mit rechtlichen Informationen + Wie Bot benutzen",
-        "text": "Hallo, guten Tag."
+        "topic": "biwapp_warning",
+        "information": [
+          {
+            "description": "Schreibe %id an die Stelle, wo die ID der Warnung stehen soll.",
+            "text": "Die ID der Warnung ist: %id"
+          },
+          {
+            "description": "Schreibe %version an die Stelle, wo die Version der Warnung stehen soll.",
+            "text": "Die Warnung erfolte mit der folgenden Version: %version"
+          },
+          {
+            "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
+            "text": "Die Warnung gilt seit: %start_date"
+          },
+          {
+            "description": "Schreibe %severity an die Stelle, wo die Dringlichkeit der Warnung stehen soll.",
+            "text": "Die Dringlichkeit der Warnung ist: %severity"
+          },
+          {
+            "description": "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
+            "text": "Die Dringlichkeit der Warnung ist: %type"
+          },
+          {
+            "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
+            "text": "Der Titel der Warnung ist: %title"
+          }
+        ]
       }
     ]
   },
   {
     "topic": "buttons",
-    "names": [
-      {
-        "settings": "Einstellungen",
-        "warnings": "Warnungen",
-        "emergency_tips": "Notfalltipps",
-        "help": "Hilfe",
-        "covid_information": "Corona Informationen",
-        "covid_rules": "Corona Regeln",
-        "biwapp": "Aktuelle Warnungen",
-        "back_to_main_menu": "Zurück zur Startseite"
-      }
-    ]
+    "names": {
+      "settings": "Einstellungen",
+      "warnings": "Warnungen",
+      "emergency_tips": "Notfalltipps",
+      "help": "Hilfe",
+      "covid_information": "Corona Informationen",
+      "covid_rules": "Corona Regeln",
+      "biwapp": "Aktuelle Warnungen",
+      "back_to_main_menu": "Zurück zur Startseite",
+      "auto_warning": "Automatische Warnung",
+      "suggestion_location": "Standort zu Schnellzugriff hinzufügen",
+      "subscription": "Abonnements verwalten",
+      "auto_covid_info": "Automatische Coronawarnung",
+      "language": "Sprache auswählen",
+      "cancel": "Abbrechen"
+    }
+  },
+  {
+    "topic": "answers",
+    "text": {
+      "yes": "Ja",
+      "no": "Nein",
+      "settings": "Sie sind jetzt in den Einstellungen.",
+      "warnings": "Sie sind jetzt in den Warnungen.",
+      "help": "Hier sind ein paar Tipps:",
+      "auto_warnings_enable": "Sie erhalten ab jetzt automatische Warnungen.",
+      "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
+      "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
+      "back_to_main_menu": "Sie sind im Hauptmenü."
+    }
   }
 ]
