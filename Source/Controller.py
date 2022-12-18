@@ -4,6 +4,7 @@ import ChatSender
 import TextTemplates
 import NinaService
 import DataService
+from TextTemplates import Button, Topic, Answers
 
 from enum import Enum
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
@@ -87,33 +88,33 @@ def get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
 
 
 # global variables -----------------------------------------------------------------------------------------------------
-# main keyboard buttons (TODO get these from TextTemplates when implemented)
-SETTING_BUTTON_TEXT = "Einstellungen"  # MVP 4.
-WARNING_BUTTON_TEXT = "Warnungen"  # MVP 5.
-TIP_BUTTON_TEXT = "Notfalltipps"  # MVP 6.
-HELP_BUTTON_TEXT = "Hilfe"  # MVP 7.
+# main keyboard buttons
+SETTING_BUTTON_TEXT = TextTemplates.get_button_name(Button.SETTINGS)  # MVP 4.
+WARNING_BUTTON_TEXT = TextTemplates.get_button_name(Button.WARNINGS)  # MVP 5.
+TIP_BUTTON_TEXT = TextTemplates.get_button_name(Button.EMERGENCY_TIPS)  # MVP 6.
+HELP_BUTTON_TEXT = TextTemplates.get_button_name(Button.HELP)  # MVP 7.
 
-# warning keyboard buttons (TODO get these from TextTemplates when implemented)
-WARNING_COVID_INFO_TEXT = "Corona Informationen"  # MVP 5. i)
-WARNING_COVID_RULES_TEXT = "Corona Regeln"  # MVP 5. i)
-WARNING_BIWAPP_TEXT = "Aktuelle Warnungen"  # MVP 5. i)
+# warning keyboard buttons
+WARNING_COVID_INFO_TEXT = TextTemplates.get_button_name(Button.COVID_INFORMATION)  # MVP 5. i)
+WARNING_COVID_RULES_TEXT = TextTemplates.get_button_name(Button.COVID_RULES)  # MVP 5. i)
+WARNING_BIWAPP_TEXT = TextTemplates.get_button_name(Button.BIWAPP)  # MVP 5. i)
 
-# settings keyboard buttons (TODO get these from TextTemplates when implemented)
-SETTING_AUTO_WARNING_TEXT = "Automatische Warnungen"  # MVP 4. a)
-SETTING_SUGGESTION_LOCATION_TEXT = "Standort für Schnellzugriffe auswählen"  # MVP 4. b)
-SETTING_SUBSCRIPTION_TEXT = "Abonnement verwalten"  # MVP 4. c)
-SETTING_AUTO_COVID_INFO_TEXT = "Automatische Corona Updates"  # MVP 4. d)
-SETTING_LANGUAGE_TEXT = "Sprache auswählen"  # MVP 4. e)
+# settings keyboard buttons
+SETTING_AUTO_WARNING_TEXT = TextTemplates.get_button_name(Button.AUTO_WARNING)  # MVP 4. a)
+SETTING_SUGGESTION_LOCATION_TEXT = TextTemplates.get_button_name(Button.SUGGESTION_LOCATION)  # MVP 4. b)
+SETTING_SUBSCRIPTION_TEXT = TextTemplates.get_button_name(Button.SUBSCRIPTION)  # MVP 4. c)
+SETTING_AUTO_COVID_INFO_TEXT = TextTemplates.get_button_name(Button.AUTO_COVID_INFO)  # MVP 4. d)
+SETTING_LANGUAGE_TEXT = TextTemplates.get_button_name(Button.LANGUAGE)  # MVP 4. e)
 
-# back to main keyboard button (TODO get these from TextTemplates when implemented)
-BACK_TO_MAIN_TEXT = "Zurück ins Hauptmenü"  # MVP 2.
+# back to main keyboard button
+BACK_TO_MAIN_TEXT = TextTemplates.get_button_name(Button.BACK_TO_MAIN_MENU)  # MVP 2.
 
 # cancel inline button
-CANCEL_TEXT = "Abbrechen"
+CANCEL_TEXT = TextTemplates.get_button_name(Button.CANCEL)
 
 # Choose answers
-YES_TEXT = "Ja"  # MVP 4. a) Ja
-NO_TEXT = "Nein"  # MVP 4. a) Nein
+YES_TEXT = TextTemplates.get_answers(Answers.YES)  # MVP 4. a) Ja
+NO_TEXT = TextTemplates.get_answers(Answers.NO)  # MVP 4. a) Nein
 
 
 # methods called from the ChatReceiver ---------------------------------------------------------------------------------
@@ -130,7 +131,8 @@ def start(chat_id):
     Returns:
         Nothing
     """
-    ChatSender.send_message(chat_id, TextTemplates.get_greeting_string(), get_main_keyboard_buttons())
+    # TODO greeting
+    ChatSender.send_message(chat_id, "Hallo", get_main_keyboard_buttons())
 
 
 def main_button_pressed(chat_id: int, button_text: str):
@@ -147,13 +149,11 @@ def main_button_pressed(chat_id: int, button_text: str):
     if button_text == SETTING_BUTTON_TEXT:
         # the keyboard for the settings menu
         keyboard = get_settings_keyboard_buttons()
-        # TODO get text for message from TextTemplates
-        ChatSender.send_message(chat_id, SETTING_BUTTON_TEXT + ":", keyboard)
+        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.SETTINGS), keyboard)
     elif button_text == WARNING_BUTTON_TEXT:
         # the keyboard for the manuel call of warnings
         keyboard = get_warning_keyboard_buttons()
-        # TODO get text for message from TextTemplates
-        ChatSender.send_message(chat_id, WARNING_BUTTON_TEXT + ":", keyboard)
+        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.WARNINGS), keyboard)
     elif button_text == TIP_BUTTON_TEXT:
         # TODO tips
         ChatSender.send_message(chat_id, "TODO tips")
@@ -228,7 +228,8 @@ def show_inline_button(chat_id: int, button_text: str):
     else:
         ChatSender.send_message(chat_id, "Not implemented yet: "+button_text)
         return
-    ChatSender.send_message(chat_id, TextTemplates.get_inline_button_corona_rules(), markup)
+    # TODO TextTemplates text
+    ChatSender.send_message(chat_id, "TODO TextTemplates", markup)
 
 
 def biwapp(chat_id: int):
@@ -245,8 +246,7 @@ def biwapp(chat_id: int):
     ChatSender.send_chat_action(chat_id, "typing")
     warnings = NinaService.poll_biwapp_warning()
     if len(warnings) == 0:
-        # TODO get string from TextTemplates when able to
-        ChatSender.send_message(chat_id, "Aktuell gibt es keine Warnungen!")
+        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.NO_CURRENT_WARNINGS))
         return
     for warning in warnings:
         # TODO get string from TextTemplates when able to
@@ -273,7 +273,7 @@ def corona_info(chat_id: int, city_name: str):
     """
     ChatSender.send_chat_action(chat_id, "typing")
     info = NinaService.get_covid_infos(city_name)
-    message = TextTemplates.get_corona_info()
+    message = TextTemplates.get_replacable_answer(Topic.COVID_INFO)
     message = message.replace("%inzidenz", info.infektion_danger_level)
     message = message.replace("%bund", info.sieben_tage_inzidenz_bundesland)
     message = message.replace("%kreis", info.sieben_tage_inzidenz_kreis)
@@ -295,7 +295,7 @@ def corona_rules(chat_id: int, city_name: str):
     """
     ChatSender.send_chat_action(chat_id, "typing")
     rules = NinaService.get_covid_rules(city_name)
-    message = TextTemplates.get_corona_rules()
+    message = TextTemplates.get_replacable_answer(Topic.COVID_RULES)
     message = message.replace("%vaccine_info", rules.vaccine_info)
     message = message.replace("%contact_terms", rules.contact_terms)
     message = message.replace("%school_kita_rules", rules.school_kita_rules)
@@ -309,10 +309,11 @@ def change_auto_warning_in_database(chat_id: int, value: bool):
     user = DataService.read_user(chat_id)
     user.change_entry(DataService.Attributes.RECEIVE_WARNINGS, value)
     DataService.write_file(user)
-    # TODO get Text from TextTemplates
-    text = "Automatische Warnungen sind jetzt ausgeschaltet"
+    text = "t"
     if value:
-        text = "Automatische Warnungen sind jetzt eingeschaltet"
+        text = TextTemplates.get_answers(Answers.AUTO_WARNINGS_ENABLE)
+    else:
+        text = TextTemplates.get_answers(Answers.AUTO_WARNINGS_DISABLE)
     ChatSender.send_message(chat_id, text)
 
 
@@ -327,8 +328,7 @@ def back_to_main_keyboard(chat_id: int):
         Nothing
     """
     keyboard = get_main_keyboard_buttons()
-    # TODO get text from TextTemplates when possible
-    ChatSender.send_message(chat_id, "Hauptmenü", keyboard)
+    ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.BACK_TO_MAIN_MENU), keyboard)
 
 
 def delete_message(chat_id: int, message_id: int):

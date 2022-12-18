@@ -4,6 +4,7 @@ from enum import Enum
 
 file_path = "../Source/Data/TextTemplates.json"
 
+
 class Topic(Enum):
     COVID_INFO = "covid_info"
     COVID_RULES = "covid_rules"
@@ -37,7 +38,8 @@ class Answers(Enum):
     AUTO_WARNINGS_ENABLE = "auto_warnings_enable"
     AUTO_WARNINGS_DISABLE = "auto_warnings_disable"
     NO_CURRENT_WARNINGS = "no_current_warnings"
-    BACK_TO_MAIN_POWER = "back_to_main_menu"
+    BACK_TO_MAIN_MENU = "back_to_main_menu"
+
 
 def get_button_name(button : Button) -> string:
     """
