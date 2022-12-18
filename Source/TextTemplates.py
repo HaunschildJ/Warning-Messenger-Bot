@@ -4,8 +4,6 @@ from enum import Enum
 
 file_path = "../Source/Data/TextTemplates.json"
 
-# TODO Anleitung für TextTemplates.json schreiben, also wie man darin was ändern würde
-
 # TODO immer erweitern mit neuen Topics und dann auch in der json file ergänzen
 class Topic(Enum):
     COVID_INFO = "covid_info"
