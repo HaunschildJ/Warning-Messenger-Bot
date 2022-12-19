@@ -1,5 +1,4 @@
 import requests
-from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 
@@ -36,9 +35,13 @@ def get_kreis_id_for_ort(ort_name):
 
 
 def get_ort_for_plz(plz):
-    """returns Ort-Name of given Postleitzahl"""
-    plz_table = requests.get('https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany'
-                             '-postleitzahl&q=&facet=plz_name&facet=lan_name&facet=lan_code').json()
+    """returns Ort-Name of given Postleitzahl (both Strings)"""
+    plz_table = requests.get(
+        'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
+    for record in plz_table['records']:
+        if record['fields']['plz_code'] == plz:
+            return record['fields']['plz_name']
+    raise ValueError('Could not find matching PLZ.')
 
 
 def get_similar_names(wrong_name):
@@ -84,7 +87,7 @@ def get_kreisname_for_ort(ort_name):
     for area_triple in area_keys:
         if area_triple[1] == ort_name:
             ort_id = area_triple[0]
-            kreis_id = ort_id[:5]  # ist das wirklich ein string?!
+            kreis_id = ort_id[:5]  # ist das wirklich ein string?
             return get_kreisname(kreis_id)
 
     raise ValueError('Ort-Name could not be found.')
