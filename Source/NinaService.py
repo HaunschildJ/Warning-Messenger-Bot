@@ -71,10 +71,15 @@ def get_covid_infos(city_name) -> CovidInfos:
 
 
 class WarningSeverity(Enum):
-    Severe = 1
+    Minor = 0
+    Moderate = 1
+    Severe = 2
+    Unkown = 3
 
 class WarningType(Enum):
+    Update = 0
     Alert = 1
+    Unkown = 2
 
 @dataclass
 class GeneralWarning:
@@ -86,10 +91,11 @@ class GeneralWarning:
     title: str
 
 
-def poll_biwapp_warning() -> list[GeneralWarning]:
-    kat_warn_API = "/biwapp/mapData.json"
-    response_raw = requests.get(baseUrl + kat_warn_API)
+def poll_general_warning(api_string : str) -> list[GeneralWarning]:
+    response_raw = requests.get(baseUrl + api_string)
     response = response_raw.json()
+
+    print(response_raw.text)
 
     warning_list = []
 
@@ -100,30 +106,63 @@ def poll_biwapp_warning() -> list[GeneralWarning]:
         id = response[i]["id"]
         version = response[i]["version"]
         start_date = response[i]["startDate"]
-        severity = WarningSeverity.Severe
-        type = WarningType.Alert
+
+        try:
+            severity = WarningSeverity[response[i]["severity"]]
+        except KeyError:
+            severity = WarningSeverity.Unkown
+
+        try:
+            type = WarningType[response[i]["type"]]
+        except KeyError:
+            type = WarningType.Unkown
+
         title = response[i]["i18nTitle"]["de"]
         warning_list.append(GeneralWarning(id = id, version= version, start_date= start_date, severity=severity, type= type, title= title))
 
     return warning_list
 
+
+def poll_biwapp_warning() -> list[GeneralWarning]:
+    biwapp_API = "/biwapp/mapData.json"
+    return poll_general_warning(biwapp_API)
+
+
+def poll_katwarn_warning() -> list[GeneralWarning]:
+    katwarn_API = "/katwarn/mapData.json"
+    return poll_general_warning(katwarn_API)
+
+
+def poll_mowas_warning() -> list[GeneralWarning]:
+    mowas_API = "/mowas/mapData.json"
+    return poll_general_warning(mowas_API)
+
+
+def poll_dwd_warning() -> list[GeneralWarning]:
+    dwd_API = "/dwd/mapData.json"
+    return poll_general_warning(dwd_API)
+
+
+def poll_lhp_warning() -> list[GeneralWarning]:
+    lhp_API = "/lhp/mapData.json"
+    return poll_general_warning(lhp_API)
+
+
+def poll_police_warning() -> list[GeneralWarning]:
+    police_API = "/police/mapData.json"
+    return poll_general_warning(police_API)
+
+
 """
-warningList = poll_biwapp_warning()
-
-print(warningList[0].id)
-print(warningList[0].version)
-print(warningList[0].severity)
-print(warningList[0].type)
-print(warningList[0].title)
+warningList = poll_biwapp_warning() #for testing you just need to change which warning method you call here
+for warning in warningList:
+    print("\n")
+    print(warning.id)
+    print(warning.version)
+    print(warning.severity)
+    print(warning.type)
+    print(warning.title)
 """
-
-
-
-
-
-
-
-
 
 
 
