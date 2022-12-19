@@ -28,6 +28,7 @@ class Attributes(Enum):
     RECEIVE_WARNINGS = "receive_warnings"
     COVID_AUTO_INFO = "receive_covid_information"
     LOCATIONS = "locations"
+    RECOMMENDATIONS = "recommendations"
     LANGUAGE = "language"
 
 
@@ -35,10 +36,11 @@ class UserData:
     """
     User Data in concise form. Is read from a JSON file.
     """
-    def __init__(self, chat_id,
+    def __init__(self, chat_id: int,
                  receive_warnings=False,
                  receive_covid_information=ReceiveInformation.NEVER.value,
                  locations=None,
+                 recommendation=None,
                  language=Language.GERMAN.value):
         """
         Initializes the User Data Attributes. Chat ID is only mandatory parameter. Other ones can be set later.
@@ -49,13 +51,17 @@ class UserData:
             receive_covid_information: Enum (ReceiveInformation) whether and if yes,
                    how often User wants to receive covid information or not.
             locations: Array of Dictionaries. Mainly set through methods.
+            recommendation: Array of string to save the recommendation of citys
             language: Enum with various languages. Default case German.
         """
+        if recommendation is None:
+            recommendation = ["München", "Frankfurt", "Berlin"]
         self.user_entry = {
             Attributes.CHAT_ID.value: chat_id,
             Attributes.RECEIVE_WARNINGS.value: receive_warnings,
             Attributes.COVID_AUTO_INFO.value: receive_covid_information,
             Attributes.LOCATIONS.value: locations,
+            Attributes.RECOMMENDATIONS.value: recommendation,
             Attributes.LANGUAGE.value: language
         }
 
@@ -69,13 +75,13 @@ class UserData:
         """
         self.user_entry[attribute.value] = value
 
-    def set_location(self, location_name, warning, warning_level):
+    def set_location(self, location_name: str, warning: WarnType, warning_level: int):
         """
         Either sets or replaces location with given parameter.
 
         Arguments:
             location_name: String, which location is to be changed.
-            warning: Enum, what kind of warning is to be changed.
+            warning: Enum of WarnType, what kind of warning is to be changed.
             warning_level: Integer, what warning level is wished for given location.
         """
         all_locations = self.user_entry[Attributes.LOCATIONS.value]
@@ -99,7 +105,7 @@ class UserData:
                 "name": location_name, "warning_level": [warning_level], "warnings": [warning.name]
             })
 
-    def remove_location(self, location_name):
+    def remove_location(self, location_name: str):
         """
         Removes given location.
 
@@ -113,10 +119,33 @@ class UserData:
                 return
 
     def remove_all_locations(self):
+        """
+        Removes all locations.
+        """
         self.user_entry[Attributes.LOCATIONS.value].clear()
 
+    def add_recommended_location(self, location_name: str):
+        """
+        This method adds a location to the recommended location list of a user. \n
+        The list is sorted: The most recently added location is the first element and the least recently added location
+        ist the last element
 
-def write_file(user_data):
+        Attributes:
+            location_name: String of location one wants to add to recommendations.
+        """
+        current_recommendations = self.user_entry[Attributes.RECOMMENDATIONS.value]
+        i = 0
+        prev_recommendation = location_name
+        for recommendation in current_recommendations:
+            tmp = recommendation
+            current_recommendations[i] = prev_recommendation
+            prev_recommendation = tmp
+            i = i + 1
+            if prev_recommendation == location_name:
+                return
+
+
+def write_file(user_data: UserData):
     """
     Writes parameter user_data into a JSON file. Replacing it if already existing.
 
@@ -138,7 +167,7 @@ def write_file(user_data):
         json.dump(user_entries, writefile, indent=4)
 
 
-def remove_user(chat_id):
+def remove_user(chat_id: int):
     with open(file_path, "r") as file_object:
         json_content = file_object.read()
         user_entries = json.loads(json_content)
@@ -155,7 +184,7 @@ def _get_data_model(data) -> dict:
     return json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
 
 
-def read_user(chat_id) -> UserData:
+def read_user(chat_id: int) -> UserData:
     """
     Returns an instance of UserData depending on given chat_id. If JSON file does not contain the user yet,
     the user gets constructed, solely with given chat_id.
