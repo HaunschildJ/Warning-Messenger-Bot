@@ -44,6 +44,12 @@ def get_ort_for_plz(plz):
     raise ValueError('Could not find matching PLZ.')
 
 
+def get_kreis_for_plz(plz):
+    """returns Kreis-Name of given Postleitzahl (both Strings)"""
+    ort = get_ort_for_plz(plz)
+    return get_kreisname_for_ort(ort)
+
+
 def get_similar_names(wrong_name):
     """returns a list of similar Ort- and Kreis-Names, first Ort- then Kreis-Names"""
     ort_names = get_similar_orte(wrong_name)
