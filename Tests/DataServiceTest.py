@@ -83,6 +83,38 @@ class MyTestCase(unittest.TestCase):
         # check if json file after removing a non-existing user is equal to the json file before
         self.assertEqual(user_entries, user_entries2)
 
+    def test_add_recommendation(self):
+        # create a UserData instance for the user (id == 10)
+        test_user = DataService.UserData(10)
+        control_user = DataService.UserData(10)
+
+        # adding a location that was not in recommendations before
+        control_user.user_entry["recommendations"] = ["Darmstadt", "München", "Frankfurt"]
+        test_user.add_recommended_location("Darmstadt")
+
+        # check if the user entries are equal
+        self.assertEqual(control_user.user_entry, test_user.user_entry)
+
+        # adding the least recently added location
+        control_user.user_entry["recommendations"] = ["Frankfurt", "Darmstadt", "München"]
+        test_user.add_recommended_location("Frankfurt")
+
+        # check if the user entries are equal
+        self.assertEqual(control_user.user_entry, test_user.user_entry)
+
+        # adding the second most recently added location
+        control_user.user_entry["recommendations"] = ["Darmstadt", "Frankfurt", "München"]
+        test_user.add_recommended_location("Darmstadt")
+
+        # check if the user entries are equal
+        self.assertEqual(control_user.user_entry, test_user.user_entry)
+
+        # adding the location that was most recently added should change nothing
+        test_user.add_recommended_location("Darmstadt")
+
+        # check if the user entries are equal
+        self.assertEqual(control_user.user_entry, test_user.user_entry)
+
 
 if __name__ == '__main__':
     unittest.main()
