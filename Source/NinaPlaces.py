@@ -7,8 +7,7 @@ from fuzzywuzzy import process
 # Ortsnamen werden benötigt für alles außer Corona
 # Kreisnamen werden für Corona benötigt
 # Kreise haben eine kürzere ID als Orte, wenn sie als Ort benutzt werden sollen, müssen 7 Nullen an ID gehängt werden
-# Bsp Kreis: ID:
-# Bsp Ort: ID:
+
 def get_kreis_id(name):
     """returns Kreis-ID of given Ort-Name or Kreis-Name"""
     if get_kreis_id_for_kreis(name) is not None:
