@@ -4,7 +4,7 @@ import ChatSender
 import TextTemplates
 import NinaService
 import DataService
-from TextTemplates import Button, Topic, Answers
+from TextTemplates import Button, ReplaceableAnswer, Answers
 
 from enum import Enum
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
@@ -16,6 +16,7 @@ class Commands(Enum):
     current possible commands:
     CORONA + (CORONA_INFO || CORONA_RULES) + "string"
     AUTO_WARNING + "bool as string"
+    ADD_RECOMMENDATION + "string"
 
     just for the bot not the user:
     CANCEL_INLINE
@@ -25,6 +26,7 @@ class Commands(Enum):
     CORONA_RULES = "rule"
     AUTO_WARNING = "/autowarning"
     CANCEL_INLINE = "/cancel"
+    ADD_RECOMMENDATION = "/add"
 
 
 class ErrorCodes(Enum):
@@ -36,7 +38,7 @@ class ErrorCodes(Enum):
     ONLY_PART_OF_COMMAND = 2
 
 
-def get_main_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
+def _get_main_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     """
     This is a helper method which returns the keyboard for the MVP 3. menu
 
@@ -52,7 +54,7 @@ def get_main_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     return keyboard
 
 
-def get_settings_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
+def _get_settings_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     """
     This is a helper method which returns the keyboard for the MVP 4. menu
 
@@ -70,7 +72,7 @@ def get_settings_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     return keyboard
 
 
-def get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
+def _get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     """
     This is a helper method which returns the keyboard for the MVP 5. menu
 
@@ -84,6 +86,20 @@ def get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     button3 = ChatSender.create_button(WARNING_BIWAPP_TEXT)
     button4 = ChatSender.create_button(BACK_TO_MAIN_TEXT)
     keyboard.add(button1).add(button2).add(button3).add(button4)
+    return keyboard
+
+
+def _get_send_location_keyboard() -> telebot.types.ReplyKeyboardMarkup:
+    """
+    This is a helper method which returns the keyboard for the MVP 4. b i)
+
+    Returns:
+         telebot.types.ReplyKeyboardMarkup
+    """
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+    button1 = ChatSender.create_button(SEND_LOCATION_BUTTON_TEXT, request_location=True)
+    button2 = ChatSender.create_button(BACK_TO_MAIN_TEXT)
+    keyboard.add(button1).add(button2)
     return keyboard
 
 
@@ -116,6 +132,9 @@ CANCEL_TEXT = TextTemplates.get_button_name(Button.CANCEL)
 YES_TEXT = TextTemplates.get_answers(Answers.YES)  # MVP 4. a) Ja
 NO_TEXT = TextTemplates.get_answers(Answers.NO)  # MVP 4. a) Nein
 
+# Send location
+SEND_LOCATION_BUTTON_TEXT = TextTemplates.get_button_name(Button.SEND_LOCATION) # MVP 4. b i)
+
 
 # methods called from the ChatReceiver ---------------------------------------------------------------------------------
 
@@ -131,8 +150,9 @@ def start(chat_id):
     Returns:
         Nothing
     """
-    # TODO greeting
-    ChatSender.send_message(chat_id, "Hallo", get_main_keyboard_buttons())
+    answer = TextTemplates.get_replaceable_answer(ReplaceableAnswer.GREETING)
+    # TODO replaceable
+    ChatSender.send_message(chat_id, answer, _get_main_keyboard_buttons())
 
 
 def main_button_pressed(chat_id: int, button_text: str):
@@ -148,11 +168,11 @@ def main_button_pressed(chat_id: int, button_text: str):
     """
     if button_text == SETTING_BUTTON_TEXT:
         # the keyboard for the settings menu
-        keyboard = get_settings_keyboard_buttons()
+        keyboard = _get_settings_keyboard_buttons()
         ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.SETTINGS), keyboard)
     elif button_text == WARNING_BUTTON_TEXT:
         # the keyboard for the manuel call of warnings
-        keyboard = get_warning_keyboard_buttons()
+        keyboard = _get_warning_keyboard_buttons()
         ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.WARNINGS), keyboard)
     elif button_text == TIP_BUTTON_TEXT:
         # TODO tips
@@ -182,10 +202,10 @@ def button_in_settings_pressed(chat_id: int, button_text: str):
         button2 = ChatSender.create_inline_button(NO_TEXT, command + "False")
         button3 = ChatSender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(button1, button2, button3)
-        # TODO get Text from TextTemplates when possible
-        ChatSender.send_message(chat_id, "Möchtest du automatische Warnungen erhalten? (nur eingestellte)", markup)
+        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.AUTO_WARNINGS_TEXT), markup)
     elif button_text == SETTING_SUGGESTION_LOCATION_TEXT:
-        ChatSender.send_message(chat_id, "TODO " + button_text)
+        keyboard = _get_send_location_keyboard()
+        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.SUGGESTION_HELPER_TEXT), keyboard)
     elif button_text == SETTING_SUBSCRIPTION_TEXT:
         ChatSender.send_message(chat_id, "TODO " + button_text)
     elif button_text == SETTING_AUTO_COVID_INFO_TEXT:
@@ -249,13 +269,13 @@ def biwapp(chat_id: int):
         ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.NO_CURRENT_WARNINGS))
         return
     for warning in warnings:
-        # TODO get string from TextTemplates when able to
-        message = "Warnung: %title \nSchwere: %severity \n Warnung vom Typ: %warning_type"
+        message = TextTemplates.get_replaceable_answer(ReplaceableAnswer.BIWAPP_WARNING)
         message = message.replace("%id", warning.id)
         message = message.replace("%version", str(warning.version))
         message = message.replace("%severity", str(warning.severity.value))
-        message = message.replace("%warning_type", str(warning.type.value))
+        message = message.replace("%type", str(warning.type.name))
         message = message.replace("%title", warning.title)
+        message = message.replace("%start_date", warning.start_date)
         ChatSender.send_message(chat_id, message)
 
 
@@ -273,7 +293,7 @@ def corona_info(chat_id: int, city_name: str):
     """
     ChatSender.send_chat_action(chat_id, "typing")
     info = NinaService.get_covid_infos(city_name)
-    message = TextTemplates.get_replacable_answer(Topic.COVID_INFO)
+    message = TextTemplates.get_replaceable_answer(ReplaceableAnswer.COVID_INFO)
     message = message.replace("%inzidenz", info.infektion_danger_level)
     message = message.replace("%bund", info.sieben_tage_inzidenz_bundesland)
     message = message.replace("%kreis", info.sieben_tage_inzidenz_kreis)
@@ -295,7 +315,7 @@ def corona_rules(chat_id: int, city_name: str):
     """
     ChatSender.send_chat_action(chat_id, "typing")
     rules = NinaService.get_covid_rules(city_name)
-    message = TextTemplates.get_replacable_answer(Topic.COVID_RULES)
+    message = TextTemplates.get_replaceable_answer(ReplaceableAnswer.COVID_RULES)
     message = message.replace("%vaccine_info", rules.vaccine_info)
     message = message.replace("%contact_terms", rules.contact_terms)
     message = message.replace("%school_kita_rules", rules.school_kita_rules)
@@ -303,6 +323,19 @@ def corona_rules(chat_id: int, city_name: str):
     message = message.replace("%travelling_rules", rules.travelling_rules)
     message = message.replace("%fines", rules.fines)
     ChatSender.send_message(chat_id, city_name+":\n"+message)
+
+
+def location_was_sent(chat_id: int, location):
+    """
+    This method turns the location into a city name or PLZ and adds it to the recommendations in the database
+
+    Attributes:
+        chat_id: an integer for the chatID that the message is sent to
+        location: Array with 2 entries for latitude and longitude
+    """
+    # TODO location verarbeiten
+    location_name = "Your_Location"
+    add_recommendation_in_database(chat_id, location_name)
 
 
 def change_auto_warning_in_database(chat_id: int, value: bool):
@@ -317,6 +350,32 @@ def change_auto_warning_in_database(chat_id: int, value: bool):
     ChatSender.send_message(chat_id, text)
 
 
+def add_recommendation_in_database(chat_id: int, location: str):
+    """
+    This method changes the recommended locations in the database and informs the user about the recommended locations
+    that are stored now
+
+    Attributes:
+        chat_id: an integer for the chatID that the message is sent to
+        location: a string with the location that should be added to the recommended locations in the database
+    """
+    # TODO check if location is valid
+    # update the database
+    user = DataService.read_user(chat_id)
+    user.add_recommended_location(location)
+    DataService.write_file(user)
+
+    # inform the user
+    answer = TextTemplates.get_replaceable_answer(ReplaceableAnswer.RECOMMENDATIONS)
+    answer = answer.replace("%r1", user.user_entry[DataService.Attributes.RECOMMENDATIONS.value][0])
+    answer = answer.replace("%r2", user.user_entry[DataService.Attributes.RECOMMENDATIONS.value][1])
+    answer = answer.replace("%r3", user.user_entry[DataService.Attributes.RECOMMENDATIONS.value][2])
+    ChatSender.send_message(chat_id, answer)
+
+
+# helper/short methods -------------------------------------------------------------------------------------------------
+
+
 def back_to_main_keyboard(chat_id: int):
     """
     Sets the Keyboard (of the user = chat_id) to the Main Keyboard (Main Menu) \n
@@ -327,7 +386,7 @@ def back_to_main_keyboard(chat_id: int):
     Returns:
         Nothing
     """
-    keyboard = get_main_keyboard_buttons()
+    keyboard = _get_main_keyboard_buttons()
     ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.BACK_TO_MAIN_MENU), keyboard)
 
 

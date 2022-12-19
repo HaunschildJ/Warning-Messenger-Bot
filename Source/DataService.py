@@ -205,7 +205,8 @@ def read_user(chat_id: int) -> UserData:
         if entry[Attributes.CHAT_ID.value] == chat_id:
             model = _get_data_model(json.dumps(entry, indent=4))
             result = UserData(chat_id, receive_warnings=model.receive_warnings,
-                              receive_covid_information=model.receive_covid_information, language=model.language)
+                              receive_covid_information=model.receive_covid_information, language=model.language,
+                              recommendation=model.recommendations)
             if model.locations is None:
                 return result
             for location in model.locations:

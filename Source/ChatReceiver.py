@@ -15,6 +15,12 @@ def filter_corona(message) -> bool:
     return False
 
 
+def filter_add_recommendation(message) -> bool:
+    if message.text.split(' ')[0] == Commands.ADD_RECOMMENDATION.value:
+        return True
+    return False
+
+
 def filter_callback_corona(call) -> bool:
     if call.data.split(' ')[0] == Commands.CORONA.value:
         return True
@@ -82,6 +88,18 @@ def corona(message):
     corona_helper(message.chat.id, message.text)
 
 
+@bot.message_handler(func=filter_add_recommendation)
+def add_recommendation(message):
+    """
+    This method is called when the user sends Commands.ADD_RECOMMENDATION.value (currently '/add') and will check if
+    the format of the message is '/add string' (if not error message is sent to the user)
+    """
+    if len(message.text.split(' ')) == 1:
+        Controller.error_handler(message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
+        return
+    Controller.add_recommendation_in_database(message.chat.id, message.text.split(' ')[1])
+
+
 # ------------------------ message handlers for buttons
 
 
@@ -118,6 +136,12 @@ def biwapp_button_pressed(message):
 @bot.message_handler(regexp=Controller.BACK_TO_MAIN_TEXT)
 def back_to_main_keyboard(message):
     Controller.back_to_main_keyboard(message.chat.id)
+
+
+@bot.message_handler(content_types=['location'])
+def send_location_pressed(message):
+    location = [message.location.latitude, message.location.longitude]
+    Controller.location_was_sent(message.chat.id, location)
 
 
 # bot callback handlers ------------------------------------------------------------------------------------------------

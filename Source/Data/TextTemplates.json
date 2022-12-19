@@ -56,12 +56,8 @@
         "topic": "biwapp_warning",
         "information": [
           {
-            "description": "Schreibe %id an die Stelle, wo die ID der Warnung stehen soll.",
-            "text": "Die ID der Warnung ist: %id"
-          },
-          {
-            "description": "Schreibe %version an die Stelle, wo die Version der Warnung stehen soll.",
-            "text": "Die Warnung erfolte mit der folgenden Version: %version"
+            "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
+            "text": "Der Titel der Warnung ist: %title"
           },
           {
             "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
@@ -73,11 +69,33 @@
           },
           {
             "description": "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
-            "text": "Die Dringlichkeit der Warnung ist: %type"
+            "text": "Der Typ der Warnung ist: %type"
+          }
+        ]
+      },
+      {
+        "topic": "recommendations",
+        "information": [
+          {
+            "description": "Schreibe %r1 an die Stelle, wo die erste vorzuschlagene Stadt stehen soll.",
+            "text": "Ihnen werden nun folgende Stadte vorgschlagen: \n%r1"
           },
           {
-            "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
-            "text": "Der Titel der Warnung ist: %title"
+            "description": "Schreibe %r2 an die Stelle, wo die zweite vorzuschlagene Stadt stehen soll.",
+            "text": "%r2"
+          },
+          {
+            "description": "Schreibe %r3 an die Stelle, wo die letzte vorzuschlagene Stadt stehen soll.",
+            "text": "%r3"
+          }
+        ]
+      },
+      {
+        "topic": "greeting",
+        "information": [
+          {
+            "description": "TODO Begrüßung",
+            "text": "Hallo"
           }
         ]
       }
@@ -99,7 +117,8 @@
       "subscription": "Abonnements verwalten",
       "auto_covid_info": "Automatische Coronawarnung",
       "language": "Sprache auswählen",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "send_location": "Standort senden"
     }
   },
   {
@@ -110,10 +129,12 @@
       "settings": "Sie sind jetzt in den Einstellungen.",
       "warnings": "Sie sind jetzt in den Warnungen.",
       "help": "Hier sind ein paar Tipps:",
+      "auto_warnings_text": "Möchtest du automatische Warnungen erhalten? (nur eingestellte)",
       "auto_warnings_enable": "Sie erhalten ab jetzt automatische Warnungen.",
       "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
       "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
-      "back_to_main_menu": "Sie sind im Hauptmenü."
+      "back_to_main_menu": "Sie sind im Hauptmenü.",
+      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen geben sie \"/add [Stadtname oder PLZ]\" ein oder senden sie ihren aktuellen Standort Beispiel: /add Berlin"
     }
   }
 ]
