@@ -20,6 +20,7 @@ def extract_till_char(s : str, index: int, stop_char : str) -> str:
 filtert html tags aus dem string s heraus.
 </p> tags (Achtung nur geschlossene) werden mit einem \n ersetzt
 <a> tags in Form <a .... href="https:link.com"> Hyperlinktext </a>
+&nbsp; (Steht für nonbreaking space) wird mit einem Leerzeichen ersetzt
 werden ersetzt mit Hyperlinktext: https:link.com
 """
 def filter_html_tags(s : str) -> str:
@@ -28,6 +29,8 @@ def filter_html_tags(s : str) -> str:
 
     link = ""   #brauchen wir um hlinks aus den html tags rauszukopieren, da wir diese eigentlich insgesamt löschen
     in_text = False
+
+    s = s.replace("&nbsp;", " ")
 
     for i in range(0, len(s)):
          c = s[i]
