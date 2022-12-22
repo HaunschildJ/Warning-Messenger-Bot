@@ -24,7 +24,7 @@ def get_kreis_id_for_kreis(kreis_name):
     for kreis_id in converted_corona_kreise.keys():
         if converted_corona_kreise[kreis_id]['n'] == kreis_name:
             return kreis_id
-    return None  # wenn None, dann kein Kreis
+    return None  # wenn None, dann kein Kreis (gefunden)
 
 
 def get_kreis_id_for_ort(ort_name):
@@ -37,6 +37,8 @@ def get_ort_for_plz(plz):
     """returns Ort-Name of given Postleitzahl (both Strings)"""
     plz_table = requests.get(
         'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
+    for record in plz_table['records']:
+        record['fields'].pop('geometry', None)  # removes unimportant fields that take up a lot of space
     for record in plz_table['records']:
         if record['fields']['plz_code'] == plz:
             return record['fields']['plz_name']
