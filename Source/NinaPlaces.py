@@ -2,14 +2,23 @@ import requests
 from fuzzywuzzy import process
 
 
-# District = Kreis
-# ? = Ort
-# Ortsnamen werden benötigt für alles außer Corona
-# Kreisnamen werden für Corona benötigt
+# District => Kreis
+# Place => Ort
+# Place names are needed for everything besides Covid info
+# District names are needed for Covid info
 # Kreise haben eine kürzere ID als Orte, wenn sie als Ort benutzt werden sollen, müssen 7 Nullen an ID gehängt werden
 
+class NinaPlaceConverter:
+    converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
+    bevoelkerungsstaat_key = requests.get(
+        'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
+        '-31/download/Regionalschl_ssel_2021-07-31.json').json()
+    postal_code_table = requests.get(
+        'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
+
+
 def get_kreis_id(name):
-    """returns Kreis-ID of given Ort-Name or Kreis-Name"""
+    """returns district ID of given place name or district name (both Strings)"""
     if get_kreis_id_for_kreis(name) is not None:
         return get_kreis_id_for_kreis(name)
     elif get_kreis_id_for_ort(name) is not None:
@@ -18,31 +27,31 @@ def get_kreis_id(name):
         raise ValueError('Name not found.')
 
 
-def get_kreis_id_for_kreis(kreis_name):
-    """returns Kreis-ID of given Kreis-Name"""
-    converted_corona_kreise = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
-    for kreis_id in converted_corona_kreise.keys():
-        if converted_corona_kreise[kreis_id]['n'] == kreis_name:
-            return kreis_id
-    return None  # wenn None, dann kein Kreis (gefunden)
+def get_kreis_id_for_kreis(district_name):
+    """returns district ID of given district name (both Strings)"""
+    converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
+    for district_id in converted_covid_districts.keys():
+        if converted_covid_districts[district_id]['n'] == district_name:
+            return district_id
+    return None  # None, if no district was found
 
 
-def get_kreis_id_for_ort(ort_name):
-    """returns Kreis-ID of given Ort-Name"""
-    kreis_name = get_kreisname_for_ort(ort_name)
-    return get_kreis_id_for_kreis(kreis_name)
+def get_kreis_id_for_ort(place_name):
+    """returns district ID of given place name (both Strings)"""
+    district_name = get_kreisname_for_ort(place_name)
+    return get_kreis_id_for_kreis(district_name)
 
 
-def get_ort_for_plz(plz):
-    """returns Ort-Name of given Postleitzahl (both Strings)"""
-    plz_table = requests.get(
+def get_ort_for_plz(postal_code):
+    """returns place name of given Postleitzahl (both Strings)"""
+    postal_code_table = requests.get(
         'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
-    for record in plz_table['records']:
+    for record in postal_code_table['records']:
         record['fields'].pop('geometry', None)  # removes unimportant fields that take up a lot of space
-    for record in plz_table['records']:
-        if record['fields']['plz_code'] == plz:
+    for record in postal_code_table['records']:
+        if record['fields']['plz_code'] == postal_code:
             return record['fields']['plz_name']
-    raise ValueError('Could not find matching PLZ.')
+    raise ValueError('Could not find matching postal code.')
 
 
 def get_kreis_for_plz(plz):
@@ -64,56 +73,53 @@ def get_similar_names(wrong_name):
 
 
 def get_similar_kreise(wrong_name):
-    """returns a list of similar Kreis-Names"""
-    converted_corona_kreise = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
-    kreis_names = [value['n'] for value in converted_corona_kreise.values()]
-    similar_kreis_names = process.extract(wrong_name, kreis_names, limit=10)
-    similar_kreis_names = [x[0] for x in similar_kreis_names]
-    return similar_kreis_names
+    """returns a list of similar district names"""
+    converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
+    district_names = [value['n'] for value in converted_covid_districts.values()]
+    similar_district_names = process.extract(wrong_name, district_names, limit=10)
+    similar_district_names = [x[0] for x in similar_district_names]
+    return similar_district_names
 
 
 def get_similar_orte(wrong_name):
-    """returns a list of similar Ort-Names"""
+    """returns a list of similar place names"""
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
     area_keys = bevoelkerungsstaat_key['daten']
-    ort_names = [area_triple[1] for area_triple in area_keys]
-    similar_ort_names = process.extract(wrong_name, ort_names, limit=10)
-    similar_ort_names = [x[0] for x in similar_ort_names]
-    return similar_ort_names
+    place_names = [area_triple[1] for area_triple in area_keys]
+    similar_place_names = process.extract(wrong_name, place_names, limit=10)
+    similar_place_names = [x[0] for x in similar_place_names]
+    return similar_place_names
 
 
-def get_kreisname_for_ort(ort_name):
-    """returns Kreis-Name of given Ort-Name"""
+def get_kreisname_for_ort(place_name):
+    """returns district name of given place name"""
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
     area_keys = bevoelkerungsstaat_key['daten']
-
     for area_triple in area_keys:
-        if area_triple[1] == ort_name:
-            ort_id = area_triple[0]
-            kreis_id = ort_id[:5]  # ist das wirklich ein string?
-            return get_kreisname(kreis_id)
+        if area_triple[1] == place_name:
+            place_id = area_triple[0]
+            district_id = place_id[:5]  # is this a string?
+            return get_kreisname(district_id)
+    raise ValueError('place name could not be found.')
 
-    raise ValueError('Ort-Name could not be found.')
 
-
-def get_ort_id_for_ort(ort_name):
-    """returns Ort-ID of given Ort-Name"""
+def get_ort_id_for_ort(place_name):
+    """returns place ID of given place name"""
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
     area_keys = bevoelkerungsstaat_key['daten']
-
     for area_triple in area_keys:
-        if area_triple[1] == ort_name:
-            return area_triple[0]  # ort_id
+        if area_triple[1] == place_name:
+            return area_triple[0]  # place_id
 
 
 def get_name_for_id(given_id):
-    """returns Kreis- or Ort-Name of given ID"""
+    """returns district or place name of given ID"""
     if get_ortsname(given_id) is not None:
         return get_ortsname(given_id)
     elif get_kreisname(given_id) is not None:
@@ -122,26 +128,23 @@ def get_name_for_id(given_id):
         raise ValueError('Could not find ID.')
 
 
-def get_ortsname(ort_id):
+def get_ortsname(place_id):
     """returns Ort-Name of given Ort-ID"""
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
     area_keys = bevoelkerungsstaat_key['daten']
-
     for area_triple in area_keys:
-        if area_triple[0] == ort_id:
+        if area_triple[0] == place_id:
             return area_triple[1]
-
     return None
 
 
-def get_kreisname(kreis_id):
+def get_kreisname(district_id):
     """returns Kreis-Name of given Kreis-ID"""
-    converted_corona_kreise = requests.get(
+    converted_covid_districts = requests.get(
         'https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
-    for kreis_ids in converted_corona_kreise.keys():
-        if kreis_ids == kreis_id:
-            return converted_corona_kreise[kreis_ids]['n']
-
+    for district_ids in converted_covid_districts.keys():
+        if district_ids == district_id:
+            return converted_covid_districts[district_ids]['n']
     return None
