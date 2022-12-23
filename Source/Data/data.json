@@ -1,26 +1,26 @@
-[
-    {
-        "chat_id": 11,
-        "receive_warnings": true,
-        "receive_covid_information": 2,
-        "recommendations": [
-            "M\u00c3\u00bcnchen",
-            "Frankfurt",
-            "Berlin"
-        ],
-        "locations": null,
-        "language": "german"
-    },
-    {
-        "chat_id": 5635169582,
-        "receive_warnings": true,
+{
+    "12": {
+        "current_state": 4,
+        "receive_warnings": false,
         "receive_covid_information": 0,
         "locations": null,
         "recommendations": [
-            "Berlin",
-            "Hamburg",
-            "Your_Location"
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
+        ],
+        "language": "german"
+    },
+    "11": {
+        "current_state": 2,
+        "receive_warnings": false,
+        "receive_covid_information": 0,
+        "locations": null,
+        "recommendations": [
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
         ],
         "language": "german"
     }
-]
+}

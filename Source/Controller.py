@@ -341,7 +341,7 @@ def location_was_sent(chat_id: int, location):
 def change_auto_warning_in_database(chat_id: int, value: bool):
     user = DataService.read_user(chat_id)
     user.change_entry(DataService.Attributes.RECEIVE_WARNINGS, value)
-    DataService.write_file(user)
+    DataService.write_file(chat_id, user)
     text = "t"
     if value:
         text = TextTemplates.get_answers(Answers.AUTO_WARNINGS_ENABLE)
@@ -363,7 +363,7 @@ def add_recommendation_in_database(chat_id: int, location: str):
     # update the database
     user = DataService.read_user(chat_id)
     user.add_recommended_location(location)
-    DataService.write_file(user)
+    DataService.write_file(chat_id, user)
 
     # inform the user
     answer = TextTemplates.get_replaceable_answer(ReplaceableAnswer.RECOMMENDATIONS)

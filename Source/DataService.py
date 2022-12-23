@@ -25,6 +25,7 @@ class Language(Enum):
 
 class Attributes(Enum):
     CHAT_ID = "chat_id"
+    CURRENT_STATE = "current_state"
     RECEIVE_WARNINGS = "receive_warnings"
     COVID_AUTO_INFO = "receive_covid_information"
     LOCATIONS = "locations"
@@ -36,17 +37,17 @@ class UserData:
     """
     User Data in concise form. Is read from a JSON file.
     """
-    def __init__(self, chat_id: int,
+    def __init__(self, current_state=0,
                  receive_warnings=False,
                  receive_covid_information=ReceiveInformation.NEVER.value,
                  locations=None,
                  recommendation=None,
                  language=Language.GERMAN.value):
         """
-        Initializes the User Data Attributes. Chat ID is only mandatory parameter. Other ones can be set later.
+        Initializes a Set of User Data Attributes.
 
         Arguments:
-            chat_id: Integer used to identify Telegram Chat. Needed to identify User.
+            current_state: Integer used to identify the state the user is currently in
             receive_warnings: boolean whether User wants to receive warnings or not.
             receive_covid_information: Enum (ReceiveInformation) whether and if yes,
                    how often User wants to receive covid information or not.
@@ -57,7 +58,7 @@ class UserData:
         if recommendation is None:
             recommendation = ["München", "Frankfurt", "Berlin"]
         self.user_entry = {
-            Attributes.CHAT_ID.value: chat_id,
+            Attributes.CURRENT_STATE.value: current_state,
             Attributes.RECEIVE_WARNINGS.value: receive_warnings,
             Attributes.COVID_AUTO_INFO.value: receive_covid_information,
             Attributes.LOCATIONS.value: locations,
@@ -65,7 +66,7 @@ class UserData:
             Attributes.LANGUAGE.value: language
         }
 
-    def change_entry(self, attribute, value):
+    def change_entry(self, attribute: Attributes, value):
         """
         Changes attribute to value.
 
@@ -145,39 +146,39 @@ class UserData:
                 return
 
 
-def write_file(user_data: UserData):
+def write_file(chat_id: int, user_data: UserData):
     """
     Writes parameter user_data into a JSON file. Replacing it if already existing.
 
     Arguments:
+        chat_id: Integer used to identify Telegram Chat. Needed to identify User.
         user_data: UserData instance containing information, that one wants to add to the JSON file.
     """
     with open(file_path, "r") as file_object:
         json_content = file_object.read()
-        user_entries = json.loads(json_content)
+        all_user = json.loads(json_content)
 
-    chat_id = user_data.user_entry[Attributes.CHAT_ID.value]
+    all_user[str(chat_id)] = user_data.user_entry
 
-    for entry in user_entries:
-        if entry[Attributes.CHAT_ID.value] == chat_id:
-            user_entries.remove(entry)
-
-    user_entries.append(user_data.user_entry)
     with open(file_path, 'w') as writefile:
-        json.dump(user_entries, writefile, indent=4)
+        json.dump(all_user, writefile, indent=4)
 
 
 def remove_user(chat_id: int):
+    """
+    Removes a User from the database. If the user is not in the database this method does nothing.
+
+    Attributes:
+        chat_id: Integer used to identify the user to be removed
+    """
     with open(file_path, "r") as file_object:
         json_content = file_object.read()
-        user_entries = json.loads(json_content)
+        all_user = json.loads(json_content)
 
-    for entry in user_entries:
-        if entry[Attributes.CHAT_ID.value] == chat_id:
-            user_entries.remove(entry)
-
-    with open(file_path, 'w') as writefile:
-        json.dump(user_entries, writefile, indent=4)
+    if str(chat_id) in all_user:
+        del all_user[str(chat_id)]
+        with open(file_path, 'w') as writefile:
+            json.dump(all_user, writefile, indent=4)
 
 
 def _get_data_model(data) -> dict:
@@ -187,7 +188,7 @@ def _get_data_model(data) -> dict:
 def read_user(chat_id: int) -> UserData:
     """
     Returns an instance of UserData depending on given chat_id. If JSON file does not contain the user yet,
-    the user gets constructed, solely with given chat_id.
+    a new UserData Set is created with default values.
 
     Does not write into the JSON file.
 
@@ -195,28 +196,69 @@ def read_user(chat_id: int) -> UserData:
         chat_id: Integer, which represents the user.
 
     Returns:
-        Instance of UserData. Either from JSON DATA or newly constructed with chat_id.
+        Instance of UserData. Either from JSON DATA or newly constructed.
     """
     with open(file_path, "r") as file_object:
         json_content = file_object.read()
-        user_entries = json.loads(json_content)
+        all_user = json.loads(json_content)
 
-    for entry in user_entries:
-        if entry[Attributes.CHAT_ID.value] == chat_id:
-            model = _get_data_model(json.dumps(entry, indent=4))
-            result = UserData(chat_id, receive_warnings=model.receive_warnings,
-                              receive_covid_information=model.receive_covid_information, language=model.language,
-                              recommendation=model.recommendations)
-            if model.locations is None:
-                return result
-            for location in model.locations:
-                i = 0
-                for warning in location.warnings:
-                    result.set_location(location.name, WarnType.__getitem__(warning), location.warning_level[i])
-                    i = i+1
-                if i == 0:
-                    result.set_location(location.name, [], [])
+    if str(chat_id) in all_user:
+        entry = all_user[str(chat_id)]
+        model = _get_data_model(json.dumps(entry, indent=4))
+        result = UserData(current_state=model.current_state, receive_warnings=model.receive_warnings,
+                          receive_covid_information=model.receive_covid_information, language=model.language,
+                          recommendation=model.recommendations)
+        if model.locations is None:
             return result
+        for location in model.locations:
+            i = 0
+            for warning in location.warnings:
+                result.set_location(location.name, WarnType.__getitem__(warning), location.warning_level[i])
+                i = i+1
+            if i == 0:
+                result.set_location(location.name, [], [])
+        return result
     # not found in JSON file -> return new one
-    return UserData(chat_id)
+    return UserData()
+
+
+def get_user_state(chat_id: int) -> int:
+    """
+    Returns the state the user (chat_id) is currently in.
+
+    Attributes:
+        chat_id: Integer to identify the user
+
+    Returns:
+        Integer value of the state the user is currently in or 0 if the user is not in the database yet
+    """
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        all_user = json.loads(json_content)
+
+    if str(chat_id) in all_user:
+        return all_user[str(chat_id)][Attributes.CURRENT_STATE.value]
+    return 0
+
+
+def set_user_state(chat_id: int, new_state: int):
+    """
+    Sets the state of the user (chat_id) to the new state (new_state)
+
+    Attributes:
+        chat_id: Integer to identify the user
+        new_state: Integer of the new state
+    """
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        all_user = json.loads(json_content)
+
+    if not (str(chat_id) in all_user):
+        all_user[str(chat_id)] = UserData(current_state=new_state).user_entry
+    else:
+        all_user[str(chat_id)][Attributes.CURRENT_STATE.value] = new_state
+
+    with open(file_path, 'w') as writefile:
+        json.dump(all_user, writefile, indent=4)
+
 

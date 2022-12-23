@@ -17,16 +17,16 @@ class MyTestCase(unittest.TestCase):
 
         # clear the json file
         with open(file_path, 'w') as writefile:
-            json.dump([], writefile, indent=4)
+            json.dump({}, writefile, indent=4)
 
         # create a UserData instance for the user (id == 10) that will be written into the json file
-        a = DataService.UserData(10)
+        a = DataService.UserData()
         a.change_entry(DataService.Attributes.RECEIVE_WARNINGS, True)
         a.set_location("Darmstadt", DataService.WarnType.WEATHER, 7)
         a.set_location("Hamburg", DataService.WarnType.WEATHER, 3)
 
         # write the user into the json file
-        DataService.write_file(a)
+        DataService.write_file(10, a)
 
         # check if the read user is equal to the written user
         self.assertEqual(a.user_entry, DataService.read_user(10).user_entry)
@@ -37,32 +37,32 @@ class MyTestCase(unittest.TestCase):
 
     def test_remove(self):
         # create a UserData instance for the user (id == 10) that will be written into the json file
-        a = DataService.UserData(10)
+        a = DataService.UserData()
         a.change_entry(DataService.Attributes.RECEIVE_WARNINGS, True)
         a.set_location("Darmstadt", DataService.WarnType.WEATHER, 7)
         a.set_location("Hamburg", DataService.WarnType.WEATHER, 3)
 
         # write the user into the json file
-        DataService.write_file(a)
+        DataService.write_file(10, a)
 
         # remove the user with the id == 10
         DataService.remove_user(10)
 
         # create a new UserData instance for user with id == 10 with everything else on default
-        should_be = DataService.UserData(10)
+        should_be = DataService.UserData()
 
         # check if the user was not found in the json file (so everything but the user id on default)
         self.assertEqual(should_be.user_entry, DataService.read_user(10).user_entry)
 
     def test_remove_user_error(self):
         # create a UserData instance for the user (id == 10) that will be written into the json file
-        a = DataService.UserData(10)
+        a = DataService.UserData()
         a.change_entry(DataService.Attributes.RECEIVE_WARNINGS, True)
         a.set_location("Darmstadt", DataService.WarnType.WEATHER, 7)
         a.set_location("Hamburg", DataService.WarnType.WEATHER, 3)
 
         # write the user into the json file
-        DataService.write_file(a)
+        DataService.write_file(10, a)
 
         # remove the user with the id == 10
         DataService.remove_user(10)
