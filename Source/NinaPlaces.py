@@ -129,7 +129,7 @@ def get_name_for_id(given_id):
 
 
 def get_ortsname(place_id):
-    """returns Ort-Name of given Ort-ID"""
+    """returns place name of given place ID"""
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
@@ -141,7 +141,7 @@ def get_ortsname(place_id):
 
 
 def get_kreisname(district_id):
-    """returns Kreis-Name of given Kreis-ID"""
+    """returns district name of given district ID"""
     converted_covid_districts = requests.get(
         'https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
     for district_ids in converted_covid_districts.keys():
