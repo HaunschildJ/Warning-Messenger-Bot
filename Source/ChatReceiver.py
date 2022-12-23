@@ -1,3 +1,5 @@
+import telebot.types
+
 import Bot
 import Controller
 from Controller import Commands
@@ -40,6 +42,13 @@ def filter_callback_auto_warning(call) -> bool:
     return False
 
 
+def filter_callback_add_subscription(call) -> bool:
+    split_data = call.data.split(' ')
+    if split_data[0] == Commands.ADD_SUBSCRIPTION.value:
+        return True
+    return False
+
+
 def filter_main_button(message) -> bool:
     if message.text == Controller.SETTING_BUTTON_TEXT or message.text == Controller.WARNING_BUTTON_TEXT or \
             message.text == Controller.TIP_BUTTON_TEXT or message.text == Controller.HELP_BUTTON_TEXT:
@@ -60,6 +69,27 @@ def filter_corona_for_inline(message) -> bool:
     if message.text == Controller.WARNING_COVID_RULES_TEXT or message.text == Controller.WARNING_COVID_INFO_TEXT:
         return True
     return False
+
+
+def filter_show_subscriptions(message) -> bool:
+    if message.text == Controller.SHOW_SUBSCRIPTION_TEXT:
+        return True
+    return False
+
+
+def filter_add_or_delete_subscription(message) -> bool:
+    if message.text == Controller.ADD_SUBSCRIPTION_TEXT or message.text == Controller.DELETE_SUBSCRIPTION_TEXT:
+        return True
+    return False
+
+
+def filer_everything_else(message) -> bool:
+    if filter_corona(message) or filter_add_recommendation(message) or filter_main_button(message) or \
+            filter_buttons_in_settings(message) or filter_corona_for_inline(message) or \
+            message.text == Controller.BACK_TO_MAIN_TEXT or message.text == Controller.WARNING_BIWAPP_TEXT or \
+            filter_show_subscriptions(message) or filter_add_or_delete_subscription(message):
+        return False
+    return True
 
 
 # bot message handlers -------------------------------------------------------------------------------------------------
@@ -98,6 +128,11 @@ def add_recommendation(message):
         Controller.error_handler(message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
         return
     Controller.add_recommendation_in_database(message.chat.id, message.text.split(' ')[1])
+
+
+@bot.message_handler(func=filer_everything_else)
+def tmp(message):
+    Controller.normal_input_depending_on_state(message.chat.id, message.text)
 
 
 # ------------------------ message handlers for buttons
@@ -144,6 +179,16 @@ def send_location_pressed(message):
     Controller.location_was_sent(message.chat.id, location)
 
 
+@bot.message_handler(func=filter_show_subscriptions)
+def show_subscription_pressed(message):
+    Controller.show_subscriptions(message.chat.id)
+
+
+@bot.message_handler(func=filter_add_or_delete_subscription)
+def add_or_delete_subscription_pressed(message):
+    Controller.button_in_subscriptions_pressed(message.chat.id, message.text)
+
+
 # bot callback handlers ------------------------------------------------------------------------------------------------
 
 
@@ -177,6 +222,19 @@ def auto_warning_button(call):
     if call.data == Commands.AUTO_WARNING.value + " True":
         value = True
     Controller.change_auto_warning_in_database(chat_id, value)
+    Controller.delete_message(chat_id, call.message.id)
+
+
+@bot.callback_query_handler(func=filter_callback_add_subscription)
+def add_subscription_callback(call):
+    """
+    This method is a callback_handler for the inline buttons when adding a subscription
+
+    Arguments:
+        call: Data that has been sent by the inline button
+    """
+    chat_id = call.message.chat.id
+    Controller.inline_button_for_adding_subscriptions(chat_id, call.data)
     Controller.delete_message(chat_id, call.message.id)
 
 

@@ -8,6 +8,7 @@ file_path = "../Source/Data/data.json"
 
 
 class WarnType(Enum):
+    NONE = "none"
     WEATHER = "weather"
     BIWAPP = "biwapp"
 
@@ -261,4 +262,35 @@ def set_user_state(chat_id: int, new_state: int):
     with open(file_path, 'w') as writefile:
         json.dump(all_user, writefile, indent=4)
 
+
+def get_subscriptions(chat_id: int):
+    """
+    Returns an array of subscriptions of the user (chat_id)
+
+    Attributes:
+        chat_id: Integer to identify the user
+    """
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        all_user = json.loads(json_content)
+
+    if str(chat_id) in all_user:
+        return all_user[str(chat_id)][Attributes.LOCATIONS.value]
+    return None
+
+
+def get_suggestions(chat_id: int):
+    """
+    Returns an array of suggestions of the user (chat_id)
+
+    Attributes:
+        chat_id: Integer to identify the user
+    """
+    with open(file_path, "r") as file_object:
+        json_content = file_object.read()
+        all_user = json.loads(json_content)
+
+    if str(chat_id) in all_user:
+        return all_user[str(chat_id)][Attributes.RECOMMENDATIONS.value]
+    return UserData().user_entry[Attributes.RECOMMENDATIONS.value]
 
