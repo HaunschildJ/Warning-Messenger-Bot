@@ -1,25 +1,13 @@
 {
-    "12": {
-        "current_state": 4,
-        "receive_warnings": false,
+    "5635169582": {
+        "current_state": 0,
+        "receive_warnings": true,
         "receive_covid_information": 0,
-        "locations": null,
+        "locations": {},
         "recommendations": [
-            "M\u00fcnchen",
-            "Frankfurt",
-            "Berlin"
-        ],
-        "language": "german"
-    },
-    "11": {
-        "current_state": 2,
-        "receive_warnings": false,
-        "receive_covid_information": 0,
-        "locations": null,
-        "recommendations": [
-            "M\u00fcnchen",
-            "Frankfurt",
-            "Berlin"
+            "Berlin",
+            "Darmstadt",
+            "M\u00fcnchen"
         ],
         "language": "german"
     }

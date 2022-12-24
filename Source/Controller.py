@@ -33,7 +33,6 @@ class Commands(Enum):
     ADD_SUBSCRIPTION = "/addSubscription"
 
 
-
 class ErrorCodes(Enum):
     """
     this enum is used to handle errors
@@ -151,10 +150,10 @@ CANCEL_TEXT = TextTemplates.get_button_name(Button.CANCEL)
 # Choose answers
 YES_TEXT = TextTemplates.get_answers(Answers.YES)  # MVP 4. a) Ja
 NO_TEXT = TextTemplates.get_answers(Answers.NO)  # MVP 4. a) Nein
-DELETE_TEXT = "entfernen" #TODO TexTemplates
+DELETE_TEXT = "entfernen"  # TODO TexTemplates
 
 # Send location
-SEND_LOCATION_BUTTON_TEXT = TextTemplates.get_button_name(Button.SEND_LOCATION) # MVP 4. b i)
+SEND_LOCATION_BUTTON_TEXT = TextTemplates.get_button_name(Button.SEND_LOCATION)  # MVP 4. b i)
 
 
 # methods called from the ChatReceiver ---------------------------------------------------------------------------------
@@ -253,27 +252,24 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
         ChatSender.send_message(chat_id, "Geben sie entweder den Ort ein oder klicken sie auf " +
                                 SEND_LOCATION_BUTTON_TEXT, keyboard)
     elif button_text == DELETE_SUBSCRIPTION_TEXT:
-        subs = DataService.get_subscriptions(chat_id)
-        if subs is None:
+        subscriptions = DataService.get_subscriptions(chat_id)
+        if len(subscriptions.keys()) == 0:
             # TODO TextTemplates
             ChatSender.send_message(chat_id, "Sie haben keine Abonnements")
             return
 
         markup = InlineKeyboardMarkup()
-        for sub in subs:
-            location_name = sub["name"]
-            i = 0
-            command = Commands.DELETE_SUBSCRIPTION.value + " " + location_name + " "
-            for warning in sub["warnings"]:
-                button = ChatSender.create_inline_button(location_name + warning + sub["warning_level"][i],
-                                                         command + warning)
+        for location in subscriptions.keys():
+            command = Commands.DELETE_SUBSCRIPTION.value + " " + location + " "
+            for warning in subscriptions[location]:
+                button = ChatSender.create_inline_button(location + ": " + warning + " " +
+                                                         str(subscriptions[location][warning]), command + warning)
                 markup.add(button)
-                i = i + 1
 
         cancel_button = ChatSender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)
         # TODO TextTemplates
-        ChatSender.send_message(chat_id, "Klicken sie auf das Abonnement das sie entfernen wollen.", markup)
+        ChatSender.send_message(chat_id, "Klicken sie auf das Abonnement,\nwelches sie entfernen wollen.", markup)
     else:
         error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
 
@@ -302,11 +298,23 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
     else:
         # done with process of adding subscription, and it can now be added
         warning_level = split_command[3]
-        war = DataService.WarnType(warning)
-        data = DataService.read_user(chat_id)
-        data.set_location(location_name=location, warning_level=warning_level, warning=war)
-        DataService.write_file(chat_id, data)
+        warning_type = DataService.WarnType(warning)
+
+        DataService.add_subscription(chat_id, location, warning_type, int(warning_level))
+
         show_subscriptions(chat_id)
+        back_to_main_keyboard(chat_id)
+
+
+def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str):
+    split_command = callback_command.split(' ')
+    if len(split_command) < 3:
+        return
+    location = split_command[1]
+    warning = split_command[2]
+    DataService.delete_subscription(chat_id, location, warning)
+    ChatSender.send_message(chat_id, "Für den Ort: " + location + " wurde die Warnung: " + warning +
+                            " erfolgreich gelöscht")
 
 
 def normal_input_depending_on_state(chat_id: int, text: str):
@@ -322,7 +330,7 @@ def normal_input_depending_on_state(chat_id: int, text: str):
         # TODO add all Warning Types
 
         warn_name = DataService.WarnType.WEATHER.value
-        button1 = ChatSender.create_inline_button(warn_name, command + warn_name)
+        button1 = ChatSender.create_inline_button(warn_name, command + str(warn_name))
         markup.add(button1)
 
         cancel_button = ChatSender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
@@ -381,7 +389,8 @@ def biwapp(chat_id: int):
     ChatSender.send_chat_action(chat_id, "typing")
     warnings = NinaService.poll_biwapp_warning()
     if len(warnings) == 0:
-        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.NO_CURRENT_WARNINGS))
+        ChatSender.send_message(chat_id, TextTemplates.get_answers(Answers.NO_CURRENT_WARNINGS),
+                                _get_warning_keyboard_buttons())
         return
     for warning in warnings:
         message = TextTemplates.get_replaceable_answer(ReplaceableAnswer.BIWAPP_WARNING)
@@ -391,7 +400,7 @@ def biwapp(chat_id: int):
         message = message.replace("%type", str(warning.type.name))
         message = message.replace("%title", warning.title)
         message = message.replace("%start_date", warning.start_date)
-        ChatSender.send_message(chat_id, message)
+        ChatSender.send_message(chat_id, message, _get_warning_keyboard_buttons())
 
 
 def corona_info(chat_id: int, city_name: str):
@@ -409,11 +418,11 @@ def corona_info(chat_id: int, city_name: str):
     ChatSender.send_chat_action(chat_id, "typing")
     info = NinaService.get_covid_infos(city_name)
     message = TextTemplates.get_replaceable_answer(ReplaceableAnswer.COVID_INFO)
-    message = message.replace("%inzidenz", info.infektion_danger_level)
-    message = message.replace("%bund", info.sieben_tage_inzidenz_bundesland)
-    message = message.replace("%kreis", info.sieben_tage_inzidenz_kreis)
-    message = message.replace("%tips", info.general_tips)
-    ChatSender.send_message(chat_id, city_name+":\n"+message)
+    message = message.replace("%infektion_danger_level", info.infektion_danger_level)
+    message = message.replace("%sieben_tage_inzidenz_bundesland", info.sieben_tage_inzidenz_bundesland)
+    message = message.replace("%sieben_tage_inzidenz_kreis", info.sieben_tage_inzidenz_kreis)
+    message = message.replace("%general_tips", info.general_tips)
+    ChatSender.send_message(chat_id, city_name+":\n"+message, _get_warning_keyboard_buttons())
 
 
 def corona_rules(chat_id: int, city_name: str):
@@ -435,7 +444,7 @@ def corona_rules(chat_id: int, city_name: str):
     message = message.replace("%hospital_rules", rules.hospital_rules)
     message = message.replace("%travelling_rules", rules.travelling_rules)
     message = message.replace("%fines", rules.fines)
-    ChatSender.send_message(chat_id, city_name+":\n"+message)
+    ChatSender.send_message(chat_id, city_name+":\n"+message, _get_warning_keyboard_buttons())
 
 
 def show_subscriptions(chat_id: int):
@@ -445,30 +454,27 @@ def show_subscriptions(chat_id: int):
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
     """
-    subs = DataService.get_subscriptions(chat_id)
-    if len(subs) == 0:
+    subscriptions = DataService.get_subscriptions(chat_id)
+    if len(subscriptions.keys()) == 0:
         # TODO TextTemplates
         ChatSender.send_message(chat_id, "Sie haben keine Abonnement")
         return
     # TODO TextTemplates
     message = "Ihre Abonnements:"
-    for sub in subs:
+    for location in subscriptions.keys():
         # TODO ["name"] ["warnings"] ["warning_level"] auslagern oder so
-        message = message + "\n\n" + sub["name"] + ":"
-        i = 0
-        for warning in sub["warnings"]:
+        message = message + "\n\n" + location + ":"
+        for warning in subscriptions[location].keys():
             message = message + "\n" + warning + " -> "
-            message = message + sub["warning_level"][i]
-            i = i + 1
+            message = message + str(subscriptions[location][warning])
     ChatSender.send_message(chat_id, message)
-    back_to_main_keyboard(chat_id)
 
 
 def location_was_sent(chat_id: int, location):
     """
     This method turns the location into a city name or PLZ and adds it to the recommendations in the database
 
-    Attributes:
+    Arguments:
         chat_id: an integer for the chatID that the message is sent to
         location: Array with 2 entries for latitude and longitude
     """
@@ -485,10 +491,8 @@ def change_auto_warning_in_database(chat_id: int, value: bool):
         chat_id: an integer for the chatID that the message is sent to
         value: a boolean which determines if the user will get automatic warnings or not
     """
-    user = DataService.read_user(chat_id)
-    user.change_entry(DataService.Attributes.RECEIVE_WARNINGS, value)
-    DataService.write_file(chat_id, user)
-    text = "t"
+    DataService.set_receive_warnings(chat_id, value)
+    text = "response from if else"
     if value:
         text = TextTemplates.get_answers(Answers.AUTO_WARNINGS_ENABLE)
     else:
@@ -501,21 +505,21 @@ def add_recommendation_in_database(chat_id: int, location: str):
     This method changes the recommended locations in the database and informs the user about the recommended locations
     that are stored now
 
-    Attributes:
+    Arguments:
         chat_id: an integer for the chatID that the message is sent to
         location: a string with the location that should be added to the recommended locations in the database
     """
     # TODO check if location is valid
     # update the database
-    user = DataService.read_user(chat_id)
-    user.add_recommended_location(location)
-    DataService.write_file(chat_id, user)
+    DataService.add_suggestion(chat_id, location)
+
+    suggestions = DataService.get_suggestions(chat_id)
 
     # inform the user
     answer = TextTemplates.get_replaceable_answer(ReplaceableAnswer.RECOMMENDATIONS)
-    answer = answer.replace("%r1", user.user_entry[DataService.Attributes.RECOMMENDATIONS.value][0])
-    answer = answer.replace("%r2", user.user_entry[DataService.Attributes.RECOMMENDATIONS.value][1])
-    answer = answer.replace("%r3", user.user_entry[DataService.Attributes.RECOMMENDATIONS.value][2])
+    answer = answer.replace("%r1", suggestions[0])
+    answer = answer.replace("%r2", suggestions[1])
+    answer = answer.replace("%r3", suggestions[2])
     ChatSender.send_message(chat_id, answer)
 
 

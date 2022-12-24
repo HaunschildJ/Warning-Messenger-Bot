@@ -134,7 +134,7 @@
       "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
       "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
       "back_to_main_menu": "Sie sind im Hauptmenü.",
-      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen geben sie \"/add [Stadtname oder PLZ]\" ein oder senden sie ihren aktuellen Standort Beispiel: /add Berlin"
+      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen geben sie \"[Stadtname oder PLZ]\" ein oder senden sie ihren aktuellen Standort"
     }
   }
 ]
