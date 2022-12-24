@@ -177,7 +177,7 @@ def get_auto_covid_information(chat_id: int) -> ReceiveInformation:
     cid = str(chat_id)
 
     if cid in all_user:
-        return all_user[cid][Attributes.COVID_AUTO_INFO.value]
+        return ReceiveInformation(all_user[cid][Attributes.COVID_AUTO_INFO.value])
     return ReceiveInformation(DEFAULT_DATA[Attributes.COVID_AUTO_INFO.value])
 
 

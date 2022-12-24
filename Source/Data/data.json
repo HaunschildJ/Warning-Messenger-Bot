@@ -1,13 +1,17 @@
 {
-    "5635169582": {
+    "10": {
         "current_state": 0,
         "receive_warnings": true,
         "receive_covid_information": 0,
-        "locations": {},
+        "locations": {
+            "Darmstadt": {
+                "weather": 2
+            }
+        },
         "recommendations": [
-            "Berlin",
-            "Darmstadt",
-            "M\u00fcnchen"
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
         ],
         "language": "german"
     }
