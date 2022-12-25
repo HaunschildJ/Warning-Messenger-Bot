@@ -327,11 +327,10 @@ def normal_input_depending_on_state(chat_id: int, text: str):
         markup = InlineKeyboardMarkup()
         command = Commands.ADD_SUBSCRIPTION.value + " " + text + " "
 
-        # TODO add all Warning Types
-
-        warn_name = DataService.WarnType.WEATHER.value
-        button1 = ChatSender.create_inline_button(warn_name, command + str(warn_name))
-        markup.add(button1)
+        for warning in list(DataService.WarnType):
+            warn_name = warning.value
+            button = ChatSender.create_inline_button(warn_name, command + str(warn_name))
+            markup.add(button)
 
         cancel_button = ChatSender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)

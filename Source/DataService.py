@@ -21,7 +21,6 @@ DEFAULT_DATA = {
 
 
 class WarnType(Enum):
-    NONE = "none"
     WEATHER = "weather"
     BIWAPP = "biwapp"
 
