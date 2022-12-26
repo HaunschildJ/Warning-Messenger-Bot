@@ -28,8 +28,8 @@ def get_covid_rules(city_name) -> CovidRules:
     city_code = NinaStringHelper.expand_location_id_with_zeros(city_code)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
-    coronaInfoAPI = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(baseUrl + coronaInfoAPI + city_code + ".json")
+    corona_info_API = "/appdata/covid/covidrules/DE/"
+    response_raw = requests.get(baseUrl + corona_info_API + city_code + ".json")
     response = response_raw.json()
 
     vaccine_info = NinaStringHelper.filter_html_tags(response["rules"][0]["text"])
@@ -57,9 +57,9 @@ def get_covid_infos(city_name) -> CovidInfos:
     city_code = NinaStringHelper.expand_location_id_with_zeros(city_code)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
-    coronaInfoAPI = "/appdata/covid/covidrules/DE/"
+    corona_info_API = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(baseUrl + coronaInfoAPI + city_code + ".json")
+    response_raw = requests.get(baseUrl + corona_info_API + city_code + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
