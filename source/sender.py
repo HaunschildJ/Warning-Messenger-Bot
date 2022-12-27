@@ -1,10 +1,10 @@
 import telebot.types
 
-import Bot
-bot = Bot.bot
+import bot
+bot = bot.bot
 
 
-def send_message(chat_id, message_string, reply_markup=None) -> telebot.types.Message:
+def send_message(chat_id: int, message_string: str, reply_markup=None) -> telebot.types.Message:
     """
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
@@ -16,7 +16,7 @@ def send_message(chat_id, message_string, reply_markup=None) -> telebot.types.Me
     return bot.send_message(chat_id, message_string, reply_markup=reply_markup)
 
 
-def send_chat_action(chat_id, action):
+def send_chat_action(chat_id: int, action: str):
     """
     Arguments:
         chat_id: an integer for the chatID in which the chat action is shown
@@ -29,12 +29,12 @@ def send_chat_action(chat_id, action):
     bot.send_chat_action(chat_id, action)
 
 
-def delete_message(chat_id, message_id):
+def delete_message(chat_id: int, message_id: int):
     bot.delete_message(chat_id, message_id)
 
 
 # helper methods -------------------------------------------------------------------------------------------------------
-def create_keyboard(button_names, one_time=False) -> telebot.types.ReplyKeyboardMarkup:
+def create_keyboard(button_names: str, one_time=False) -> telebot.types.ReplyKeyboardMarkup:
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=one_time)
     for name in button_names:
         button = telebot.types.KeyboardButton(name)
@@ -42,15 +42,15 @@ def create_keyboard(button_names, one_time=False) -> telebot.types.ReplyKeyboard
     return keyboard
 
 
-def create_button(text, request_contact=False, request_location=False):
+def create_button(text: str, request_contact=False, request_location=False):
     return telebot.types.KeyboardButton(text, request_contact=request_contact, request_location=request_location)
 
 
-def create_inline_button(text, callback_data):
+def create_inline_button(text: str, callback_data: str):
     """
     Arguments:
         text: a string with the button text
-        callback_data: a string (only string?) Data to be sent in a callback query to the bot when button is pressed
+        callback_data: a string (only string?) data to be sent in a callback query to the bot when button is pressed
     Returns:
         Nothing
     """
