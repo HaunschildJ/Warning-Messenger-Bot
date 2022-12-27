@@ -1,6 +1,7 @@
 import requests
 from fuzzywuzzy import process
 
+
 # District => Kreis
 # Place => Ort
 # Place names are needed for everything besides Covid info
