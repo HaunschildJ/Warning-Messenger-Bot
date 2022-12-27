@@ -8,9 +8,6 @@ import place_converter
 baseUrl = "https://warnung.bund.de/api31"
 
 
-# infos: quelle, infektionsgefahrsstufe, sieben-tage-Inzidenz Kreis und Bundesland, general tips
-# regeln: vaccinations, contact_terms, schools_kitas, hostpitals, travelling, fine,
-
 @dataclass
 class CovidRules:
     vaccine_info: str
@@ -22,6 +19,12 @@ class CovidRules:
 
 
 def get_covid_rules(city_name) -> CovidRules:
+    """
+    Gets current covid rules from the NinaApi for a city and returns them as a CovidRules class
+    If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
+    :param city_name: Each city may have different covid_rules
+    :return: CovidRules class
+    """
     city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
@@ -52,6 +55,12 @@ class CovidInfo:
 
 
 def get_covid_infos(city_name) -> CovidInfo:
+    """
+    Gets current covid infos from the NinaApi for a certain city and returns them as a CovidInfo class
+    If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
+    :param city_name:
+    :return:
+    """
     city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
@@ -79,9 +88,14 @@ class WarningSeverity(Enum):
     Unknown = 3
 
 
-def _get_warning_severity(severity: str) -> WarningSeverity:
+def _get_warning_severity(warn_severity: str) -> WarningSeverity:
+    """
+    translates a string into an enum of WarningSeverity
+    :param warn_severity: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningSeverity.Unknown
+    :return: if the string is a valid enum, the enum if not: WarningSeverity.Unknown
+    """
     try:
-        return WarningSeverity[severity]
+        return WarningSeverity[warn_severity]
     except KeyError:
         return WarningSeverity.Unknown
 
@@ -93,6 +107,11 @@ class WarningType(Enum):
 
 
 def _get_warning_type(warn_type: str) -> WarningType:
+    """
+    translates a string into an enum of WarningType
+    :param warn_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
+    :return: if the string is a valid enum, the enum if not: WarningType.Unknown
+    """
     try:
         return WarningType[warn_type]
     except KeyError:
@@ -256,7 +275,7 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
     return infos
 
 
-def get_detailed_warning(warning_id: str):
+def get_detailed_warning(warning_id: str) -> DetailedWarning:
     """
     This method should be called after a warning with one of the poll_****_warning methods was received
     :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
