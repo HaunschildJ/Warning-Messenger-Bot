@@ -1,10 +1,18 @@
-[
-    {
-        "chat_id": 11,
+{
+    "10": {
+        "current_state": 0,
         "receive_warnings": true,
-        "receive_covid_information": 2,
-        "recommendations": ["München", "Frankfurt", "Berlin"],
-        "locations": null,
+        "receive_covid_information": 0,
+        "locations": {
+            "Darmstadt": {
+                "weather": 2
+            }
+        },
+        "recommendations": [
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
+        ],
         "language": "german"
     }
-]
+}
