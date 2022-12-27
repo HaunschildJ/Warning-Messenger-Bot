@@ -30,6 +30,7 @@ def get_covid_rules(city_name) -> CovidRules:
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_API = "/appdata/covid/covidrules/DE/"
     response_raw = requests.get(baseUrl + covid_info_API + city_code + ".json")
+
     response = response_raw.json()
 
     vaccine_info = NinaStringHelper.filter_html_tags(response["rules"][0]["text"])
@@ -214,7 +215,7 @@ def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
     for i in range(0, len(response_geocode)):
         geocode.append(response_geocode[i]["value"])
 
-    return geocode
+    return  geocode
 
 def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoArea]:
     area = []
@@ -228,7 +229,7 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
             DetailedWarningInfoArea(area_description=area_description, geocode=geocode)
         )
 
-    return area
+    return  area
 
 def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
     infos = []
@@ -248,7 +249,7 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
                                 description=description, area=area)
         )
 
-    return infos
+    return  infos
 
 def get_detailed_warning(warning_id: str):
     """
