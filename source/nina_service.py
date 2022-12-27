@@ -129,6 +129,11 @@ class GeneralWarning:
 
 
 def _translate_time(nina_time: str) -> str:
+    """
+    translates the time strings we get from the nina api answers to actually readable times
+    :param nina_time: time string we get from nina api
+    :return: string in a readable format year-month-day hour:minute
+    """
     dt = datetime.fromisoformat(nina_time)
 
     # Convert the datetime object to a string in a specific format
@@ -137,6 +142,12 @@ def _translate_time(nina_time: str) -> str:
 
 
 def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
+    """
+    biwapp, katwarn, mowas, dwd, lhp and police-warnings are all generally the same
+    this is the general method to poll those
+    :param api_string: the string for the exact api we poll for
+    :return: a list of all warnings that are actual. An empty list is returned if there are none
+    """
     response_raw = requests.get(baseUrl + api_string)
     response = response_raw.json()
 
@@ -161,31 +172,55 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
 
 
 def poll_biwapp_warning() -> list[GeneralWarning]:
+    """
+    polls the current biwap warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     biwapp_api = "/biwapp/mapData.json"
     return _poll_general_warning(biwapp_api)
 
 
 def poll_katwarn_warning() -> list[GeneralWarning]:
+    """
+    polls the current katwarn warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     katwarn_api = "/katwarn/mapData.json"
     return _poll_general_warning(katwarn_api)
 
 
 def poll_mowas_warning() -> list[GeneralWarning]:
+    """
+    polls the current mowas warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     mowas_api = "/mowas/mapData.json"
     return _poll_general_warning(mowas_api)
 
 
 def poll_dwd_warning() -> list[GeneralWarning]:
+    """
+    polls the current dwd warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     dwd_api = "/dwd/mapData.json"
     return _poll_general_warning(dwd_api)
 
 
 def poll_lhp_warning() -> list[GeneralWarning]:
+    """
+    polls the current lhp warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     lhp_api = "/lhp/mapData.json"
     return _poll_general_warning(lhp_api)
 
 
 def poll_police_warning() -> list[GeneralWarning]:
+    """
+    polls the current police warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     police_api = "/police/mapData.json"
     return _poll_general_warning(police_api)
 
@@ -279,7 +314,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     """
     This method should be called after a warning with one of the poll_****_warning methods was received
     :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
-    :return:
+    :return: the detailed Warning as a DetailedWarning class
     """
     response_raw = requests.get(baseUrl + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
