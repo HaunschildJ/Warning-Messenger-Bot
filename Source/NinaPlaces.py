@@ -1,21 +1,12 @@
 import requests
+from dataclasses import dataclass
 from fuzzywuzzy import process
-
 
 # District => Kreis
 # Place => Ort
 # Place names are needed for everything besides Covid info
 # District names are needed for Covid info
 # Kreise haben eine kürzere ID als Orte, wenn sie als Ort benutzt werden sollen, müssen 7 Nullen an ID gehängt werden
-
-class NinaPlaceConverter:
-    converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
-    bevoelkerungsstaat_key = requests.get(
-        'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
-        '-31/download/Regionalschl_ssel_2021-07-31.json').json()
-    postal_code_table = requests.get(
-        'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
-
 
 def get_kreis_id(name):
     """returns district ID of given place name or district name (both Strings)"""
@@ -43,7 +34,7 @@ def get_kreis_id_for_ort(place_name):
 
 
 def get_ort_for_plz(postal_code):
-    """returns place name of given Postleitzahl (both Strings)"""
+    """returns place name of given postal code (both Strings)"""
     postal_code_table = requests.get(
         'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
     for record in postal_code_table['records']:
@@ -54,17 +45,17 @@ def get_ort_for_plz(postal_code):
     raise ValueError('Could not find matching postal code.')
 
 
-def get_kreis_for_plz(plz):
-    """returns Kreis-Name of given Postleitzahl (both Strings)"""
-    ort = get_ort_for_plz(plz)
-    return get_kreisname_for_ort(ort)
+def get_kreis_for_plz(postal_code):
+    """returns district name of given postal code (both Strings)"""
+    place = get_ort_for_plz(postal_code)
+    return get_kreisname_for_ort(place)
 
 
 def get_similar_names(wrong_name):
-    """returns a list of similar Ort- and Kreis-Names, first Ort- then Kreis-Names"""
-    ort_names = get_similar_orte(wrong_name)
-    kreis_names = get_similar_kreise(wrong_name)
-    similar_names = ort_names + kreis_names
+    """returns a list of similar place and district names, first place then district names"""
+    place_names = get_similar_orte(wrong_name)
+    district_names = get_similar_kreise(wrong_name)
+    similar_names = place_names + district_names
 
     if similar_names:
         return similar_names
