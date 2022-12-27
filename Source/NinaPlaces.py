@@ -1,5 +1,4 @@
 import requests
-from dataclasses import dataclass
 from fuzzywuzzy import process
 
 # District => Kreis
