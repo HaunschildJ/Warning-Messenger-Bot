@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
 import requests
-import NinaStringHelper
-import NinaPlaces
+import nina_string_helper
+import place_converter
 
 baseUrl = "https://warnung.bund.de/api31"
 
@@ -22,45 +22,45 @@ class CovidRules:
 
 
 def get_covid_rules(city_name) -> CovidRules:
-    city_code = NinaPlaces.get_kreis_id(city_name)
+    city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
-    city_code = NinaStringHelper.expand_location_id_with_zeros(city_code)
+    city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
-    covid_info_API = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(baseUrl + covid_info_API + city_code + ".json")
+    covid_info_api = "/appdata/covid/covidrules/DE/"
+    response_raw = requests.get(baseUrl + covid_info_api + city_code + ".json")
 
     response = response_raw.json()
 
-    vaccine_info = NinaStringHelper.filter_html_tags(response["rules"][0]["text"])
-    contact_terms = NinaStringHelper.filter_html_tags(response["rules"][1]["text"])
-    school_kita_rules = NinaStringHelper.filter_html_tags(response["rules"][2]["text"])
-    hospital_rules = NinaStringHelper.filter_html_tags(response["rules"][3]["text"])
-    travelling_rules = NinaStringHelper.filter_html_tags(response["rules"][4]["text"])
-    fines = NinaStringHelper.filter_html_tags(response["rules"][5]["text"])
+    vaccine_info = nina_string_helper.filter_html_tags(response["rules"][0]["text"])
+    contact_terms = nina_string_helper.filter_html_tags(response["rules"][1]["text"])
+    school_kita_rules = nina_string_helper.filter_html_tags(response["rules"][2]["text"])
+    hospital_rules = nina_string_helper.filter_html_tags(response["rules"][3]["text"])
+    travelling_rules = nina_string_helper.filter_html_tags(response["rules"][4]["text"])
+    fines = nina_string_helper.filter_html_tags(response["rules"][5]["text"])
 
     return CovidRules(vaccine_info, contact_terms, school_kita_rules, hospital_rules, travelling_rules, fines)
 
 
 @dataclass
-class CovidInfos:
-    infektion_danger_level: str
+class CovidInfo:
+    infektionsgefahr_stufe: str
     sieben_tage_inzidenz_kreis: str
     sieben_tage_inzidenz_bundesland: str
-    general_tips: str
+    allgemeine_hinweise: str
 
 
-def get_covid_infos(city_name) -> CovidInfos:
-    city_code = NinaPlaces.get_kreis_id(city_name)
+def get_covid_infos(city_name) -> CovidInfo:
+    city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
-    city_code = NinaStringHelper.expand_location_id_with_zeros(city_code)
+    city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
-    covid_info_API = "/appdata/covid/covidrules/DE/"
+    covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(baseUrl + covid_info_API + city_code + ".json")
+    response_raw = requests.get(baseUrl + covid_info_api + city_code + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
@@ -68,35 +68,35 @@ def get_covid_infos(city_name) -> CovidInfos:
 
     sieben_tage_inzidenz_kreis = inzidenz_split[0]
     sieben_tage_inzidenz_bundesland = inzidenz_split[1]
-    general_tips = NinaStringHelper.filter_html_tags(response["generalInfo"])
-    return CovidInfos(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
+    general_tips = nina_string_helper.filter_html_tags(response["generalInfo"])
+    return CovidInfo(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
 
 
 class WarningSeverity(Enum):
     Minor = 0
     Moderate = 1
     Severe = 2
-    Unkown = 3
+    Unknown = 3
 
 
 def _get_warning_severity(severity: str) -> WarningSeverity:
     try:
         return WarningSeverity[severity]
     except KeyError:
-        return WarningSeverity.Unkown
+        return WarningSeverity.Unknown
 
 
 class WarningType(Enum):
     Update = 0
     Alert = 1
-    Unkown = 2
+    Unknown = 2
 
 
-def _get_warning_type(type: str) -> WarningType:
+def _get_warning_type(warn_type: str) -> WarningType:
     try:
-        return WarningType[type]
+        return WarningType[warn_type]
     except KeyError:
-        return WarningType.Unkown
+        return WarningType.Unknown
 
 
 @dataclass
@@ -127,48 +127,49 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
         return warning_list
 
     for i in range(0, len(list(response))):
-        id = response[i]["id"]
+        id_response = response[i]["id"]
         version = response[i]["version"]
 
         start_date = _translate_time(response[i]["startDate"])
 
         severity = _get_warning_severity(response[i]["severity"])
-        type = _get_warning_type(response[i]["type"])
+        response_type = _get_warning_type(response[i]["type"])
         title = response[i]["i18nTitle"]["de"]
-        warning_list.append(
-            GeneralWarning(id=id, version=version, start_date=start_date, severity=severity, type=type, title=title))
+        warning_list.append(GeneralWarning(id=id_response, version=version, start_date=start_date, severity=severity,
+                                           type=response_type, title=title))
 
     return warning_list
 
 
 def poll_biwapp_warning() -> list[GeneralWarning]:
-    biwapp_API = "/biwapp/mapData.json"
-    return _poll_general_warning(biwapp_API)
+    biwapp_api = "/biwapp/mapData.json"
+    return _poll_general_warning(biwapp_api)
 
 
 def poll_katwarn_warning() -> list[GeneralWarning]:
-    katwarn_API = "/katwarn/mapData.json"
-    return _poll_general_warning(katwarn_API)
+    katwarn_api = "/katwarn/mapData.json"
+    return _poll_general_warning(katwarn_api)
 
 
 def poll_mowas_warning() -> list[GeneralWarning]:
-    mowas_API = "/mowas/mapData.json"
-    return _poll_general_warning(mowas_API)
+    mowas_api = "/mowas/mapData.json"
+    return _poll_general_warning(mowas_api)
 
 
 def poll_dwd_warning() -> list[GeneralWarning]:
-    dwd_API = "/dwd/mapData.json"
-    return _poll_general_warning(dwd_API)
+    dwd_api = "/dwd/mapData.json"
+    return _poll_general_warning(dwd_api)
 
 
 def poll_lhp_warning() -> list[GeneralWarning]:
-    lhp_API = "/lhp/mapData.json"
-    return _poll_general_warning(lhp_API)
+    lhp_api = "/lhp/mapData.json"
+    return _poll_general_warning(lhp_api)
 
 
 def poll_police_warning() -> list[GeneralWarning]:
-    police_API = "/police/mapData.json"
-    return _poll_general_warning(police_API)
+    police_api = "/police/mapData.json"
+    return _poll_general_warning(police_api)
+
 
 """
 warningList = poll_biwapp_warning()  # for testing you just need to change which warning method you call here
@@ -181,6 +182,7 @@ for warning in warningList:
     print(warning.title)
     print(warning.start_date)
 """
+
 
 @dataclass
 class DetailedWarningInfoArea:
@@ -215,7 +217,8 @@ def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
     for i in range(0, len(response_geocode)):
         geocode.append(response_geocode[i]["value"])
 
-    return  geocode
+    return geocode
+
 
 def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoArea]:
     area = []
@@ -229,19 +232,20 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
             DetailedWarningInfoArea(area_description=area_description, geocode=geocode)
         )
 
-    return  area
+    return area
+
 
 def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
     infos = []
     if response_infos is None:
-        return  infos
+        return infos
 
     for i in range(0, len(response_infos)):
         event = response_infos[i]["event"]
         severity = _get_warning_severity(response_infos[i]["severity"])
         date_expires = _translate_time(response_infos[i]["expires"])
         headline = response_infos[i]["headline"]
-        description = NinaStringHelper.filter_html_tags(response_infos[i]["description"])
+        description = nina_string_helper.filter_html_tags(response_infos[i]["description"])
         area = _get_detailed_warning_infos_area(response_infos[i]["area"])
 
         infos.append(
@@ -249,7 +253,8 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
                                 description=description, area=area)
         )
 
-    return  infos
+    return infos
+
 
 def get_detailed_warning(warning_id: str):
     """
@@ -261,16 +266,13 @@ def get_detailed_warning(warning_id: str):
     response = response_raw.json()
     print(response_raw.text)
 
-    id = response["identifier"]
+    id_response = response["identifier"]
     sender = response["sender"]
     date_sent = _translate_time(response["sent"])
     status = response["status"]
     infos = _get_detailed_warning_infos(response["info"])
 
-    return DetailedWarning(id=id, sender=sender, date_sent=date_sent, status=status, infos=infos)
-
-
-
+    return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 
 
 """

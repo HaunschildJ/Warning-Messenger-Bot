@@ -3,9 +3,9 @@ import unittest
 import json
 
 
-DataService = importlib.util.spec_from_file_location("DataService", "../Source/DataService.py").loader.load_module()
+DataService = importlib.util.spec_from_file_location("DataService", "../source/data_service.py").loader.load_module()
 
-file_path = "../Source/Data/data.json"
+file_path = "../source/data/data.json"
 
 
 class MyTestCase(unittest.TestCase):
