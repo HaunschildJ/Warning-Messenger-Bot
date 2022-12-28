@@ -8,6 +8,27 @@ from fuzzywuzzy import process
 # District names are needed for Covid info
 # Kreise haben eine kürzere ID als Orte, wenn sie als Ort benutzt werden sollen, müssen 7 Nullen an ID gehängt werden
 
+#dictionary district_id : str -> district_name : str
+_districts_dictionary = { }
+
+_places_dictionary = { }
+
+
+def _fill_covid_districts() -> None:
+    """
+    Fills the _covid_districts dictionary from https://warnung.bund.de/assets/json/converted_corona_kreise.json
+    """
+    converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
+    for district_id, district_description in converted_covid_districts.items():
+        _districts_dictionary[district_id] = district_description["n"]
+
+
+
+
+_fill_covid_districts()
+
+
+
 def get_district_id(name: str):
     """returns district ID of given place name or district name (both Strings)"""
     if get_district_id_for_district_name(name) is not None:
