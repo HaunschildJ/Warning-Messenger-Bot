@@ -59,12 +59,12 @@ def get_button_name(button: Button) -> string:
     with open(file_path, "r") as file:
         data = json.load(file)
 
-    for i in data:
-        if i['topic'] == "buttons":
-            return i['names'][button.value]
+    for topic in data:
+        if topic['topic'] == "buttons":
+            return topic['names'][button.value]
 
 
-def get_answers(answer : Answers) -> string:
+def get_answers(answer: Answers) -> string:
     """
     Returns a string containing the desired answer text.
 
@@ -78,9 +78,9 @@ def get_answers(answer : Answers) -> string:
     with open(file_path, "r") as file:
         data = json.load(file)
 
-    for i in data:
-        if i['topic'] == "answers":
-            return i['text'][answer.value]
+    for topic in data:
+        if topic['topic'] == "answers":
+            return topic['text'][answer.value]
 
 
 def get_replaceable_answer(answer: ReplaceableAnswer) -> string:
@@ -100,11 +100,11 @@ def get_replaceable_answer(answer: ReplaceableAnswer) -> string:
     with open(file_path, "r") as file:
         data = json.load(file)
 
-    for i in data:
-        if i['topic'] == "replacable_answers":
-            for j in i['all_answers']:
-                if j['topic'] == answer.value:
-                    for k in j['information']:
-                        result += k['text'] + "\n"
+    for topic in data:
+        if topic['topic'] == "replacable_answers":
+            for answer in topic['all_answers']:
+                if answer['topic'] == answer.value:
+                    for information in answer['information']:
+                        result += information['text'] + "\n"
 
     return result
