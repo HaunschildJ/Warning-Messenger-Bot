@@ -3,7 +3,7 @@ from enum import Enum
 
 # See the MVP document for all possible options
 
-file_path = "data/data.json"
+file_path = "../source/data/data.json"
 
 DEFAULT_DATA = {
     "current_state": 0,

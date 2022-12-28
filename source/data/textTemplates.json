@@ -7,7 +7,7 @@
         "information": [
           {
             "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
-            "text": "Die Infektionsgefahr Stufe beträgt: %infektion_danger_level."
+            "text": "Die Infektionsgefahr Stufe beträgt: %infektionsgefahr_stufe."
           },
           {
             "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
@@ -19,7 +19,7 @@
           },
           {
             "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
-            "text": "Allgemeine Hinweise sind: %general_tips."
+            "text": "Allgemeine Hinweise sind: %allgemeine_hinweise."
           }
         ]
       },

@@ -87,11 +87,9 @@ class MyTestCase(unittest.TestCase):
         with open(file_path, 'w') as writefile:
             json.dump({}, writefile, indent=4)
 
-        # user with id == 10 wants to get weather warnings from Darmstadt with the warning level 2
+        # user with id == 10 wants to get different warnings
         DataService.add_subscription(10, "Darmstadt", DataService.WarnType.WEATHER, 2)
-        # user with id == 10 wants to get BIWAPP warnings from Darmstadt with the warning level 3
         DataService.add_subscription(10, "Darmstadt", DataService.WarnType.BIWAPP, 3)
-        # user with id == 10 wants to get weather warnings from Berlin with the warning level 1
         DataService.add_subscription(10, "Berlin", DataService.WarnType.WEATHER, 1)
 
         should_be = {
@@ -107,11 +105,9 @@ class MyTestCase(unittest.TestCase):
         # check if it was saved
         self.assertEqual(should_be, DataService.get_subscriptions(10))
 
-        # user with id == 10 wants to delete the BIWAPP warning from Darmstadt
+        # user with id == 10 wants to delete warnings
         DataService.delete_subscription(10, "Darmstadt", DataService.WarnType.BIWAPP.value)
-        # user with id == 10 wants to delete the weather warning from Berlin
         DataService.delete_subscription(10, "Berlin", DataService.WarnType.WEATHER.value)
-        # user with id == 10 wants to change the warning level of the weather warning of Darmstadt to 5
         DataService.add_subscription(10, "Darmstadt", DataService.WarnType.WEATHER, 5)
 
         should_be = {

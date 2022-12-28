@@ -16,7 +16,7 @@ def send_message(chat_id: int, message_string: str, reply_markup=None) -> telebo
     return bot.send_message(chat_id, message_string, reply_markup=reply_markup)
 
 
-def send_chat_action(chat_id: int, action: str):
+def send_chat_action(chat_id: int, action: str) -> None:
     """
     Arguments:
         chat_id: an integer for the chatID in which the chat action is shown
@@ -29,7 +29,7 @@ def send_chat_action(chat_id: int, action: str):
     bot.send_chat_action(chat_id, action)
 
 
-def delete_message(chat_id: int, message_id: int):
+def delete_message(chat_id: int, message_id: int) -> None:
     bot.delete_message(chat_id, message_id)
 
 
@@ -42,11 +42,11 @@ def create_keyboard(button_names: str, one_time=False) -> telebot.types.ReplyKey
     return keyboard
 
 
-def create_button(text: str, request_contact=False, request_location=False):
+def create_button(text: str, request_contact=False, request_location=False) -> telebot.types.KeyboardButton:
     return telebot.types.KeyboardButton(text, request_contact=request_contact, request_location=request_location)
 
 
-def create_inline_button(text: str, callback_data: str):
+def create_inline_button(text: str, callback_data: str) -> telebot.types.InlineKeyboardButton:
     """
     Arguments:
         text: a string with the button text
