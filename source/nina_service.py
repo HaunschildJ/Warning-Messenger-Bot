@@ -8,9 +8,6 @@ import place_converter
 baseUrl = "https://warnung.bund.de/api31"
 
 
-# infos: quelle, infektionsgefahrsstufe, sieben-tage-Inzidenz Kreis und Bundesland, general tips
-# regeln: vaccinations, contact_terms, schools_kitas, hostpitals, travelling, fine,
-
 @dataclass
 class CovidRules:
     vaccine_info: str
@@ -22,6 +19,12 @@ class CovidRules:
 
 
 def get_covid_rules(city_name) -> CovidRules:
+    """
+    Gets current covid rules from the NinaApi for a city and returns them as a CovidRules class
+    If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
+    :param city_name: Each city may have different covid_rules
+    :return: CovidRules class
+    """
     city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
@@ -52,6 +55,12 @@ class CovidInfo:
 
 
 def get_covid_infos(city_name) -> CovidInfo:
+    """
+    Gets current covid infos from the NinaApi for a certain city and returns them as a CovidInfo class
+    If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
+    :param city_name:
+    :return:
+    """
     city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
@@ -79,9 +88,14 @@ class WarningSeverity(Enum):
     Unknown = 3
 
 
-def _get_warning_severity(severity: str) -> WarningSeverity:
+def _get_warning_severity(warn_severity: str) -> WarningSeverity:
+    """
+    translates a string into an enum of WarningSeverity
+    :param warn_severity: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningSeverity.Unknown
+    :return: if the string is a valid enum, the enum if not: WarningSeverity.Unknown
+    """
     try:
-        return WarningSeverity[severity]
+        return WarningSeverity[warn_severity]
     except KeyError:
         return WarningSeverity.Unknown
 
@@ -93,6 +107,11 @@ class WarningType(Enum):
 
 
 def _get_warning_type(warn_type: str) -> WarningType:
+    """
+    translates a string into an enum of WarningType
+    :param warn_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
+    :return: if the string is a valid enum, the enum if not: WarningType.Unknown
+    """
     try:
         return WarningType[warn_type]
     except KeyError:
@@ -110,6 +129,11 @@ class GeneralWarning:
 
 
 def _translate_time(nina_time: str) -> str:
+    """
+    translates the time strings we get from the nina api answers to actually readable times
+    :param nina_time: time string we get from nina api
+    :return: string in a readable format year-month-day hour:minute
+    """
     dt = datetime.fromisoformat(nina_time)
 
     # Convert the datetime object to a string in a specific format
@@ -118,6 +142,12 @@ def _translate_time(nina_time: str) -> str:
 
 
 def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
+    """
+    biwapp, katwarn, mowas, dwd, lhp and police-warnings are all generally the same
+    this is the general method to poll those
+    :param api_string: the string for the exact api we poll for
+    :return: a list of all warnings that are actual. An empty list is returned if there are none
+    """
     response_raw = requests.get(baseUrl + api_string)
     response = response_raw.json()
 
@@ -142,31 +172,55 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
 
 
 def poll_biwapp_warning() -> list[GeneralWarning]:
+    """
+    polls the current biwap warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     biwapp_api = "/biwapp/mapData.json"
     return _poll_general_warning(biwapp_api)
 
 
 def poll_katwarn_warning() -> list[GeneralWarning]:
+    """
+    polls the current katwarn warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     katwarn_api = "/katwarn/mapData.json"
     return _poll_general_warning(katwarn_api)
 
 
 def poll_mowas_warning() -> list[GeneralWarning]:
+    """
+    polls the current mowas warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     mowas_api = "/mowas/mapData.json"
     return _poll_general_warning(mowas_api)
 
 
 def poll_dwd_warning() -> list[GeneralWarning]:
+    """
+    polls the current dwd warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     dwd_api = "/dwd/mapData.json"
     return _poll_general_warning(dwd_api)
 
 
 def poll_lhp_warning() -> list[GeneralWarning]:
+    """
+    polls the current lhp warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     lhp_api = "/lhp/mapData.json"
     return _poll_general_warning(lhp_api)
 
 
 def poll_police_warning() -> list[GeneralWarning]:
+    """
+    polls the current police warnings
+    :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    """
     police_api = "/police/mapData.json"
     return _poll_general_warning(police_api)
 
@@ -256,11 +310,11 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
     return infos
 
 
-def get_detailed_warning(warning_id: str):
+def get_detailed_warning(warning_id: str) -> DetailedWarning:
     """
     This method should be called after a warning with one of the poll_****_warning methods was received
     :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
-    :return:
+    :return: the detailed Warning as a DetailedWarning class
     """
     response_raw = requests.get(baseUrl + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
