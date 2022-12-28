@@ -3,7 +3,8 @@ import unittest
 import json
 
 
-DataService = importlib.util.spec_from_file_location("DataService", "../source/data_service.py").loader.load_module()
+data_service = importlib.util.spec_from_file_location("data_service", "../source/data_service.py")\
+    .loader.load_module()
 
 file_path = "../source/data/data.json"
 
@@ -20,16 +21,16 @@ class MyTestCase(unittest.TestCase):
             json.dump({}, writefile, indent=4)
 
         # user with id == 10 wants no more auto warnings
-        DataService.set_receive_warnings(10, False)
+        data_service.set_receive_warnings(10, False)
 
         # check if it was saved
-        self.assertEqual(False, DataService.get_receive_warnings(10))
+        self.assertEqual(False, data_service.get_receive_warnings(10))
 
         # user with id == 10 wants auto warnings
-        DataService.set_receive_warnings(10, True)
+        data_service.set_receive_warnings(10, True)
 
         # check if it was saved
-        self.assertEqual(True, DataService.get_receive_warnings(10))
+        self.assertEqual(True, data_service.get_receive_warnings(10))
 
         # write data back to json from before the test
         with open(file_path, 'w') as writefile:
@@ -47,10 +48,10 @@ class MyTestCase(unittest.TestCase):
 
         for i in [0, 1, 2, 0, 3]:
             # change state of user 10
-            DataService.set_user_state(10, i)
+            data_service.set_user_state(10, i)
 
             # check if it was saved
-            self.assertEqual(i, DataService.get_user_state(10))
+            self.assertEqual(i, data_service.get_user_state(10))
 
         # write data back to json from before the test
         with open(file_path, 'w') as writefile:
@@ -66,12 +67,12 @@ class MyTestCase(unittest.TestCase):
         with open(file_path, 'w') as writefile:
             json.dump({}, writefile, indent=4)
 
-        for i in DataService.ReceiveInformation:
+        for i in data_service.ReceiveInformation:
             # check if user can change all auto covid update choices
-            DataService.set_auto_covid_information(10, i)
+            data_service.set_auto_covid_information(10, i)
 
             # check if it was saved
-            self.assertEqual(i, DataService.get_auto_covid_information(10))
+            self.assertEqual(i, data_service.get_auto_covid_information(10))
 
         # write data back to json from before the test
         with open(file_path, 'w') as writefile:
@@ -88,9 +89,9 @@ class MyTestCase(unittest.TestCase):
             json.dump({}, writefile, indent=4)
 
         # user with id == 10 wants to get different warnings
-        DataService.add_subscription(10, "Darmstadt", DataService.WarnType.WEATHER, 2)
-        DataService.add_subscription(10, "Darmstadt", DataService.WarnType.BIWAPP, 3)
-        DataService.add_subscription(10, "Berlin", DataService.WarnType.WEATHER, 1)
+        data_service.add_subscription(10, "Darmstadt", data_service.WarnType.WEATHER, 2)
+        data_service.add_subscription(10, "Darmstadt", data_service.WarnType.BIWAPP, 3)
+        data_service.add_subscription(10, "Berlin", data_service.WarnType.WEATHER, 1)
 
         should_be = {
                     "Darmstadt": {
@@ -103,12 +104,12 @@ class MyTestCase(unittest.TestCase):
                     }
 
         # check if it was saved
-        self.assertEqual(should_be, DataService.get_subscriptions(10))
+        self.assertEqual(should_be, data_service.get_subscriptions(10))
 
         # user with id == 10 wants to delete warnings
-        DataService.delete_subscription(10, "Darmstadt", DataService.WarnType.BIWAPP.value)
-        DataService.delete_subscription(10, "Berlin", DataService.WarnType.WEATHER.value)
-        DataService.add_subscription(10, "Darmstadt", DataService.WarnType.WEATHER, 5)
+        data_service.delete_subscription(10, "Darmstadt", data_service.WarnType.BIWAPP.value)
+        data_service.delete_subscription(10, "Berlin", data_service.WarnType.WEATHER.value)
+        data_service.add_subscription(10, "Darmstadt", data_service.WarnType.WEATHER, 5)
 
         should_be = {
             "Darmstadt": {
@@ -117,7 +118,7 @@ class MyTestCase(unittest.TestCase):
         }
 
         # check if it was saved
-        self.assertEqual(should_be, DataService.get_subscriptions(10))
+        self.assertEqual(should_be, data_service.get_subscriptions(10))
 
         # write data back to json from before the test
         with open(file_path, 'w') as writefile:
@@ -135,29 +136,29 @@ class MyTestCase(unittest.TestCase):
 
         # adding a location that was not in recommendations before
         control_user = ["Darmstadt", "München", "Frankfurt"]
-        DataService.add_suggestion(10, "Darmstadt")
+        data_service.add_suggestion(10, "Darmstadt")
 
         # check if the user entries are equal
-        self.assertEqual(control_user, DataService.get_suggestions(10))
+        self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the least recently added location
         control_user = ["Frankfurt", "Darmstadt", "München"]
-        DataService.add_suggestion(10, "Frankfurt")
+        data_service.add_suggestion(10, "Frankfurt")
 
         # check if the user entries are equal
-        self.assertEqual(control_user, DataService.get_suggestions(10))
+        self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the second most recently added location
         control_user = ["Darmstadt", "Frankfurt", "München"]
-        DataService.add_suggestion(10, "Darmstadt")
+        data_service.add_suggestion(10, "Darmstadt")
 
         # check if the user entries are equal
-        self.assertEqual(control_user, DataService.get_suggestions(10))
+        self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the location that was most recently added should change nothing
-        DataService.add_suggestion(10, "Darmstadt")
+        data_service.add_suggestion(10, "Darmstadt")
 
-        self.assertEqual(control_user, DataService.get_suggestions(10))
+        self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # write data back to json from before the test
         with open(file_path, 'w') as writefile:
@@ -173,12 +174,12 @@ class MyTestCase(unittest.TestCase):
         with open(file_path, 'w') as writefile:
             json.dump({}, writefile, indent=4)
 
-        for i in DataService.Language:
+        for i in data_service.Language:
             # check if user can change to all languages
-            DataService.set_language(10, i)
+            data_service.set_language(10, i)
 
             # check if it was saved
-            self.assertEqual(i, DataService.get_language(10))
+            self.assertEqual(i, data_service.get_language(10))
 
         # write data back to json from before the test
         with open(file_path, 'w') as writefile:
@@ -195,10 +196,10 @@ class MyTestCase(unittest.TestCase):
             json.dump({}, writefile, indent=4)
 
         # set the state of user id == 10 to 0 so the user gets a database entry
-        DataService.set_user_state(10, 0)
+        data_service.set_user_state(10, 0)
 
         # remove the user with the id == 10
-        DataService.remove_user(10)
+        data_service.remove_user(10)
 
         # read json file
         with open(file_path, "r") as file_object:
@@ -206,7 +207,7 @@ class MyTestCase(unittest.TestCase):
             user_entries = json.loads(json_content)
 
         # remove the user with the id == 10 (should do nothing)
-        DataService.remove_user(10)
+        data_service.remove_user(10)
 
         # read json file again after remove
         with open(file_path, "r") as file_object:

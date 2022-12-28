@@ -109,7 +109,7 @@ def get_place_id_for_place_name(place_name: str):
             return area_triple[0]  # place_id
 
 
-def get_name_for_id(given_id: str) -> None:
+def get_name_for_id(given_id: str):
     """returns district or place name of given ID"""
     if get_place_name(given_id) is not None:
         return get_place_name(given_id)
@@ -119,7 +119,7 @@ def get_name_for_id(given_id: str) -> None:
         raise ValueError('Could not find ID.')
 
 
-def get_place_name(place_id: str) -> None:
+def get_place_name(place_id: str):
     """returns place name of given place ID"""
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
@@ -131,7 +131,7 @@ def get_place_name(place_id: str) -> None:
     return None
 
 
-def get_district_name(district_id: str) -> None:
+def get_district_name(district_id: str):
     """returns district name of given district ID"""
     converted_covid_districts = requests.get(
         'https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()

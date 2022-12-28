@@ -46,7 +46,7 @@ def filter_html_tags(s: str) -> str:
     &nbsp; (== nonbreaking space) replaced with space
 
     Arguments:
-        s: String that will be filtered
+        s: String that will be filtered. Has to be valid html code.
     Returns:
         Filtered String
     """
