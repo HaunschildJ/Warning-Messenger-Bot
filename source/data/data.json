@@ -1,1 +1,14 @@
-{}
+{
+    "5635169582": {
+        "current_state": 1,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {},
+        "recommendations": [
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
+        ],
+        "language": "german"
+    }
+}
