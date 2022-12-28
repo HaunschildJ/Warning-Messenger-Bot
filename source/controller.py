@@ -519,13 +519,13 @@ def add_recommendation_in_database(chat_id: int, location: str):
 
     suggestions = data_service.get_suggestions(chat_id)
 
+
     # inform the user
     answer = text_templates.get_replaceable_answer(ReplaceableAnswer.RECOMMENDATIONS)
     answer = answer.replace("%r1", suggestions[0])
     answer = answer.replace("%r2", suggestions[1])
     answer = answer.replace("%r3", suggestions[2])
     sender.send_message(chat_id, answer)
-
 
 # helper/short methods -------------------------------------------------------------------------------------------------
 

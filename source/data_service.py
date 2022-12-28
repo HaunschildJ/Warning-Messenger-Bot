@@ -272,8 +272,8 @@ def get_suggestions(chat_id: int) -> list[str]:
 def add_suggestion(chat_id: int, location: str):
     """
     This method adds a location to the recommended location list of a user. \n
-    The list is sorted: The most recently added location is the first element and the least recently added location
-    ist the last element
+    The list is sorted: The most recently added location is the first element and the oldest added location
+    is the last element (FIFO)
 
     Arguments:
         chat_id: Integer to identify the user

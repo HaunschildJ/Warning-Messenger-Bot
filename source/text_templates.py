@@ -108,7 +108,3 @@ def get_replaceable_answer(answer: ReplaceableAnswer) -> string:
                         result += k['text'] + "\n"
 
     return result
-
-
-s = get_button_name(Button.SETTINGS)
-print(s)
