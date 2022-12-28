@@ -273,7 +273,7 @@ def cancel_button(call: typ.CallbackQuery):
 # helper methods -------------------------------------------------------------------------------------------------------
 
 
-def covid_helper(chat_id: int, message_string: str):
+def covid_helper(chat_id: int, message_string: str) -> None:
     """
     This is a helper method for the user input handlers above \n
     With the message/text the user/button sent (message_string) this method will then call the corresponding method in

@@ -108,6 +108,12 @@ def _get_send_location_keyboard() -> telebot.types.ReplyKeyboardMarkup:
 
 
 def _get_subscription_settings_keyboard() -> telebot.types.ReplyKeyboardMarkup:
+    """
+    Helper method to get subscription settings keyboard.
+
+    Returns:
+        Nothing
+    """
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
     button1 = sender.create_button(SHOW_SUBSCRIPTION_TEXT)
     button2 = sender.create_button(ADD_SUBSCRIPTION_TEXT)
