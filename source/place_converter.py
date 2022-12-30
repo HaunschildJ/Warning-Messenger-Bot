@@ -14,18 +14,19 @@ _districts_dictionary = {}
 _places_dictionary = {}
 """dictionary place_name : str -> place_id : str"""
 
+_postal_code_dictionary = {}
+"""dictionary postal_code : str -> [place_name : str, district_code : str]"""
+
 
 def _fill_districts_dict() -> None:
     """
-    Fills the _districts_dictionary dictionary with selected infos from https://warnung.bund.de/assets/json/converted_corona_kreise.json
+    Fills the _districts_dictionary dictionary with selected infos from
+    https://warnung.bund.de/assets/json/converted_corona_kreise.json
     Format: district_key -> district_name
     """
     converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
     for district_id, district_description in converted_covid_districts.items():
         _districts_dictionary[district_id] = district_description["n"]
-
-
-_fill_districts_dict()
 
 
 def _fill_places_dict() -> None:
@@ -42,7 +43,22 @@ def _fill_places_dict() -> None:
         _places_dictionary[area_triple[1]] = area_triple[0]
 
 
+def _fill_postal_code_dict() -> None:
+    """
+    Fills the _postal_code_dictionary dictionary with selected infos from
+    https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1
+    Format: postal_code : str -> [place_name : str, district_code : str]
+    """
+    postal_code_table = requests.get(
+        'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
+    for record in postal_code_table['records']:
+        _postal_code_dictionary[record['fields']['plz_code']] = [record['fields']['plz_name'],
+                                                                 record['fields']['krs_code']]
+
+
+_fill_districts_dict()
 _fill_places_dict()
+_fill_postal_code_dict()
 
 
 def get_district_id(name: str) -> str:
@@ -89,8 +105,12 @@ def get_district_id_for_place_name(place_name: str) -> str:
     Returns:
         district_id (str): the ID of the given place name, if found
     """
-    district_name = get_district_name_for_place(place_name)  # TODO CHECK FOR ERROR BEFORE USING IT IN THE NEXT METHOD
-    return get_district_id_for_district_name(district_name)
+    try:
+        district_name = get_district_name_for_place(place_name)
+    except ValueError:
+        return None
+    else:
+        return get_district_id_for_district_name(district_name)
 
 
 def get_place_for_postal_code(postal_code: str) -> str:
@@ -102,14 +122,13 @@ def get_place_for_postal_code(postal_code: str) -> str:
     Returns:
         place_name (str): the place name of the given postal code, if found
     """
-    postal_code_table = requests.get(
-        'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
-    for record in postal_code_table['records']:
-        record['fields'].pop('geometry', None)  # removes unimportant fields that take up a lot of space
-    for record in postal_code_table['records']:
-        if record['fields']['plz_code'] == postal_code:
-            return record['fields']['plz_name']
-    raise ValueError('Could not find matching postal code.')
+    try:
+        record = _postal_code_dictionary[postal_code]
+    except KeyError:
+        raise ValueError('Could not find matching postal code.')
+    else:
+        place_name = record[0]
+        return place_name
 
 
 def get_district_for_postal_code(postal_code: str) -> str:
@@ -121,8 +140,13 @@ def get_district_for_postal_code(postal_code: str) -> str:
     Returns:
         district_name (str): the district name of the given postal code, if found
     """
-    place = get_place_for_postal_code(postal_code)  # TODO CHECK FOR ERROR BEFORE USING IT IN THE NEXT METHOD
-    return get_district_name_for_place(place)
+    try:
+        record = _postal_code_dictionary[postal_code]
+    except KeyError:
+        return None
+    else:
+        district_id = record[1]
+        return get_district_name(district_id)
 
 
 def get_similar_names(wrong_name: str) -> list:
@@ -183,11 +207,13 @@ def get_district_name_for_place(place_name: str) -> str:
     Returns:
         district_name (str): the district name of the given place name, if found
     """
-    if _places_dictionary[place_name]:
+    try:
         place_id = _places_dictionary[place_name]
+    except KeyError:
+        raise ValueError('place name could not be found.')
+    else:
         district_id = place_id[:5]
         return get_district_name(district_id)
-    raise ValueError('place name could not be found.')
 
 
 def get_place_id_for_place_name(place_name: str) -> str:
@@ -199,10 +225,12 @@ def get_place_id_for_place_name(place_name: str) -> str:
     Returns:
         place_id (str): the place ID of the given place name, if found
     """
-    place_id = _places_dictionary[place_name]
-    if place_id:
-        return place_id  # place_id
-    raise ValueError('place name could not be found.')
+    try:
+        place_id = _places_dictionary[place_name]
+    except KeyError:
+        raise ValueError('place name could not be found.')
+    else:
+        return place_id
 
 
 def get_name_for_id(given_id: str) -> str:
@@ -216,7 +244,7 @@ def get_name_for_id(given_id: str) -> str:
        """
 
     place_name = get_place_name(given_id)
-    if len(given_id) is 5:
+    if len(given_id) == 5:
         district_name = get_district_name(given_id)
     else:
         district_name = None
@@ -254,7 +282,10 @@ def get_district_name(district_id: str) -> str:
         Returns:
             district_name (str): the district name of the given ID, if found
         """
-    district_name = _districts_dictionary[district_id]
-    if district_name:
+    try:
+        district_name = _districts_dictionary[district_id]
+    except KeyError:
+        return None
+    else:
         return district_name
-    return None
+
