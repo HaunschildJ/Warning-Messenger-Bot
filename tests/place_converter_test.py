@@ -6,49 +6,91 @@ place_converter = importlib.util.spec_from_file_location("place_converter", "../
 
 
 class MyTestCase(unittest.TestCase):
+
+    def test_fill_districts_dict(self):
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_districts_dict())
+
+        # dictionary test
+        input_value = "06434"
+        should_be = "Hochtaunuskreis"
+        self.assertEqual(should_be, place_converter._districts_dictionary[input_value])
+
+    def test_fill_places_dict(self):
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_places_dict())
+
+        # dictionary test
+        input_value = "Frankfurt am Main, Stadt"
+        should_be = "064120000000"
+        self.assertEqual(should_be, place_converter._places_dictionary[input_value])
+
+    def test_fill_postal_code_dict(self):
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_postal_code_dict())
+
+        # dictionary test
+        input_value = "61440"
+        should_be = ["Oberursel (Taunus)", "06434"]
+        self.assertEqual(should_be, place_converter._postal_code_dictionary[input_value])
+
     def test_get_district_id(self):
-        # is a place
+        # is a valid place
         input_value = "Frankfurt am Main, Stadt"
         should_be = "06412"
         self.assertEqual(should_be, place_converter.get_district_id(input_value))
 
-        # is a district
+        # is a valid district
         input_value = "Hochtaunuskreis"
         should_be = "06434"
         self.assertEqual(should_be, place_converter.get_district_id(input_value))
 
+        # cannot be found
         input_value = "no"
         self.assertRaises(ValueError, place_converter.get_district_id, input_value)
 
     def test_get_district_id_for_district_name(self):
-        # is a district
+        # is a valid district
         input_value = "Hochtaunuskreis"
         should_be = "06434"
         self.assertEqual(should_be, place_converter.get_district_id_for_district_name(input_value))
 
+        # cannot be found
+        input_value = "no"
+        self.assertEqual(None, place_converter.get_district_id_for_district_name(input_value))
+
     def test_get_district_id_for_place_name(self):
-        # is a place
+        # is a valid place
         input_value = "Frankfurt am Main, Stadt"
         should_be = "06412"
         self.assertEqual(should_be, place_converter.get_district_id_for_place_name(input_value))
-        # later: test error!
+
+        # cannot be found
+        input_value = "no"
+        self.assertEqual(None, place_converter.get_district_id_for_place_name(input_value))
 
     def test_get_place_for_postal_code(self):
+        # is a valid postal code
         input_value = "61440"
         should_be = "Oberursel (Taunus)"
         self.assertEqual(should_be, place_converter.get_place_for_postal_code(input_value))
 
+        # cannot be found
         input_value = "no"
         self.assertRaises(ValueError, place_converter.get_place_for_postal_code, input_value)
 
     def test_get_district_for_postal_code(self):
-        pass  # function needs to be reworked
-        # input_value = "61440"
-        # should_be = "Hochtaunuskreis"
-        # self.assertEqual(should_be, place_converter.get_district_for_postal_code(input_value))
+        # is a valid postal code
+        input_value = "61440"
+        should_be = "Hochtaunuskreis"
+        self.assertEqual(should_be, place_converter.get_district_for_postal_code(input_value))
+
+        # cannot be found
+        input_value = "no"
+        self.assertEqual(None, place_converter.get_district_for_postal_code(input_value))
 
     def test_get_similar_names(self):
-        pass  # TODO method will probably be changed drastically
+        pass
 
     def test_get_similar_districts(self):
         pass
@@ -57,39 +99,59 @@ class MyTestCase(unittest.TestCase):
         pass
 
     def test_get_district_name_for_place(self):
+        # is a valid place name
         input_value = "Frankfurt am Main, Stadt"
         should_be = "Frankfurt am Main"
         self.assertEqual(should_be, place_converter.get_district_name_for_place(input_value))
 
+        # cannot be found
         input_value = "no"
         self.assertRaises(ValueError, place_converter.get_district_name_for_place, input_value)
 
     def test_get_place_id_for_place_name(self):
+        # is a valid place name
         input_value = "Frankfurt am Main, Stadt"
         should_be = "064120000000"
         self.assertEqual(should_be, place_converter.get_place_id_for_place_name(input_value))
 
+        # cannot be found
+        input_value = "no"
+        self.assertRaises(ValueError, place_converter.get_place_id_for_place_name, input_value)
+
     def test_get_name_for_id(self):
+        # is a valid place id
         input_value = "064120000000"
         should_be = "Frankfurt am Main, Stadt"
         self.assertEqual(should_be, place_converter.get_name_for_id(input_value))
 
+        # is a valid district id
         input_value = "06412"
         should_be = "Frankfurt am Main"
         self.assertEqual(should_be, place_converter.get_name_for_id(input_value))
 
+        # cannot be found
         input_value = "no"
         self.assertRaises(ValueError, place_converter.get_name_for_id, input_value)
 
     def test_get_place_name(self):
+        # is a valid place id
         input_value = "064120000000"
         should_be = "Frankfurt am Main, Stadt"
         self.assertEqual(should_be, place_converter.get_place_name(input_value))
 
+        # cannot be found
+        input_value = "no"
+        self.assertEqual(None, place_converter.get_place_name(input_value))
+
     def test_get_district_name(self):
+        # is a valid district id
         input_value = "06412"
         should_be = "Frankfurt am Main"
         self.assertEqual(should_be, place_converter.get_district_name(input_value))
+
+        # cannot be found
+        input_value = "no"
+        self.assertEqual(None, place_converter.get_district_name(input_value))
 
 
 if __name__ == '__main__':
