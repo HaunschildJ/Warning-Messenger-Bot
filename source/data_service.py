@@ -83,7 +83,7 @@ def set_receive_warnings(chat_id: int, new_value: bool):
     cid = str(chat_id)
 
     if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA
+        all_user[cid] = DEFAULT_DATA.copy()
 
     all_user[cid][Attributes.RECEIVE_WARNINGS.value] = new_value
 
@@ -104,7 +104,7 @@ def get_receive_warnings(chat_id: int) -> bool:
 
     if str(chat_id) in all_user:
         return all_user[str(chat_id)][Attributes.RECEIVE_WARNINGS.value]
-    return DEFAULT_DATA[Attributes.CURRENT_STATE.value]
+    return DEFAULT_DATA[Attributes.RECEIVE_WARNINGS.value]
 
 
 def get_user_state(chat_id: int) -> int:
@@ -136,7 +136,7 @@ def set_user_state(chat_id: int, new_state: int):
     cid = str(chat_id)
 
     if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA
+        all_user[cid] = DEFAULT_DATA.copy()
 
     all_user[cid][Attributes.CURRENT_STATE.value] = new_state
 
@@ -155,7 +155,7 @@ def set_auto_covid_information(chat_id: int, how_often: ReceiveInformation):
     cid = str(chat_id)
 
     if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA
+        all_user[cid] = DEFAULT_DATA.copy()
 
     all_user[cid][Attributes.COVID_AUTO_INFO.value] = how_often.value
 
@@ -211,7 +211,7 @@ def add_subscription(chat_id: int, location: str, warning: WarnType, warning_lev
     cid = str(chat_id)
 
     if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA
+        all_user[cid] = DEFAULT_DATA.copy()
 
     user = all_user[cid]
 
@@ -240,8 +240,6 @@ def delete_subscription(chat_id: int, location: str, warning: str):
 
     user = all_user[cid]
     if not (location in user[Attributes.LOCATIONS.value]):
-        return
-    if not (warning in user[Attributes.LOCATIONS.value][location]):
         return
 
     del user[Attributes.LOCATIONS.value][location][warning]
@@ -283,7 +281,7 @@ def add_suggestion(chat_id: int, location: str):
     cid = str(chat_id)
 
     if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA
+        all_user[cid] = DEFAULT_DATA.copy()
 
     current_recommendations = all_user[cid][Attributes.RECOMMENDATIONS.value]
     i = 0
@@ -328,7 +326,7 @@ def set_language(chat_id: int, new_language: Language):
     cid = str(chat_id)
 
     if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA
+        all_user[cid] = DEFAULT_DATA.copy()
 
     all_user[cid][Attributes.LANGUAGE.value] = new_language.value
 
