@@ -23,8 +23,16 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(should_be, nina_string_helper.filter_html_tags(input_value))
 
-        input_value = "<html><head>firstC</head><body><a href=\"https://www.w3schools.com/\">visitW3!</a></body></html>"
-        should_be = "firstContent: https:google.com"
+        input_value = "<html><head>first </head><body><a href=\"https://www.w3schools.com/\">visitW3!</a></body></html>"
+        should_be = "first visitW3!: https://www.w3schools.com/"
+        self.assertEqual(should_be, nina_string_helper.filter_html_tags(input_value))
+
+        input_value = "<html><head>first </head><body><a href=\"https://www.w3schools.com/\">a</a></body></html>"
+        should_be = "first a: https://www.w3schools.com/"
+        self.assertEqual(should_be, nina_string_helper.filter_html_tags(input_value))
+
+        input_value = "<html><head>first </head><body><a href=\"https://www.w3schools.com/\"></a></body></html>"
+        should_be = "first "
         self.assertEqual(should_be, nina_string_helper.filter_html_tags(input_value))
 
 

@@ -35,7 +35,15 @@ def filter_html_tags(s: str) -> str:
     """
     filters html tags from the string s.
     </p> tags (only closed once) will be replaced with \n
-    <a> tags -> <a .... href="https:link.com"> Hyperlinktext </a>
+
+    tags in form of <a .... href="https:link.com"> Hyperlinktext </a> ->  Hyperlinktext: https:link.com
+    if no characters for the Hyperlinktext are provided, no link will be pasted in the output, for example:
+    Hello World <a href="https:link.com"></a> -> Hello World
+    but if there is at least one (whitespace counts as well) the link will be pasted
+    Hello World <a href="https:link.com">_</a> -> Hello World _: https:link.com
+    The link must be enclosed by " " chars for it to work
+
+
     &nbsp; (== nonbreaking space) replaced with space
 
     Arguments:
