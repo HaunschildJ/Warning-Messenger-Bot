@@ -6,6 +6,35 @@ place_converter = importlib.util.spec_from_file_location("place_converter", "../
 
 
 class MyTestCase(unittest.TestCase):
+
+    def test_fill_districts_dict(self):
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_districts_dict())
+
+        # dictionary test
+        input_value = "06434"
+        should_be = "Hochtaunuskreis"
+        self.assertEqual(should_be, place_converter._districts_dictionary[input_value])
+
+    def test_fill_places_dict(self):
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_places_dict())
+
+        # dictionary test
+        input_value = "Frankfurt am Main, Stadt"
+        should_be = "064120000000"
+        self.assertEqual(should_be, place_converter._places_dictionary[input_value])
+
+    def test_fill_postal_code_dict(self):
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_postal_codes_dict())
+
+        # dictionary test
+        input_value = "61440"
+        should_be = ["Oberursel (Taunus)", "06434"]
+        self.assertEqual(should_be, place_converter._postal_code_dictionary[input_value])
+
+
     def test_get_district_id(self):
         # is a valid place
         input_value = "Frankfurt am Main, Stadt"

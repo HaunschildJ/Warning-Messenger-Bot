@@ -15,14 +15,14 @@ _places_dictionary = {}
 """dictionary place_name : str -> place_id : str"""
 
 _postal_code_dictionary = {}
-"""dictionary postal_code : str -> [place_name : str, district_code : str]"""
+"""dictionary postal_code : str -> [place_name : str, district_id : str]"""
 
 
 def _fill_districts_dict() -> None:
     """
     Fills the _districts_dictionary dictionary with selected infos from
     https://warnung.bund.de/assets/json/converted_corona_kreise.json
-    Format: district_key -> district_name
+    Format: district_id -> district_name
     """
     converted_covid_districts = requests.get('https://warnung.bund.de/assets/json/converted_corona_kreise.json').json()
     for district_id, district_description in converted_covid_districts.items():
@@ -34,7 +34,7 @@ def _fill_places_dict() -> None:
     Fills the _places_dictionary dictionary with selected infos from
     https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31
     /download/Regionalschl_ssel_2021-07-31.json
-    Format: place_name -> place_key
+    Format: place_name -> place_id
     """
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
@@ -47,7 +47,7 @@ def _fill_postal_code_dict() -> None:
     """
     Fills the _postal_code_dictionary dictionary with selected infos from
     https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1
-    Format: postal_code : str -> [place_name : str, district_code : str]
+    Format: postal_code : str -> [place_name : str, district_id : str]
     """
     postal_code_table = requests.get(
         'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
