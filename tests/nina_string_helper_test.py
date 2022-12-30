@@ -1,8 +1,7 @@
 import importlib.util
 import unittest
 
-
-nina_string_helper = importlib.util.spec_from_file_location\
+nina_string_helper = importlib.util.spec_from_file_location \
     ("nina_string_helper", "../source/nina_string_helper.py").loader.load_module()
 
 
@@ -19,7 +18,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(should_be, nina_string_helper.expand_location_id_with_zeros(input_value))
 
     def test_filter_html_tags(self):
-
         input_value = "<html><head>firstContent</head><body>-secondContent</body></html>"
         should_be = "firstContent-secondContent"
 
@@ -28,3 +26,4 @@ class MyTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
