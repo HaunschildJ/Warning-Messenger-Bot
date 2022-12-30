@@ -27,13 +27,12 @@ class MyTestCase(unittest.TestCase):
 
     def test_fill_postal_code_dict(self):
         # method does not return anything
-        self.assertEqual(None, place_converter._fill_postal_codes_dict())
+        self.assertEqual(None, place_converter._fill_postal_code_dict())
 
         # dictionary test
         input_value = "61440"
         should_be = ["Oberursel (Taunus)", "06434"]
         self.assertEqual(should_be, place_converter._postal_code_dictionary[input_value])
-
 
     def test_get_district_id(self):
         # is a valid place
