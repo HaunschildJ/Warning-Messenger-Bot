@@ -1,10 +1,3 @@
-def in_bound(s: str, i: int) -> bool:
-    """
-    Checks if i is smaller than the length of the String s and greater or equal to 0
-    """
-    return 0 <= i < len(s)
-
-
 def find_specific(s: str, index: int, sub_str: str) -> bool:
     """
     searches in string s, starting at index, if the next characters are sub_str
@@ -42,7 +35,15 @@ def filter_html_tags(s: str) -> str:
     """
     filters html tags from the string s.
     </p> tags (only closed once) will be replaced with \n
-    <a> tags -> <a .... href="https:link.com"> Hyperlinktext </a>
+
+    tags in form of <a .... href="https:link.com"> Hyperlinktext </a> ->  Hyperlinktext: https:link.com
+    if no characters for the Hyperlinktext are provided, no link will be pasted in the output, for example:
+    Hello World <a href="https:link.com"></a> -> Hello World
+    but if there is at least one (whitespace counts as well) the link will be pasted
+    Hello World <a href="https:link.com">_</a> -> Hello World _: https:link.com
+    The link must be enclosed by " " chars for it to work
+
+
     &nbsp; (== nonbreaking space) replaced with space
 
     Arguments:
