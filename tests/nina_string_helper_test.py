@@ -23,6 +23,10 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(should_be, nina_string_helper.filter_html_tags(input_value))
 
+        input_value = "<html><head>firstC</head><body><a href=\"https://www.w3schools.com/\">visitW3!</a></body></html>"
+        should_be = "firstContent: https:google.com"
+        self.assertEqual(should_be, nina_string_helper.filter_html_tags(input_value))
+
 
 if __name__ == '__main__':
     unittest.main()

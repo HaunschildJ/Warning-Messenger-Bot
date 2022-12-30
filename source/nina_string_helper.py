@@ -1,10 +1,3 @@
-def in_bound(s: str, i: int) -> bool:
-    """
-    Checks if i is smaller than the length of the String s and greater or equal to 0
-    """
-    return 0 <= i < len(s)
-
-
 def find_specific(s: str, index: int, sub_str: str) -> bool:
     """
     searches in string s, starting at index, if the next characters are sub_str
