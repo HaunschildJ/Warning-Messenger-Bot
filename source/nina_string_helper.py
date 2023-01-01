@@ -83,3 +83,19 @@ def filter_html_tags(s: str) -> str:
             in_text = True
 
     return filtered_string
+
+
+def expand_location_id_with_zeros(location_id: str) -> str:
+    """
+    Fills given String with 0 until it has 12 characters
+
+    Arguments:
+        location_id: String that will be filled
+    Returns:
+        The filled String
+    """
+    amount_of_zeros = 12 - len(location_id)
+    for i in range(0, amount_of_zeros):
+        location_id += '0'
+
+    return location_id
