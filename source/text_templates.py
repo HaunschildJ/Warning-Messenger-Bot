@@ -83,14 +83,14 @@ def get_answers(answer: Answers) -> string:
             return topic['text'][answer.value]
 
 
-def get_replaceable_answer(answer: ReplaceableAnswer) -> string:
+def get_replaceable_answer(r_answer: ReplaceableAnswer) -> string:
     """
     Only applicable for text with replacable elements. Returned string will
     contain the following form: %to_be_replaced.
     Takes a value of the Enum and returns a string with formated info from a JSON file.
 
     Arguments:
-        answer: a ReplaceableAnswer to determine what information you want to be returned
+        r_answer: a ReplaceableAnswer to determine what information you want to be returned
 
     Returns:
         A String containing the desired information.
@@ -103,7 +103,7 @@ def get_replaceable_answer(answer: ReplaceableAnswer) -> string:
     for topic in data:
         if topic['topic'] == "replacable_answers":
             for answer in topic['all_answers']:
-                if answer['topic'] == answer.value:
+                if answer['topic'] == r_answer.value:
                     for information in answer['information']:
                         result += information['text'] + "\n"
 
