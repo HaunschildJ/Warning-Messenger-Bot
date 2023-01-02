@@ -22,5 +22,21 @@
             "Berlin"
         ],
         "language": "german"
+    },
+    "1770942669": {
+        "current_state": 11,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {
+            "Darmstadt": {
+                "weather": 4
+            }
+        },
+        "recommendations": [
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
+        ],
+        "language": "german"
     }
 }
