@@ -12,24 +12,32 @@
         "language": "german"
     },
     "5635169582": {
-        "current_state": 0,
-        "receive_warnings": true,
+        "current_state": 1,
+        "receive_warnings": false,
         "receive_covid_information": 0,
-        "locations": {},
+        "locations": {
+            "Test": {
+                "biwapp": 2
+            }
+        },
         "recommendations": [
+            "Test",
             "M\u00fcnchen",
-            "Frankfurt",
-            "Berlin"
+            "Frankfurt"
         ],
         "language": "german"
     },
     "1770942669": {
-        "current_state": 11,
+        "current_state": 0,
         "receive_warnings": true,
         "receive_covid_information": 0,
         "locations": {
             "Darmstadt": {
-                "weather": 4
+                "weather": 4,
+                "biwapp": 5
+            },
+            "Gie\u00dfen": {
+                "weather": 3
             }
         },
         "recommendations": [

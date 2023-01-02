@@ -386,6 +386,28 @@ def show_inline_button(chat_id: int, button_text: str):
     sender.send_message(chat_id, "TODO text_templates", markup)
 
 
+def general_warning(chat_ids: list[int], warnings: list[nina_service.GeneralWarning]):
+    """
+    Sends warnings to all users
+    :param chat_ids:
+    :param warnings:
+    :return:
+    """
+    for warning in warnings:
+        message = text_templates.get_replaceable_answer(ReplaceableAnswer.BIWAPP_WARNING)
+        message = message.replace("%id", warning.id)
+        message = message.replace("%version", str(warning.version))
+        message = message.replace("%severity", str(warning.severity.value))
+        message = message.replace("%type", str(warning.type.name))
+        message = message.replace("%title", warning.title)
+        message = message.replace("%start_date", warning.start_date)
+        keyboard = _get_warning_keyboard_buttons()
+        for chat_id in chat_ids:
+            sender.send_message(chat_id, message, keyboard)
+
+
+
+
 def biwapp(chat_id: int):
     """
     Sets the chat action of the bot to typing \n
@@ -399,19 +421,7 @@ def biwapp(chat_id: int):
     """
     sender.send_chat_action(chat_id, "typing")
     warnings = nina_service.poll_biwapp_warning()
-    if len(warnings) == 0:
-        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
-                            _get_warning_keyboard_buttons())
-        return
-    for warning in warnings:
-        message = text_templates.get_replaceable_answer(ReplaceableAnswer.BIWAPP_WARNING)
-        message = message.replace("%id", warning.id)
-        message = message.replace("%version", str(warning.version))
-        message = message.replace("%severity", str(warning.severity.value))
-        message = message.replace("%type", str(warning.type.name))
-        message = message.replace("%title", warning.title)
-        message = message.replace("%start_date", warning.start_date)
-        sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
+
 
 
 def covid_info(chat_id: int, city_name: str):

@@ -197,6 +197,23 @@ def get_subscriptions(chat_id: int) -> dict:
     return DEFAULT_DATA[Attributes.LOCATIONS.value]
 
 
+def get_warn_types_for_subscription(subscription: tuple) -> list[WarnType]:
+    warn_types = []
+    for warn_type, warning_level in subscription[1].items():
+        #warn_types.append(WarnType(warn_type).name)
+        warn_types.append(warn_type)
+
+    return warn_types
+
+
+def get_warning_level_for_location_and_warn_type(subscription: tuple) -> str:
+    print(subscription)
+
+
+def get_location_for_subscription(subscription: tuple) -> str:
+    return subscription[0]
+
+
 def add_subscription(chat_id: int, location: str, warning: WarnType, warning_level: int):
     """
     Adds/Sets the subscription for the user (chat_id) for the location and the warning given
@@ -331,3 +348,22 @@ def set_language(chat_id: int, new_language: Language):
     all_user[cid][Attributes.LANGUAGE.value] = new_language.value
 
     _write_file(file_path, all_user)
+
+
+def get_all_chat_ids() -> list[int]:
+    """
+    Returns: List of all chat_ids that are saved in the database
+    """
+    chat_ids = []
+    all_users = _read_file(file_path)
+    for key, value in all_users.items():
+        chat_ids.append(int(key))
+    return chat_ids
+
+
+def get_warned_users() -> list[int]:
+    """
+    Returns: List of all chat_ids that have receiveWarnings set to true
+    """
+    filtered_ids = filter(lambda chat_id: get_receive_warnings(chat_id), get_all_chat_ids())
+    return list(filtered_ids)
