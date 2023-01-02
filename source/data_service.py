@@ -267,7 +267,7 @@ def get_suggestions(chat_id: int) -> list[str]:
     return DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
 
 
-def add_suggestion(chat_id: int, location: str):
+def add_suggestion(chat_id: int, location: str) -> list[str]:
     """
     This method adds a location to the recommended location list of a user. \n
     The list is sorted: The most recently added location is the first element and the oldest added location
@@ -276,6 +276,8 @@ def add_suggestion(chat_id: int, location: str):
     Arguments:
         chat_id: Integer to identify the user
         location: String representing the location the user wants to be added to suggestions
+    Returns:
+        list of strings representing the recommendations after the new one has been added
     """
     all_user = _read_file(file_path)
     cid = str(chat_id)
@@ -295,6 +297,7 @@ def add_suggestion(chat_id: int, location: str):
             break
 
     _write_file(file_path, all_user)
+    return current_recommendations
 
 
 def get_language(chat_id: int) -> Language:
