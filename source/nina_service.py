@@ -5,7 +5,20 @@ import requests
 import nina_string_helper
 import place_converter
 
-baseUrl = "https://warnung.bund.de/api31"
+_base_url = "https://warnung.bund.de/api31"
+
+
+class WarnType(Enum):
+    """
+    this enum is used to differ between the different general warnings from the nina api
+    """
+    BIWAPP = 0
+    KATWARN = 1
+    MOWAS = 2
+    DWD = 3
+    LHP = 4
+    POLICE = 5
+    NONE = 6
 
 
 @dataclass
@@ -26,13 +39,13 @@ def get_covid_rules(city_name) -> CovidRules:
     :return: CovidRules class
     """
     city_code = place_converter.get_district_id(city_name)
-    # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
+    # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
     city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(baseUrl + covid_info_api + city_code + ".json")
+    response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
 
     response = response_raw.json()
 
@@ -62,14 +75,14 @@ def get_covid_infos(city_name) -> CovidInfo:
     :return:
     """
     city_code = place_converter.get_district_id(city_name)
-    # der city_code muss 12 Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
+    # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
     # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
     city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(baseUrl + covid_info_api + city_code + ".json")
+    response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
@@ -148,7 +161,7 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
     :param api_string: the string for the exact api we poll for
     :return: a list of all warnings that are actual. An empty list is returned if there are none
     """
-    response_raw = requests.get(baseUrl + api_string)
+    response_raw = requests.get(_base_url + api_string)
     response = response_raw.json()
 
     warning_list = []
@@ -223,19 +236,6 @@ def poll_police_warning() -> list[GeneralWarning]:
     """
     police_api = "/police/mapData.json"
     return _poll_general_warning(police_api)
-
-
-"""
-warningList = poll_biwapp_warning()  # for testing you just need to change which warning method you call here
-for warning in warningList:
-    print("\n")
-    print(warning.id)
-    print(warning.version)
-    print(warning.severity)
-    print(warning.type)
-    print(warning.title)
-    print(warning.start_date)
-"""
 
 
 @dataclass
@@ -316,7 +316,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
     :return: the detailed Warning as a DetailedWarning class
     """
-    response_raw = requests.get(baseUrl + "/warnings/" + warning_id + ".json")
+    response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
     print(response_raw.text)
 
@@ -329,24 +329,18 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 
 
-"""
-warning = poll_biwapp_warning()[0] #for testing the individual warning method needs to return a warning (not always the case, just iterate through biwap, katwarn, police, etc...)
-warning = get_detailed_warning(warning.id)
-print(warning.id)
-print(warning.status)
-print(warning.sender)
-print(warning.date_sent)
-print("INFOS: ")
-for i in range(0, len(warning.infos)):
-    print("\t"+warning.infos[i].event)
-    print("\t"+warning.infos[i].severity.name)
-    print("\t"+warning.infos[i].date_expires)
-    print("\t"+warning.infos[i].headline)
-    print("\t"+warning.infos[i].description)
-    print("\tAREA: ")
-    for j in range(0, len(warning.infos[i].area)):
-        print("\t\t"+ warning.infos[i].area[i].area_description)
-        for l in range(0, len(warning.infos[i].area[j].geocode)):
-            print ("\t\tGEOCODE:")
-            print("\t\t\t"+ warning.infos[i].area[i].geocode[l])
-"""
+_call_general_warning_map = {
+    0: poll_biwapp_warning,
+    1: poll_katwarn_warning,
+    2: poll_mowas_warning,
+    3: poll_dwd_warning,
+    4: poll_lhp_warning,
+    5: poll_police_warning
+}
+
+
+def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
+    if warning == WarnType.NONE:
+        return []
+    return _call_general_warning_map[int(str(warning.value))]()
+

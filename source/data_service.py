@@ -20,11 +20,6 @@ DEFAULT_DATA = {
 }
 
 
-class WarnType(Enum):
-    WEATHER = "weather"
-    BIWAPP = "biwapp"
-
-
 class ReceiveInformation(Enum):
     NEVER = 0
     DAILY = 1
@@ -197,14 +192,14 @@ def get_subscriptions(chat_id: int) -> dict:
     return DEFAULT_DATA[Attributes.LOCATIONS.value]
 
 
-def add_subscription(chat_id: int, location: str, warning: WarnType, warning_level: int):
+def add_subscription(chat_id: int, location: str, warning: str, warning_level: int):
     """
     Adds/Sets the subscription for the user (chat_id) for the location and the warning given
 
     Arguments:
         chat_id: Integer to identify the user
         location: String with the location of the subscription
-        warning: WarnType with the warning for the subscription
+        warning: String with the warning for the subscription (int of nina_service WarnType)
         warning_level: Integer representing the Level a warning is relevant to the user
     """
     all_user = _read_file(file_path)
@@ -216,9 +211,9 @@ def add_subscription(chat_id: int, location: str, warning: WarnType, warning_lev
     user = all_user[cid]
 
     if not (location in user[Attributes.LOCATIONS.value]):
-        user[Attributes.LOCATIONS.value][location] = {warning.value: warning_level}
+        user[Attributes.LOCATIONS.value][location] = {warning: warning_level}
     else:
-        user[Attributes.LOCATIONS.value][location][warning.value] = warning_level
+        user[Attributes.LOCATIONS.value][location][warning] = warning_level
 
     _write_file(file_path, all_user)
 

@@ -4,6 +4,8 @@ import bot
 import controller
 from controller import Commands
 from controller import ErrorCodes
+from nina_service import WarnType
+import data_service
 
 bot = bot.bot
 
@@ -97,12 +99,23 @@ def filter_add_or_delete_subscription(message: typ.Message) -> bool:
     return False
 
 
+def filter_general_warning(message: typ.Message) -> bool:
+    t = message.text
+    if t == controller.WARNING_KATWARN_TEXT or t == controller.WARNING_MOWAS_TEXT or \
+            t == controller.WARNING_BIWAPP_TEXT or t == controller.WARNING_LHP_TEXT or \
+            t == controller.WARNING_POLICE_TEXT or t == controller.WARNING_DWD_TEXT:
+        if data_service.get_user_state(message.chat.id) == 2:
+            return True
+    return False
+
+
 def filer_everything_else(message: typ.Message) -> bool:
     # TODO add all filter that are not callbacks here
     if filter_covid(message) or filter_add_recommendation(message) or filter_main_button(message) or \
             filter_buttons_in_settings(message) or filter_covid_for_inline(message) or \
             message.text == controller.BACK_TO_MAIN_TEXT or message.text == controller.WARNING_BIWAPP_TEXT or \
-            filter_show_subscriptions(message) or filter_add_or_delete_subscription(message):
+            filter_show_subscriptions(message) or filter_add_or_delete_subscription(message) or \
+            filter_general_warning(message):
         return False
     return True
 
@@ -176,9 +189,21 @@ def covid_for_inline(message: typ.Message):
     controller.show_inline_button(message.chat.id, message.text)
 
 
-@bot.message_handler(regexp=controller.WARNING_BIWAPP_TEXT)
-def biwapp_button_pressed(message: typ.Message):
-    controller.biwapp(message.chat.id)
+@bot.message_handler(func=filter_general_warning)
+def general_warning_button_pressed(message: typ.Message):
+    t = message.text
+    if t == controller.WARNING_KATWARN_TEXT:
+        controller.general_warning(message.chat.id, WarnType.KATWARN)
+    elif t == controller.WARNING_MOWAS_TEXT:
+        controller.general_warning(message.chat.id, WarnType.MOWAS)
+    elif t == controller.WARNING_BIWAPP_TEXT:
+        controller.general_warning(message.chat.id, WarnType.BIWAPP)
+    elif t == controller.WARNING_LHP_TEXT:
+        controller.general_warning(message.chat.id, WarnType.LHP)
+    elif t == controller.WARNING_POLICE_TEXT:
+        controller.general_warning(message.chat.id, WarnType.POLICE)
+    elif t == controller.WARNING_DWD_TEXT:
+        controller.general_warning(message.chat.id, WarnType.DWD)
 
 
 @bot.message_handler(regexp=controller.BACK_TO_MAIN_TEXT)
