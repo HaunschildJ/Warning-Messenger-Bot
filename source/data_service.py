@@ -20,11 +20,6 @@ DEFAULT_DATA = {
 }
 
 
-class WarnType(Enum):
-    WEATHER = "weather"
-    BIWAPP = "biwapp"
-
-
 class ReceiveInformation(Enum):
     NEVER = 0
     DAILY = 1
@@ -221,7 +216,7 @@ def add_subscription(chat_id: int, location: str, warning: WarnType, warning_lev
     Arguments:
         chat_id: Integer to identify the user
         location: String with the location of the subscription
-        warning: WarnType with the warning for the subscription
+        warning: String with the warning for the subscription (int of nina_service WarnType)
         warning_level: Integer representing the Level a warning is relevant to the user
     """
     all_user = _read_file(file_path)
@@ -233,9 +228,9 @@ def add_subscription(chat_id: int, location: str, warning: WarnType, warning_lev
     user = all_user[cid]
 
     if not (location in user[Attributes.LOCATIONS.value]):
-        user[Attributes.LOCATIONS.value][location] = {warning.value: warning_level}
+        user[Attributes.LOCATIONS.value][location] = {warning: warning_level}
     else:
-        user[Attributes.LOCATIONS.value][location][warning.value] = warning_level
+        user[Attributes.LOCATIONS.value][location][warning] = warning_level
 
     _write_file(file_path, all_user)
 
@@ -284,7 +279,7 @@ def get_suggestions(chat_id: int) -> list[str]:
     return DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
 
 
-def add_suggestion(chat_id: int, location: str):
+def add_suggestion(chat_id: int, location: str) -> list[str]:
     """
     This method adds a location to the recommended location list of a user. \n
     The list is sorted: The most recently added location is the first element and the oldest added location
@@ -293,6 +288,8 @@ def add_suggestion(chat_id: int, location: str):
     Arguments:
         chat_id: Integer to identify the user
         location: String representing the location the user wants to be added to suggestions
+    Returns:
+        list of strings representing the recommendations after the new one has been added
     """
     all_user = _read_file(file_path)
     cid = str(chat_id)
@@ -312,6 +309,7 @@ def add_suggestion(chat_id: int, location: str):
             break
 
     _write_file(file_path, all_user)
+    return current_recommendations
 
 
 def get_language(chat_id: int) -> Language:

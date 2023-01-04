@@ -4,23 +4,13 @@ import bot
 import controller
 from controller import Commands
 from controller import ErrorCodes
+from nina_service import WarnType
+import data_service
 
 bot = bot.bot
 
 
 # filter for message handlers ------------------------------------------------------------------------------------------
-
-
-def filter_covid(message: typ.Message) -> bool:
-    if message.text.split(' ')[0] == Commands.COVID.value:
-        return True
-    return False
-
-
-def filter_add_recommendation(message: typ.Message) -> bool:
-    if message.text.split(' ')[0] == Commands.ADD_RECOMMENDATION.value:
-        return True
-    return False
 
 
 def filter_callback_covid(call: typ.CallbackQuery) -> bool:
@@ -52,6 +42,25 @@ def filter_callback_add_subscription(call: typ.CallbackQuery) -> bool:
 def filter_callback_delete_subscription(call: typ.CallbackQuery) -> bool:
     split_data = call.data.split(' ')
     if split_data[0] == Commands.DELETE_SUBSCRIPTION.value:
+        return True
+    return False
+
+
+def filter_callback_auto_covid_updates(call: typ.CallbackQuery) -> bool:
+    split_data = call.data.split(' ')
+    if split_data[0] == Commands.COVID_UPDATES.value:
+        return True
+    return False
+
+
+def filter_covid(message: typ.Message) -> bool:
+    if message.text.split(' ')[0] == Commands.COVID.value:
+        return True
+    return False
+
+
+def filter_add_recommendation(message: typ.Message) -> bool:
+    if message.text.split(' ')[0] == Commands.ADD_RECOMMENDATION.value:
         return True
     return False
 
@@ -90,12 +99,23 @@ def filter_add_or_delete_subscription(message: typ.Message) -> bool:
     return False
 
 
+def filter_general_warning(message: typ.Message) -> bool:
+    t = message.text
+    if t == controller.WARNING_KATWARN_TEXT or t == controller.WARNING_MOWAS_TEXT or \
+            t == controller.WARNING_BIWAPP_TEXT or t == controller.WARNING_LHP_TEXT or \
+            t == controller.WARNING_POLICE_TEXT or t == controller.WARNING_DWD_TEXT:
+        if data_service.get_user_state(message.chat.id) == 2:
+            return True
+    return False
+
+
 def filer_everything_else(message: typ.Message) -> bool:
     # TODO add all filter that are not callbacks here
     if filter_covid(message) or filter_add_recommendation(message) or filter_main_button(message) or \
             filter_buttons_in_settings(message) or filter_covid_for_inline(message) or \
             message.text == controller.BACK_TO_MAIN_TEXT or message.text == controller.WARNING_BIWAPP_TEXT or \
-            filter_show_subscriptions(message) or filter_add_or_delete_subscription(message):
+            filter_show_subscriptions(message) or filter_add_or_delete_subscription(message) or \
+            filter_general_warning(message):
         return False
     return True
 
@@ -139,7 +159,7 @@ def add_recommendation(message: typ.Message):
 
 
 @bot.message_handler(func=filer_everything_else)
-def tmp(message: typ.Message):
+def everything_else(message: typ.Message):
     controller.normal_input_depending_on_state(message.chat.id, message.text)
 
 
@@ -165,15 +185,25 @@ def covid_for_inline(message: typ.Message):
 
     Arguments:
         message: the message that the user sent in the chat
-    Returns:
-        Nothing
     """
     controller.show_inline_button(message.chat.id, message.text)
 
 
-@bot.message_handler(regexp=controller.WARNING_BIWAPP_TEXT)
-def biwapp_button_pressed(message: typ.Message):
-    controller.biwapp(message.chat.id)
+@bot.message_handler(func=filter_general_warning)
+def general_warning_button_pressed(message: typ.Message):
+    t = message.text
+    if t == controller.WARNING_KATWARN_TEXT:
+        controller.general_warning(message.chat.id, WarnType.KATWARN)
+    elif t == controller.WARNING_MOWAS_TEXT:
+        controller.general_warning(message.chat.id, WarnType.MOWAS)
+    elif t == controller.WARNING_BIWAPP_TEXT:
+        controller.general_warning(message.chat.id, WarnType.BIWAPP)
+    elif t == controller.WARNING_LHP_TEXT:
+        controller.general_warning(message.chat.id, WarnType.LHP)
+    elif t == controller.WARNING_POLICE_TEXT:
+        controller.general_warning(message.chat.id, WarnType.POLICE)
+    elif t == controller.WARNING_DWD_TEXT:
+        controller.general_warning(message.chat.id, WarnType.DWD)
 
 
 @bot.message_handler(regexp=controller.BACK_TO_MAIN_TEXT)
@@ -230,6 +260,25 @@ def auto_warning_button(call: typ.CallbackQuery):
     if call.data == Commands.AUTO_WARNING.value + " True":
         value = True
     controller.change_auto_warning_in_database(chat_id, value)
+    controller.delete_message(chat_id, call.message.id)
+
+
+@bot.callback_query_handler(func=filter_callback_auto_covid_updates)
+def auto_covid_updates_button(call: typ.CallbackQuery):
+    """
+    This method is a callback_handler for the automatic covid updates inline buttons and will call the methods needed
+    to set the automatic covid updates int in the database to what the user wants\n
+    It will also delete the inline buttons
+
+    Arguments:
+        call: data that has been sent by the inline button
+    """
+    chat_id = call.message.chat.id
+    split_data = call.data.split(' ')
+    if len(split_data) != 2:
+        controller.error_handler(chat_id, ErrorCodes.ONLY_PART_OF_COMMAND)
+
+    controller.change_auto_covid_updates_in_database(chat_id, int(split_data[1]))
     controller.delete_message(chat_id, call.message.id)
 
 

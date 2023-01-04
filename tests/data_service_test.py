@@ -1,6 +1,5 @@
 import importlib.util
 import unittest
-import json
 
 
 data_service = importlib.util.spec_from_file_location("data_service", "../source/data_service.py")\
@@ -87,31 +86,31 @@ class MyTestCase(unittest.TestCase):
         data_service._write_file(file_path, {})
 
         # user 1 wants to delete a subscription but is not in json yet -> nothing should happen
-        data_service.delete_subscription(1, "Darmstadt", data_service.WarnType.WEATHER.value)
+        data_service.delete_subscription(1, "Darmstadt", "3")
         test_entries = data_service._read_file(file_path)
         self.assertEqual({}, test_entries)
 
         # user 1 wants to delete a subscription but has no subscriptions yet
         should_be = {"1": data_service.DEFAULT_DATA}
         data_service._write_file(file_path, should_be)
-        data_service.delete_subscription(1, "Darmstadt", data_service.WarnType.WEATHER.value)
+        data_service.delete_subscription(1, "Darmstadt", "3")
         self.assertEqual(should_be, data_service._read_file(file_path))
 
         # clear the json file
         data_service._write_file(file_path, {})
 
         # user with id == 10 wants to get different warnings
-        data_service.add_subscription(10, "Darmstadt", data_service.WarnType.WEATHER, 2)
-        data_service.add_subscription(10, "Darmstadt", data_service.WarnType.BIWAPP, 3)
-        data_service.add_subscription(10, "Berlin", data_service.WarnType.WEATHER, 1)
+        data_service.add_subscription(10, "Darmstadt", "3", 2)
+        data_service.add_subscription(10, "Darmstadt", "0", 3)
+        data_service.add_subscription(10, "Berlin", "3", 1)
 
         should_be = {
                     "Darmstadt": {
-                        "weather": 2,
-                        "biwapp": 3
+                        "3": 2,
+                        "0": 3
                         },
                     "Berlin": {
-                        "weather": 1
+                        "3": 1
                     }
                     }
 
@@ -119,13 +118,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(should_be, data_service.get_subscriptions(10))
 
         # user with id == 10 wants to delete warnings
-        data_service.delete_subscription(10, "Darmstadt", data_service.WarnType.BIWAPP.value)
-        data_service.delete_subscription(10, "Berlin", data_service.WarnType.WEATHER.value)
-        data_service.add_subscription(10, "Darmstadt", data_service.WarnType.WEATHER, 5)
+        data_service.delete_subscription(10, "Darmstadt", "0")
+        data_service.delete_subscription(10, "Berlin", "3")
+        data_service.add_subscription(10, "Darmstadt", "3", 5)
 
         should_be = {
             "Darmstadt": {
-                "weather": 5
+                "3": 5
             }
         }
 

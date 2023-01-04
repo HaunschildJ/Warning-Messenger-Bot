@@ -1,6 +1,6 @@
 [
   {
-    "topic": "replacable_answers",
+    "topic": "replaceable_answers",
     "all_answers": [
       {
         "topic": "covid_info",
@@ -53,7 +53,7 @@
         ]
       },
       {
-        "topic": "biwapp_warning",
+        "topic": "general_warning",
         "information": [
           {
             "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
@@ -110,7 +110,6 @@
       "help": "Hilfe",
       "covid_information": "Corona Informationen",
       "covid_rules": "Corona Regeln",
-      "biwapp": "Aktuelle Warnungen",
       "back_to_main_menu": "Zurück zur Startseite",
       "auto_warning": "Automatische Warnung",
       "suggestion_location": "Standort zu Schnellzugriff hinzufügen",
@@ -118,7 +117,13 @@
       "auto_covid_info": "Automatische Coronawarnung",
       "language": "Sprache auswählen",
       "cancel": "Abbrechen",
-      "send_location": "Standort senden"
+      "send_location": "Standort senden",
+      "biwapp": "biwapp",
+      "katwarn": "katwarn",
+      "mowas": "Katastrophenwarnung",
+      "dwd": "Wetter Warnungen",
+      "lhp": "lhp",
+      "police": "Polizei Warnungen"
     }
   },
   {
