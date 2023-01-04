@@ -415,8 +415,10 @@ def show_suggestions(chat_id: int, button_text: str):
     """
     command_first_part = Commands.COVID.value + " "
     if button_text == WARNING_COVID_INFO_TEXT:
+        data_service.set_user_state(chat_id, 20)
         command_first_part = command_first_part + Commands.COVID_INFO.value + " "
     elif button_text == WARNING_COVID_RULES_TEXT:
+        data_service.set_user_state(chat_id, 21)
         command_first_part = command_first_part + Commands.COVID_RULES.value + " "
     else:
         sender.send_message(chat_id, "Not implemented yet: " + button_text)
