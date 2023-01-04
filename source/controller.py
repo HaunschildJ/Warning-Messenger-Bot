@@ -447,7 +447,7 @@ def general_warning(chat_id: int, warning: nina_service.WarnType, warnings: list
     """
     Sets the chat action of the bot to typing
     Calls for the warnings (warning) from the Nina API via the nina_service
-    Or if warning is NONE then the given list warnings will be sent to the user
+    Or if warning is NONE then the given list of warnings will be sent to the user
     Sends this information back to the chat (chat_id)
     """
     if warning != nina_service.WarnType.NONE:
@@ -462,7 +462,10 @@ def general_warning(chat_id: int, warning: nina_service.WarnType, warnings: list
         message = text_templates.get_general_warning_message(str(warning.id), str(warning.version), warning.start_date,
                                                              str(warning.severity.value), str(warning.type.name),
                                                              warning.title)
-        sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
+        try:
+            sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
+        except:
+            print("Failed to send message to user with chat_id: " + str(chat_id))
 
 
 def covid_info(chat_id: int, city_name: str, info: nina_service.CovidInfo = None):

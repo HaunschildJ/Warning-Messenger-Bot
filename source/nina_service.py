@@ -344,3 +344,11 @@ def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
         return []
     return _call_general_warning_map[int(str(warning.value))]()
 
+
+def get_all_active_warnings() -> list[GeneralWarning]:
+    warnings = []
+    for warn_type in WarnType:
+        for warning in call_general_warning(warn_type):
+            warnings.append(warning)
+
+    return warnings

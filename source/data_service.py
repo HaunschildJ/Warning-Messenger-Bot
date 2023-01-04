@@ -192,24 +192,7 @@ def get_subscriptions(chat_id: int) -> dict:
     return DEFAULT_DATA[Attributes.LOCATIONS.value]
 
 
-def get_warn_types_for_subscription(subscription: tuple) -> list[WarnType]:
-    warn_types = []
-    for warn_type, warning_level in subscription[1].items():
-        #warn_types.append(WarnType(warn_type).name)
-        warn_types.append(warn_type)
-
-    return warn_types
-
-
-def get_warning_level_for_location_and_warn_type(subscription: tuple) -> str:
-    print(subscription)
-
-
-def get_location_for_subscription(subscription: tuple) -> str:
-    return subscription[0]
-
-
-def add_subscription(chat_id: int, location: str, warning: WarnType, warning_level: int):
+def add_subscription(chat_id: int, location: str, warning: str, warning_level: int):
     """
     Adds/Sets the subscription for the user (chat_id) for the location and the warning given
 
@@ -359,7 +342,7 @@ def get_all_chat_ids() -> list[int]:
     return chat_ids
 
 
-def get_warned_users() -> list[int]:
+def get_chat_ids_of_warned_users() -> list[int]:
     """
     Returns: List of all chat_ids that have receiveWarnings set to true
     """
