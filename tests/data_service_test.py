@@ -150,21 +150,21 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(expected, data_service.get_suggestions(1))
 
         # adding a location that was not in recommendations before
-        control_user = ["Darmstadt", "München", "Frankfurt"]
+        control_user = ["Darmstadt", "München", "Münster"]
         data_service.add_suggestion(10, "Darmstadt")
 
         # check if the user entries are equal
         self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the least recently added location
-        control_user = ["Frankfurt", "Darmstadt", "München"]
-        data_service.add_suggestion(10, "Frankfurt")
+        control_user = ["Münster", "Darmstadt", "München"]
+        data_service.add_suggestion(10, "Münster")
 
         # check if the user entries are equal
         self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the second most recently added location
-        control_user = ["Darmstadt", "Frankfurt", "München"]
+        control_user = ["Darmstadt", "Münster", "München"]
         data_service.add_suggestion(10, "Darmstadt")
 
         # check if the user entries are equal

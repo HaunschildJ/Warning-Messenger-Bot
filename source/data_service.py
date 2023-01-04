@@ -13,7 +13,7 @@ DEFAULT_DATA = {
     },
     "recommendations": [
         "München",
-        "Frankfurt",
+        "Münster",
         "Berlin"
     ],
     "language": "german"

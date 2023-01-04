@@ -134,7 +134,15 @@ def start(message: typ.Message):
     Returns:
         Nothing
     """
-    controller.start(message.chat.id)
+    name = message.chat.username
+    if name is None:
+        name = message.chat.first_name
+        if name is None:
+            name = "Unknown Name"
+        last_name = message.chat.last_name
+        if last_name is not None:
+            name = name + " " + last_name
+    controller.start(message.chat.id, name)
 
 
 @bot.message_handler(func=filter_covid)
@@ -186,7 +194,7 @@ def covid_for_inline(message: typ.Message):
     Arguments:
         message: the message that the user sent in the chat
     """
-    controller.show_inline_button(message.chat.id, message.text)
+    controller.show_suggestions(message.chat.id, message.text)
 
 
 @bot.message_handler(func=filter_general_warning)
