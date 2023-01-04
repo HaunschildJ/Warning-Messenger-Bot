@@ -1,3 +1,5 @@
+from typing import List, Union, Any
+
 import requests
 from fuzzywuzzy import process
 
@@ -12,7 +14,7 @@ _districts_dictionary = {}
 """dictionary district_id : str -> district_name : str """
 
 _places_dictionary = {}
-"""dictionary place_name : str -> place_id : str"""
+"""dictionary place_id : str -> place_name : str"""
 
 _postal_code_dictionary = {}
 """dictionary postal_code : str -> [place_name : str, district_id : str]"""
@@ -34,13 +36,13 @@ def _fill_places_dict() -> None:
     Fills the _places_dictionary dictionary with selected infos from
     https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07-31
     /download/Regionalschl_ssel_2021-07-31.json
-    Format: place_name -> place_id
+    Format: place_id -> place_name
     """
     bevoelkerungsstaat_key = requests.get(
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
     for area_triple in bevoelkerungsstaat_key['daten']:
-        _places_dictionary[area_triple[1]] = area_triple[0]
+        _places_dictionary[area_triple[0]] = area_triple[1]
 
 
 def _fill_postal_code_dict() -> None:
@@ -149,25 +151,6 @@ def get_district_for_postal_code(postal_code: str) -> str:
         return get_district_name(district_id)
 
 
-def get_similar_names(wrong_name: str) -> list:
-    """
-    Returns a list of similar place and district names, first place then district names
-
-    Arguments:
-        wrong_name (str): the given name to find similarities with
-    Returns:
-        similar_names (list): list of similar place and district names, if found
-    """
-    place_names = get_similar_places(wrong_name)
-    district_names = get_similar_districts(wrong_name)
-    similar_names = place_names + district_names
-
-    if similar_names:
-        return similar_names
-    else:
-        raise ValueError('Could not find similar names.')
-
-
 def get_similar_districts(wrong_name: str) -> list:
     """
     Returns a list of similar district names
@@ -181,21 +164,6 @@ def get_similar_districts(wrong_name: str) -> list:
     similar_district_names = process.extract(wrong_name, district_names, limit=10)
     similar_district_names = [x[0] for x in similar_district_names]
     return similar_district_names
-
-
-def get_similar_places(wrong_name: str) -> list:
-    """
-    Returns a list of similar place names
-
-    Arguments:
-        wrong_name (str): the given name to find similarities with
-    Returns:
-        similar_place_names (list): list of similar place names
-    """
-    place_names = _places_dictionary.keys()
-    similar_place_names = process.extract(wrong_name, place_names, limit=10)
-    similar_place_names = [x[0] for x in similar_place_names]
-    return similar_place_names
 
 
 def get_district_name_for_place(place_name: str) -> str:
@@ -216,21 +184,31 @@ def get_district_name_for_place(place_name: str) -> str:
         return get_district_name(district_id)
 
 
-def get_place_id_for_place_name(place_name: str) -> str:
+def get_place_id_for_exact_place_name(place_name: str) -> str:
     """
-    Returns the place ID name of the given place name
+    Returns the place ID of the given place name
 
     Arguments:
         place_name (str): the name of the given place
     Returns:
         place_id (str): the place ID of the given place name, if found
     """
+
     try:
         place_id = _places_dictionary[place_name]
     except KeyError:
         raise ValueError('place name could not be found.')
     else:
         return place_id
+
+
+def get_place_dict_for_exact_place_name(place_name: str) -> list[dict]:
+    matching_place_ids = []
+    for place_id in _places_dictionary.keys():
+        if _places_dictionary[place_id] == place_name:
+            place_dict = {'place_name': place_name, 'place_id': place_id}
+            matching_place_ids.append(place_dict)
+    return matching_place_dicts
 
 
 def get_name_for_id(given_id: str) -> str:
@@ -289,3 +267,21 @@ def get_district_name(district_id: str) -> str:
     else:
         return district_name
 
+
+def get_place_suggestions(wrong_name: str) -> list[dict]:
+    similar_place_names = process.extract(wrong_name, _places_dictionary, limit=11)
+    similar_places_dicts = []
+    for place_info in similar_place_names:
+        similar_place_dict = {'place_name': place_info[0], 'place_id': place_info[2]}
+        similar_places_dicts.append(similar_place_dict)
+    return similar_places_dicts
+
+
+def get_place_name_suggestions(place_name: str) -> list[dict]:
+    place_name_suggestions = get_place_suggestions(place_name)
+
+    for place in place_name_suggestions:
+        district_id = place['place_id'][0:5]
+        place['district_name'] = get_district_name(district_id)
+        place['district_id'] = district_id
+    return place_name_suggestions
