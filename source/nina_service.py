@@ -37,6 +37,7 @@ def get_covid_rules(city_name) -> CovidRules:
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
     :param city_name: Each city may have different covid_rules
     :return: CovidRules class
+    :raises HTTPError:
     """
     city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
@@ -46,6 +47,7 @@ def get_covid_rules(city_name) -> CovidRules:
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
     response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
+
 
     response = response_raw.json()
 
@@ -72,7 +74,8 @@ def get_covid_infos(city_name) -> CovidInfo:
     Gets current covid infos from the NinaApi for a certain city and returns them as a CovidInfo class
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
     :param city_name:
-    :return:
+    :return: CovidInfo class
+    :raises HTTPError:
     """
     city_code = place_converter.get_district_id(city_name)
     # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
@@ -160,6 +163,7 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
     this is the general method to poll those
     :param api_string: the string for the exact api we poll for
     :return: a list of all warnings that are actual. An empty list is returned if there are none
+    :raises HTTPError:
     """
     response_raw = requests.get(_base_url + api_string)
     response = response_raw.json()
@@ -188,6 +192,7 @@ def poll_biwapp_warning() -> list[GeneralWarning]:
     """
     polls the current biwap warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     biwapp_api = "/biwapp/mapData.json"
     return _poll_general_warning(biwapp_api)
@@ -197,6 +202,7 @@ def poll_katwarn_warning() -> list[GeneralWarning]:
     """
     polls the current katwarn warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     katwarn_api = "/katwarn/mapData.json"
     return _poll_general_warning(katwarn_api)
@@ -206,6 +212,7 @@ def poll_mowas_warning() -> list[GeneralWarning]:
     """
     polls the current mowas warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     mowas_api = "/mowas/mapData.json"
     return _poll_general_warning(mowas_api)
@@ -215,6 +222,7 @@ def poll_dwd_warning() -> list[GeneralWarning]:
     """
     polls the current dwd warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     dwd_api = "/dwd/mapData.json"
     return _poll_general_warning(dwd_api)
@@ -224,6 +232,7 @@ def poll_lhp_warning() -> list[GeneralWarning]:
     """
     polls the current lhp warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     lhp_api = "/lhp/mapData.json"
     return _poll_general_warning(lhp_api)
@@ -233,6 +242,7 @@ def poll_police_warning() -> list[GeneralWarning]:
     """
     polls the current police warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     police_api = "/police/mapData.json"
     return _poll_general_warning(police_api)
@@ -315,6 +325,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     This method should be called after a warning with one of the poll_****_warning methods was received
     :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
     :return: the detailed Warning as a DetailedWarning class
+    :raises HTTPError:
     """
     response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
