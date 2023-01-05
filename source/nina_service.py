@@ -363,4 +363,3 @@ def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
     if warning == WarnType.NONE:
         return []
     return _call_general_warning_map[warning]()
-
