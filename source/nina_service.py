@@ -318,7 +318,6 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     """
     response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
-    print(response_raw.text)
 
     id_response = response["identifier"]
     sender = response["sender"]
@@ -345,10 +344,10 @@ def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
     return _call_general_warning_map[int(str(warning.value))]()
 
 
-def get_all_active_warnings() -> list[GeneralWarning]:
+def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
     warnings = []
     for warn_type in WarnType:
         for warning in call_general_warning(warn_type):
-            warnings.append(warning)
+            warnings.append((warning, warn_type))
 
     return warnings

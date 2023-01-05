@@ -22,10 +22,13 @@
         "locations": {
             "Darmstadt": {
                 "weather": 4,
-                "biwapp": 5
+                "biwapp": 0
             },
             "Gie\u00dfen": {
                 "weather": 3
+            },
+            "Stubenberg": {
+                "mowas": 2
             }
         },
         "recommendations": [
