@@ -341,17 +341,26 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
 
 
 _call_general_warning_map = {
-    0: poll_biwapp_warning,
-    1: poll_katwarn_warning,
-    2: poll_mowas_warning,
-    3: poll_dwd_warning,
-    4: poll_lhp_warning,
-    5: poll_police_warning
+    WarnType.BIWAPP: poll_biwapp_warning,
+    WarnType.KATWARN: poll_katwarn_warning,
+    WarnType.MOWAS: poll_mowas_warning,
+    WarnType.DWD: poll_dwd_warning,
+    WarnType.LHP: poll_lhp_warning,
+    WarnType.POLICE: poll_police_warning
 }
 
 
 def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
+    """
+    The Nina Api has different API calls for each warning that all basically work the same.
+    Since we each user can subscribe to each warning individually we need to save their subscriptions.
+    This is done using the WarnType enum.
+    This method eases the calling of a specific poll_warning_method depending on the given WarnType
+    :param warning: A WarnType enum that specifies which warning should be polled from the Nina API
+    :return:  a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
+    """
     if warning == WarnType.NONE:
         return []
-    return _call_general_warning_map[int(str(warning.value))]()
+    return _call_general_warning_map[warning]()
 
