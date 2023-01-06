@@ -31,6 +31,20 @@ class CovidRules:
     fines: str
 
 
+def _get_safely(dict, key: str):
+    """
+    Because some of the JSONs we get from the NINA API do not always contain all the fields that are defined by the NINA API
+    we need to check if the field exists first. If it does we get the Value from the field. If it does not we return None
+    :param dict: The dictionary to check the key in
+    :param key:  The kay of the field   for example: "fines" for CovidRules { "fines": "bla bla", }
+    :return: None if the key is not in the dictionary, Value of the key if it is
+    """
+    try:
+        return dict[key]
+    except KeyError:
+        return None
+
+
 def get_covid_rules(city_name) -> CovidRules:
     """
     Gets current covid rules from the NinaApi for a city and returns them as a CovidRules class
@@ -47,7 +61,6 @@ def get_covid_rules(city_name) -> CovidRules:
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
     response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
-
 
     response = response_raw.json()
 
@@ -279,7 +292,7 @@ def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
         return geocode
 
     for i in range(0, len(response_geocode)):
-        geocode.append(response_geocode[i]["value"])
+        geocode.append(_get_safely(response_geocode[i],"value"))
 
     return geocode
 
@@ -290,8 +303,8 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
         return area
 
     for i in range(0, len(response_area)):
-        area_description = response_area[i]["areaDesc"]
-        geocode = _get_detailed_warning_infos_area_geocode(response_area[i]["geocode"])
+        area_description = _get_safely(response_area[i],"areaDesc")
+        geocode = _get_detailed_warning_infos_area_geocode(_get_safely(response_area[i],"geocode"))
         area.append(
             DetailedWarningInfoArea(area_description=area_description, geocode=geocode)
         )
@@ -305,12 +318,17 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
         return infos
 
     for i in range(0, len(response_infos)):
-        event = response_infos[i]["event"]
-        severity = _get_warning_severity(response_infos[i]["severity"])
-        date_expires = _translate_time(response_infos[i]["expires"])
-        headline = response_infos[i]["headline"]
-        description = nina_string_helper.filter_html_tags(response_infos[i]["description"])
-        area = _get_detailed_warning_infos_area(response_infos[i]["area"])
+        info = response_infos[i]
+
+        event = _get_safely(info,"event")
+        severity = _get_warning_severity(_get_safely(info,"severity"))
+        headline = _get_safely(info,"headline")
+        description = nina_string_helper.filter_html_tags(_get_safely(info,"description"))
+        area = _get_detailed_warning_infos_area(_get_safely(info,"area"))
+
+        date_expires = _get_safely(info, "expires")
+        if (date_expires is not None):
+            date_expires = _translate_time(date_expires)
 
         infos.append(
             DetailedWarningInfo(event=event, severity=severity, date_expires=date_expires, headline=headline,
@@ -329,13 +347,16 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     """
     response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
-    print(response_raw.text)
 
-    id_response = response["identifier"]
-    sender = response["sender"]
-    date_sent = _translate_time(response["sent"])
-    status = response["status"]
-    infos = _get_detailed_warning_infos(response["info"])
+    id_response = _get_safely(response, "identifier")
+    sender = _get_safely(response, "sender")
+    status = _get_safely(response, "status")
+
+    date_sent = _get_safely(response, "sent")
+    if date_sent is not None:
+        date_sent = _translate_time(date_sent)
+
+    infos = _get_detailed_warning_infos(_get_safely(response, "info")) #_get_detailed_warning_infos already checks if the input is None
 
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 
