@@ -245,10 +245,12 @@ def get_place_name(place_id: str) -> str:
            place_name (str): the place name of the given ID, if found
        """
 
-    for place_name in _places_dictionary:
-        if _places_dictionary[place_name] == place_id:
-            return place_name
-    return None
+    try:
+        place_name = _places_dictionary[place_id]
+    except KeyError:
+        return None
+    else:
+        return place_name
 
 
 def get_district_name(district_id: str) -> str:
@@ -268,7 +270,7 @@ def get_district_name(district_id: str) -> str:
         return district_name
 
 
-def get_place_suggestions(wrong_name: str) -> list[dict]:
+def _get_suggestions_for_place_name(wrong_name: str) -> list[dict]:
     similar_place_names = process.extract(wrong_name, _places_dictionary, limit=11)
     similar_places_dicts = []
     for place_info in similar_place_names:
@@ -277,11 +279,38 @@ def get_place_suggestions(wrong_name: str) -> list[dict]:
     return similar_places_dicts
 
 
-def get_place_name_suggestions(place_name: str) -> list[dict]:
-    place_name_suggestions = get_place_suggestions(place_name)
+def get_place_dict_suggestions(place_name: str) -> list[dict]:
+    place_dict_suggestions = _get_suggestions_for_place_name(place_name)
 
-    for place in place_name_suggestions:
+    for place in place_dict_suggestions:
         district_id = place['place_id'][0:5]
-        place['district_name'] = get_district_name(district_id)
+        place['district_name'] = _districts_dictionary[district_id]
         place['district_id'] = district_id
-    return place_name_suggestions
+    return place_dict_suggestions
+
+
+def _get_suggestions_for_district_name(wrong_name: str) -> list[dict]:
+    similar_district_names = process.extract(wrong_name, _districts_dictionary, limit=11)
+    similar_districts_dicts = []
+    for district_info in similar_district_names:
+        similar_district_dict = {'district_name': district_info[0], 'district_id': district_info[2]}
+        similar_districts_dicts.append(similar_district_dict)
+    return similar_districts_dicts
+
+
+def get_district_dict_suggestions(district_name: str) -> list[dict]:
+    district_dict_suggestions = _get_suggestions_for_district_name(district_name)
+
+    for district in district_dict_suggestions:
+        place_id = district['district_id'] + "0000000"  # ?
+        try:
+            place_name = _places_dictionary[place_id]
+        except KeyError:
+            district['place_name'] = None  # ?
+        else:
+            district['place_name'] = place_name
+        district['place_id'] = place_id
+    return district_dict_suggestions
+
+
+print(get_district_dict_suggestions("Frankfurt"))
