@@ -264,3 +264,29 @@ def get_dict_suggestions(name: str) -> list[dict]:
                 district_dict_suggestions.remove(district_dict)
     dict_suggestions = place_dict_suggestions + district_dict_suggestions
     return dict_suggestions
+
+
+def get_dicts_for_postal_code(postal_code: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} that fit the place name and
+    district id of given postal code (is not 100% accurate)
+
+    Arguments:
+        postal_code (str): the given postal code
+    Returns:
+        place_dict_suggestions (list[dict]): list of dicts with fitting suggested place name and district id
+    """
+    try:
+        record = _postal_code_dictionary[postal_code]
+    except KeyError:
+        return []  # raise ValueError('Could not find matching postal code.')
+    else:
+        place_name = record[0]
+        district_id = record[1]
+
+    unfiltered_place_dict_suggestions = get_place_dict_suggestions(place_name)
+    place_dict_suggestions = []
+    for place_dict in unfiltered_place_dict_suggestions:
+        if place_dict['district_id'] == district_id:
+            place_dict_suggestions.append(place_dict)
+    return place_dict_suggestions
