@@ -150,28 +150,73 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(expected, data_service.get_suggestions(1))
 
         # adding a location that was not in recommendations before
-        control_user = ["Darmstadt", "München", "Münster"]
-        data_service.add_suggestion(10, "Darmstadt")
+        control_user = [{
+                "name": "Test",
+                "place_id": "12345",
+                "district_id": "12345"
+            },
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            },
+            {
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            }
+        ]
+        data_service.add_suggestion(10, "Test", "12345", "12345")
 
         # check if the user entries are equal
         self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the least recently added location
-        control_user = ["Münster", "Darmstadt", "München"]
-        data_service.add_suggestion(10, "Münster")
+        control_user = [{
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            },
+            {
+            "name": "Test",
+            "place_id": "12345",
+            "district_id": "12345"
+            },
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            }
+        ]
+        data_service.add_suggestion(10, "Berlin-Mitte", "110010000000", "11001")
 
         # check if the user entries are equal
         self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the second most recently added location
-        control_user = ["Darmstadt", "Münster", "München"]
-        data_service.add_suggestion(10, "Darmstadt")
+        control_user = [{
+                "name": "Test",
+                "place_id": "12345",
+                "district_id": "12345"
+            },
+            {
+            "name": "Berlin-Mitte",
+            "place_id": "110010000000",
+            "district_id": "11001"
+            },
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            }
+        ]
+        data_service.add_suggestion(10, "Test", "12345", "12345")
 
         # check if the user entries are equal
         self.assertEqual(control_user, data_service.get_suggestions(10))
 
         # adding the location that was most recently added should change nothing
-        data_service.add_suggestion(10, "Darmstadt")
+        data_service.add_suggestion(10, "Test", "12345", "12345")
 
         self.assertEqual(control_user, data_service.get_suggestions(10))
 

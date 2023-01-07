@@ -1,7 +1,7 @@
 {
     "5635169582": {
-        "current_state": 20,
-        "receive_warnings": true,
+        "current_state": 0,
+        "receive_warnings": false,
         "receive_covid_information": 2,
         "locations": {
             "a": {
@@ -18,9 +18,21 @@
             }
         },
         "recommendations": [
-            "M\u00fcnster",
-            "Darmstadt",
-            "M\u00fcnchen"
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            },
+            {
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            },
+            {
+                "name": "Darmstadt, Wissenschaftsstadt",
+                "place_id": "064110000000",
+                "district_id": "06411"
+            }
         ],
         "language": "german"
     }

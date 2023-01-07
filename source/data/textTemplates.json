@@ -205,6 +205,7 @@
     "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt.",
     "description2": "%r in recommendation gibt an wo der Vorschlag stehen soll.",
     "headline": "Ihnen werden nun folgende Orte vorgeschlagen:",
-    "recommendation": "%r"
+    "recommendation": "%r",
+    "end": "\nSie können jetzt den nächsten Vorschlag eingeben."
   }
 ]

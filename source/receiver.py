@@ -14,7 +14,7 @@ bot = bot.bot
 
 
 def filter_callback_covid(call: typ.CallbackQuery) -> bool:
-    if call.data.split(' ')[0] == Commands.COVID.value:
+    if call.data.split(';')[0] == Commands.COVID.value:
         return True
     return False
 
@@ -53,14 +53,15 @@ def filter_callback_auto_covid_updates(call: typ.CallbackQuery) -> bool:
     return False
 
 
-def filter_covid(message: typ.Message) -> bool:
-    if message.text.split(' ')[0] == Commands.COVID.value:
+def filter_callback_add_recommendation(call: typ.CallbackQuery) -> bool:
+    split_data = call.data.split(';')
+    if split_data[0] == Commands.ADD_RECOMMENDATION.value:
         return True
     return False
 
 
-def filter_add_recommendation(message: typ.Message) -> bool:
-    if message.text.split(' ')[0] == Commands.ADD_RECOMMENDATION.value:
+def filter_covid(message: typ.Message) -> bool:
+    if message.text.split(';')[0] == Commands.COVID.value:
         return True
     return False
 
@@ -111,7 +112,7 @@ def filter_general_warning(message: typ.Message) -> bool:
 
 def filer_everything_else(message: typ.Message) -> bool:
     # TODO add all filter that are not callbacks here
-    if filter_covid(message) or filter_add_recommendation(message) or filter_main_button(message) or \
+    if filter_covid(message) or filter_main_button(message) or \
             filter_buttons_in_settings(message) or filter_covid_for_inline(message) or \
             message.text == controller.BACK_TO_MAIN_TEXT or message.text == controller.WARNING_BIWAPP_TEXT or \
             filter_show_subscriptions(message) or filter_add_or_delete_subscription(message) or \
@@ -152,18 +153,6 @@ def covid(message: typ.Message):
     needed to give the user the desired output
     """
     covid_helper(message.chat.id, message.text)
-
-
-@bot.message_handler(func=filter_add_recommendation)
-def add_recommendation(message: typ.Message):
-    """
-    This method is called when the user sends Commands.ADD_RECOMMENDATION.value (currently '/add') and will check if
-    the format of the message is '/add string' (if not error message is sent to the user)
-    """
-    if len(message.text.split(' ')) == 1:
-        controller.error_handler(message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
-        return
-    controller.add_recommendation_in_database(message.chat.id, message.text.split(' ')[1])
 
 
 @bot.message_handler(func=filer_everything_else)
@@ -327,10 +316,22 @@ def cancel_button(call: typ.CallbackQuery):
     controller.back_to_main_keyboard(call.message.chat.id)
 
 
+@bot.callback_query_handler(func=filter_callback_add_recommendation)
+def add_recommendation(call: typ.CallbackQuery):
+    split_message = call.data.split(';')
+    if len(split_message) < 4:
+        controller.error_handler(call.message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
+        return
+    name = split_message[1]
+    place_id = split_message[2]
+    district_id = split_message[3]
+    controller.add_recommendation_in_database(call.message.chat.id, name, place_id, district_id)
+
+
 # helper methods -------------------------------------------------------------------------------------------------------
 
 
-def covid_helper(chat_id: int, message_string: str) -> None:
+def covid_helper(chat_id: int, message_string: str):
     """
     This is a helper method for the user input handlers above \n
     With the message/text the user/button sent (message_string) this method will then call the corresponding method in
@@ -339,18 +340,18 @@ def covid_helper(chat_id: int, message_string: str) -> None:
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
         message_string: a string of the message/text that is sent by the user/button
-    Returns:
-        Nothing
     """
-    split_message = message_string.split(' ')
-    if len(split_message) <= 1:
+    split_message = message_string.split(';')
+    if len(split_message) < 5:
         controller.error_handler(chat_id, ErrorCodes.ONLY_PART_OF_COMMAND)
         return
-
+    name = split_message[2]
+    place_id = split_message[3]
+    district_id = split_message[4]
     if split_message[1] == Commands.COVID_INFO.value:
-        controller.covid_info(chat_id, split_message[2])
+        controller.covid_info(chat_id, name, district_id)
     elif split_message[1] == Commands.COVID_RULES.value:
-        controller.covid_rules(chat_id, split_message[2])
+        controller.covid_rules(chat_id, name, district_id)
     else:
         controller.error_handler(chat_id, ErrorCodes.ONLY_PART_OF_COMMAND)
 

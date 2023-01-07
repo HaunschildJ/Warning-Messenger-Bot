@@ -331,4 +331,5 @@ def get_show_recommendations_message(suggestions: list[str]) -> str:
     message = dic["headline"]
     for suggestion in suggestions:
         message = message + "\n" + dic["recommendation"].replace("%r", suggestion)
+    message = message + "\n" + dic["end"]
     return message
