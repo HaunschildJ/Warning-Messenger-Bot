@@ -202,14 +202,22 @@ def get_name_for_id(given_id: str) -> Any:
            name (str): the place or district name of the given ID, can be None if not found
        """
 
-    if len(given_id) == 5:
+    if len(given_id) == 5:  # district id
         try:
             district_name = _districts_dictionary[given_id]
         except KeyError:
             return None
         else:
             return district_name
-    else:
+    elif given_id[5:12] == '0000000':  # district id
+        try:
+            given_id = given_id[0:5]
+            district_name = _districts_dictionary[given_id]
+        except KeyError:
+            return None
+        else:
+            return district_name
+    else:  # place id
         try:
             place_name = _places_dictionary[given_id]
         except KeyError:
