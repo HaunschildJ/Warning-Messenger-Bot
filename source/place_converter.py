@@ -135,14 +135,14 @@ def get_dicts_for_exact_place_name(place_name: str) -> list[dict]:
     Returns:
         matching_place_dicts (list[dict]): list of suggested dicts
     """
-    matching_place_ids = []
+    matching_place_dicts = []
     for place_id in _places_dictionary.keys():
         if _places_dictionary[place_id] == place_name:
             district_id = place_id[0:5]
             district_name = _districts_dictionary[district_id]
             place_dict = {'place_name': place_name, 'place_id': place_id, 'district_name': district_name,
                           'district_id': district_id}
-            matching_place_ids.append(place_dict)
+            matching_place_dicts.append(place_dict)
     return matching_place_dicts
 
 
@@ -191,7 +191,8 @@ def _get_suggestions_for_place_name(place_name: str) -> list[dict]:
 
 def get_place_dict_suggestions(place_name: str) -> list[dict]:
     """
-    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given place name
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
+    place name
 
     Arguments:
         place_name (str): the given place name
@@ -226,7 +227,8 @@ def _get_suggestions_for_district_name(district_name: str) -> list[dict]:
 
 def get_district_dict_suggestions(district_name: str) -> list[dict]:
     """
-    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given district name
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
+    district name
 
     Arguments:
         district_name (str): the given district name
@@ -249,7 +251,8 @@ def get_district_dict_suggestions(district_name: str) -> list[dict]:
 
 def get_dict_suggestions(name: str) -> list[dict]:
     """
-    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given district or place name
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
+    district or place name
 
     Arguments:
         name (str): the given name
