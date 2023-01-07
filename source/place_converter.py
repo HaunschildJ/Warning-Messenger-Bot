@@ -63,16 +63,17 @@ _fill_places_dict()
 _fill_postal_code_dict()
 
 
-def _get_suggestions_for_place_name(place_name: str) -> list[dict]:
+def _get_suggestions_for_place_name(place_name: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id'} with suggestions for the given place name
 
     Arguments:
         place_name (str): the given place name
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         similar_places_dicts (list[dict]): list of suggested dicts
     """
-    similar_place_names = process.extract(place_name, _places_dictionary, limit=11)
+    similar_place_names = process.extract(place_name, _places_dictionary, limit=suggestion_limit)
     similar_places_dicts = []
     for place_info in similar_place_names:
         similar_place_dict = {'place_name': place_info[0], 'place_id': place_info[2]}
@@ -80,17 +81,18 @@ def _get_suggestions_for_place_name(place_name: str) -> list[dict]:
     return similar_places_dicts
 
 
-def _get_place_dict_suggestions(place_name: str) -> list[dict]:
+def _get_place_dict_suggestions(place_name: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
     place name
 
     Arguments:
         place_name (str): the given place name
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         place_dict_suggestions (list[dict]): list of suggested dicts
     """
-    place_dict_suggestions = _get_suggestions_for_place_name(place_name)
+    place_dict_suggestions = _get_suggestions_for_place_name(place_name, suggestion_limit)
 
     for place in place_dict_suggestions:
         district_id = place['place_id'][0:5]
@@ -99,16 +101,17 @@ def _get_place_dict_suggestions(place_name: str) -> list[dict]:
     return place_dict_suggestions
 
 
-def _get_suggestions_for_district_name(district_name: str) -> list[dict]:
+def _get_suggestions_for_district_name(district_name: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'district_name', 'district_id'} with suggestions for the given district name
 
     Arguments:
         district_name (str): the given district name
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         similar_districts_dicts (list[dict]): list of suggested dicts
     """
-    similar_district_names = process.extract(district_name, _districts_dictionary, limit=11)
+    similar_district_names = process.extract(district_name, _districts_dictionary, limit=suggestion_limit)
     similar_districts_dicts = []
     for district_info in similar_district_names:
         similar_district_dict = {'district_name': district_info[0], 'district_id': district_info[2]}
@@ -116,42 +119,44 @@ def _get_suggestions_for_district_name(district_name: str) -> list[dict]:
     return similar_districts_dicts
 
 
-def _get_district_dict_suggestions(district_name: str) -> list[dict]:
+def _get_district_dict_suggestions(district_name: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
     district name
 
     Arguments:
         district_name (str): the given district name
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         district_dict_suggestions (list[dict]): list of suggested dicts, dict['place_name'] can be None
     """
-    district_dict_suggestions = _get_suggestions_for_district_name(district_name)
+    district_dict_suggestions = _get_suggestions_for_district_name(district_name, suggestion_limit)
 
     for district in district_dict_suggestions:
-        place_id = district['district_id'] + "0000000"  # ?
+        place_id = district['district_id'] + "0000000"
         try:
             place_name = _places_dictionary[place_id]
         except KeyError:
-            district['place_name'] = None  # ?
+            district['place_name'] = None
         else:
             district['place_name'] = place_name
         district['place_id'] = place_id
     return district_dict_suggestions
 
 
-def _get_place_and_district_dict_suggestions(name: str) -> list[dict]:
+def _get_place_and_district_dict_suggestions(name: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
     district or place name
 
     Arguments:
         name (str): the given name
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         dict_suggestions (list[dict]): list of suggested dicts
     """
-    district_dict_suggestions = _get_district_dict_suggestions(name)
-    place_dict_suggestions = _get_place_dict_suggestions(name)
+    district_dict_suggestions = _get_district_dict_suggestions(name, suggestion_limit)
+    place_dict_suggestions = _get_place_dict_suggestions(name, suggestion_limit)
     for place_dict in place_dict_suggestions:
         for district_dict in district_dict_suggestions:
             if place_dict['place_id'] == district_dict['place_id']:
@@ -160,13 +165,14 @@ def _get_place_and_district_dict_suggestions(name: str) -> list[dict]:
     return dict_suggestions
 
 
-def _get_dicts_for_postal_code(postal_code: str) -> list[dict]:
+def _get_dicts_for_postal_code(postal_code: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} that fit the place name and
     district id of given postal code (is not 100% accurate)
 
     Arguments:
         postal_code (str): the given postal code
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         place_dict_suggestions (list[dict]): list of dicts with fitting suggested place name and district id
     """
@@ -178,7 +184,7 @@ def _get_dicts_for_postal_code(postal_code: str) -> list[dict]:
         place_name = record[0]
         district_id = record[1]
 
-    unfiltered_place_dict_suggestions = _get_place_dict_suggestions(place_name)
+    unfiltered_place_dict_suggestions = _get_place_dict_suggestions(place_name, suggestion_limit)
     place_dict_suggestions = []
     for place_dict in unfiltered_place_dict_suggestions:
         if place_dict['district_id'] == district_id:
@@ -255,20 +261,21 @@ def get_dicts_for_exact_place_name(place_name: str) -> list[dict]:
     return matching_place_dicts
 
 
-def get_dict_suggestions(given_string: str) -> list[dict]:
+def get_dict_suggestions(given_string: str, suggestion_limit=11) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given
     district or place name (alphabetic string) or postal code (numeric string)
 
     Arguments:
         given_string (str): the given name or postal code
+        suggestion_limit (int): limits the number of suggestions to the top x
     Returns:
         dict_suggestions (list[dict]): list of suggested dicts
     """
     if given_string.isnumeric():
-        return _get_dicts_for_postal_code(given_string)
+        return _get_dicts_for_postal_code(given_string, suggestion_limit)
     else:
-        return _get_place_and_district_dict_suggestions(given_string)
+        return _get_place_and_district_dict_suggestions(given_string, suggestion_limit)
 
 
 def get_place_name_from_dict(dictionary: dict) -> Any:
