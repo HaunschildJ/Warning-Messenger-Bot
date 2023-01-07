@@ -3,7 +3,6 @@ from enum import Enum
 from datetime import datetime
 import requests
 import nina_string_helper
-import place_converter
 
 _base_url = "https://warnung.bund.de/api31"
 
@@ -45,22 +44,17 @@ def _get_safely(dict, key: str):
         return None
 
 
-def get_covid_rules(city_name) -> CovidRules:
+def get_covid_rules(district_id: str) -> CovidRules:
     """
     Gets current covid rules from the NinaApi for a city and returns them as a CovidRules class
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
-    :param city_name: Each city may have different covid_rules
+    :param district_id: Each district may have different covid_rules
     :return: CovidRules class
     :raises HTTPError:
     """
-    city_code = place_converter.get_district_id(city_name)
-    # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
-    # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
-    city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
-
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
+    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
 
     response = response_raw.json()
 
@@ -82,23 +76,18 @@ class CovidInfo:
     allgemeine_hinweise: str
 
 
-def get_covid_infos(city_name) -> CovidInfo:
+def get_covid_infos(district_id: str) -> CovidInfo:
     """
     Gets current covid infos from the NinaApi for a certain city and returns them as a CovidInfo class
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
-    :param city_name:
+    :param district_id:
     :return: CovidInfo class
     :raises HTTPError:
     """
-    city_code = place_converter.get_district_id(city_name)
-    # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
-    # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
-    city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
-
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
+    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
