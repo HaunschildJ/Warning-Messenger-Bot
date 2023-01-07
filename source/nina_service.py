@@ -52,6 +52,8 @@ def get_covid_rules(district_id: str) -> CovidRules:
     :return: CovidRules class
     :raises HTTPError:
     """
+    district_id = nina_string_helper.expand_location_id_with_zeros(district_id)
+
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
     response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
@@ -84,6 +86,8 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     :return: CovidInfo class
     :raises HTTPError:
     """
+    district_id = nina_string_helper.expand_location_id_with_zeros(district_id)
+
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
