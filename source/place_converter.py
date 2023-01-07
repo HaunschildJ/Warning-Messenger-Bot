@@ -293,3 +293,19 @@ def get_dicts_for_postal_code(postal_code: str) -> list[dict]:
         if place_dict['district_id'] == district_id:
             place_dict_suggestions.append(place_dict)
     return place_dict_suggestions
+
+
+def get_place_name_from_dict(dictionary: dict) -> str:
+    return dictionary['place_name']
+
+
+def get_place_id_from_dict(dictionary: dict) -> str:
+    return dictionary['place_id']
+
+
+def get_district_name_from_dict(dictionary: dict) -> str:
+    return dictionary['district_name']
+
+
+def get_district_id_from_dict(dictionary: dict) -> str:
+    return dictionary['district_id']
