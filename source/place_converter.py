@@ -63,21 +63,6 @@ _fill_places_dict()
 _fill_postal_code_dict()
 
 
-def get_district_id_for_district_name(district_name: str) -> str:
-    """
-    Returns the district ID of the given district name
-
-    Arguments:
-        district_name (str): the name of the given district
-    Returns:
-        district_id (str): the ID of the given district name, if found
-    """
-    for district_id in _districts_dictionary.keys():
-        if _districts_dictionary[district_id] == district_name:
-            return district_id
-    return None  # None, if no district was found
-
-
 def get_place_for_postal_code(postal_code: str) -> tuple[str, str]:
     """
     Returns the place name and district id of the given postal code
@@ -113,14 +98,50 @@ def get_district_name_for_postal_code(postal_code: str) -> str:
         return None
     else:
         district_id = record[1]
-        return get_district_name(district_id)
+        return _districts_dictionary[district_id]
 
 
-def get_place_dicts_for_exact_place_name(place_name: str) -> list[dict]:
+def get_dicts_for_exact_district_name(district_name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with the given district name
+
+    Arguments:
+        district_name (str): the name of the given district
+    Returns:
+        district_dicts (list[dict]): list of dicts, can be empty
+    """
+    district_dicts = []
+    for district_id in _districts_dictionary.keys():
+        if _districts_dictionary[district_id] == district_name:
+            place_id = district_id + "0000000"
+            try:
+                place_name = _places_dictionary[place_id]
+            except KeyError:
+                place_name = None  # ?
+            else:
+                place_name = _places_dictionary[place_id]
+            district_dict = {'place_name': place_name, 'place_id': place_id, 'district_name': district_name,
+                             'district_id': district_id}
+            district_dicts.append(district_dict)
+    return district_dicts  # can be empty
+
+
+def get_dicts_for_exact_place_name(place_name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} for the exact given place name
+
+    Arguments:
+        place_name (str): the given place name
+    Returns:
+        matching_place_dicts (list[dict]): list of suggested dicts
+    """
     matching_place_ids = []
     for place_id in _places_dictionary.keys():
         if _places_dictionary[place_id] == place_name:
-            place_dict = {'place_name': place_name, 'place_id': place_id}
+            district_id = place_id[0:5]
+            district_name = _districts_dictionary[district_id]
+            place_dict = {'place_name': place_name, 'place_id': place_id, 'district_name': district_name,
+                          'district_id': district_id}
             matching_place_ids.append(place_dict)
     return matching_place_dicts
 
@@ -135,7 +156,6 @@ def get_name_for_id(given_id: str) -> str:
            name (str): the place or district name of the given ID, if found
        """
 
-    place_name = get_place_name(given_id)
     if len(given_id) == 5:
         try:
             district_name = _districts_dictionary[given_id]
@@ -152,8 +172,16 @@ def get_name_for_id(given_id: str) -> str:
             return place_name
 
 
-def _get_suggestions_for_place_name(wrong_name: str) -> list[dict]:
-    similar_place_names = process.extract(wrong_name, _places_dictionary, limit=11)
+def _get_suggestions_for_place_name(place_name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id'} with suggestions for the given place name
+
+    Arguments:
+        place_name (str): the given place name
+    Returns:
+        similar_places_dicts (list[dict]): list of suggested dicts
+    """
+    similar_place_names = process.extract(place_name, _places_dictionary, limit=11)
     similar_places_dicts = []
     for place_info in similar_place_names:
         similar_place_dict = {'place_name': place_info[0], 'place_id': place_info[2]}
@@ -162,6 +190,14 @@ def _get_suggestions_for_place_name(wrong_name: str) -> list[dict]:
 
 
 def get_place_dict_suggestions(place_name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given place name
+
+    Arguments:
+        place_name (str): the given place name
+    Returns:
+        place_dict_suggestions (list[dict]): list of suggested dicts
+    """
     place_dict_suggestions = _get_suggestions_for_place_name(place_name)
 
     for place in place_dict_suggestions:
@@ -171,8 +207,16 @@ def get_place_dict_suggestions(place_name: str) -> list[dict]:
     return place_dict_suggestions
 
 
-def _get_suggestions_for_district_name(wrong_name: str) -> list[dict]:
-    similar_district_names = process.extract(wrong_name, _districts_dictionary, limit=11)
+def _get_suggestions_for_district_name(district_name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'district_name', 'district_id'} with suggestions for the given district name
+
+    Arguments:
+        district_name (str): the given district name
+    Returns:
+        similar_districts_dicts (list[dict]): list of suggested dicts
+    """
+    similar_district_names = process.extract(district_name, _districts_dictionary, limit=11)
     similar_districts_dicts = []
     for district_info in similar_district_names:
         similar_district_dict = {'district_name': district_info[0], 'district_id': district_info[2]}
@@ -181,6 +225,14 @@ def _get_suggestions_for_district_name(wrong_name: str) -> list[dict]:
 
 
 def get_district_dict_suggestions(district_name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given district name
+
+    Arguments:
+        district_name (str): the given district name
+    Returns:
+        district_dict_suggestions (list[dict]): list of suggested dicts, dict['place_name'] can be None
+    """
     district_dict_suggestions = _get_suggestions_for_district_name(district_name)
 
     for district in district_dict_suggestions:
@@ -196,6 +248,14 @@ def get_district_dict_suggestions(district_name: str) -> list[dict]:
 
 
 def get_dict_suggestions(name: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} with suggestions for the given district or place name
+
+    Arguments:
+        name (str): the given name
+    Returns:
+        dict_suggestions (list[dict]): list of suggested dicts
+    """
     district_dict_suggestions = get_district_dict_suggestions(name)
     place_dict_suggestions = get_place_dict_suggestions(name)
     for place_dict in place_dict_suggestions:
@@ -204,3 +264,29 @@ def get_dict_suggestions(name: str) -> list[dict]:
                 district_dict_suggestions.remove(district_dict)
     dict_suggestions = place_dict_suggestions + district_dict_suggestions
     return dict_suggestions
+
+
+def get_dicts_for_postal_code(postal_code: str) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} that fit the place name and
+    district id of given postal code (is not 100% accurate)
+
+    Arguments:
+        postal_code (str): the given postal code
+    Returns:
+        place_dict_suggestions (list[dict]): list of dicts with fitting suggested place name and district id
+    """
+    try:
+        record = _postal_code_dictionary[postal_code]
+    except KeyError:
+        return []  # raise ValueError('Could not find matching postal code.')
+    else:
+        place_name = record[0]
+        district_id = record[1]
+
+    unfiltered_place_dict_suggestions = get_place_dict_suggestions(place_name)
+    place_dict_suggestions = []
+    for place_dict in unfiltered_place_dict_suggestions:
+        if place_dict['district_id'] == district_id:
+            place_dict_suggestions.append(place_dict)
+    return place_dict_suggestions
