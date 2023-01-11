@@ -66,7 +66,6 @@ _fill_postal_code_dict()
 
 
 def _get_exact_address_from_coordinates(latitude: float, longitude: float) -> Tuple[str, str]:
-    # call the nominatim tool
     geo_loc = Nominatim(user_agent="GetLoc")
     location_name = geo_loc.reverse((latitude, longitude))
     address = location_name.address
@@ -293,7 +292,7 @@ def get_dict_suggestions(given_string: str, suggestion_limit=11) -> list[dict]:
 
     Arguments:
         given_string (str): the given name or postal code
-        suggestion_limit (int): limits the number of suggestions to the top x
+        suggestion_limit (int): limits the number of suggestions to the top x, 11 by default
     Returns:
         dict_suggestions (list[dict]): list of suggested dicts
     """
@@ -352,14 +351,21 @@ def get_district_id_from_dict(dictionary: dict) -> str:
 
 
 def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, suggestion_limit=11) -> list[dict]:
+    """
+    Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} that fit the given coordinates
+
+    Arguments:
+        latitude (float): latitude of coordinate
+        longitude (float): longitude of coordinate
+        suggestion_limit (int): limits the number of suggestions to the top x, 11 by default
+    Returns:
+        suggested_dicts (list[dict]): dicts that fit the infos
+    """
     place_tuple = _get_exact_address_from_coordinates(latitude, longitude)
     place_name = place_tuple[0]
     postal_code = str(place_tuple[1])
-    print(place_name)
-    print(postal_code)
     suggested_dicts_postal_code = _get_dicts_for_postal_code(postal_code, suggestion_limit)
     suggested_dicts_filtered = []
-    print(suggested_dicts_postal_code)
     for place_dict in suggested_dicts_postal_code:
         if place_name in place_dict['place_name']:
             suggested_dicts_filtered.append(place_dict)
