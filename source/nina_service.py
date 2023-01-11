@@ -351,3 +351,17 @@ def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
             warnings.append((warning, warn_type))
 
     return warnings
+
+
+def get_warning_locations(warning: GeneralWarning):
+    # Retrieve warning_location out of detailed_warning
+    #   this information is saved in DetailedWarningInfoArea.area_description as for example "Stubenberg, Tann, Triftern, Unterdietfurt, Wittibreut, Wurmannsquick"
+    detailed_warning = get_detailed_warning(warning.id)
+    locations = []
+    for info in detailed_warning.infos:
+        for area in info.area:
+            for location in area.area_description.split(", "):
+                locations.append(location)
+
+    locations.append("Darmstadt")  # TODO remove (just for debugging)
+    return locations

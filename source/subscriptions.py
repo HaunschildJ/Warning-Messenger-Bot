@@ -3,7 +3,12 @@ import sender
 import nina_service
 import controller
 import time
+import place_converter
 
+
+# TODO nina_service _get_detailed_warning_infos has to be refactored to not throw KeyErrors
+# For further explaination see:
+# https://discord.com/channels/1031862018925404211/1031863544918065192/1060613157715976284
 
 def start():
     # TODO Check if there are any updates to the list returned from get_all_active_warnings()
@@ -15,13 +20,14 @@ def start():
 def warn_users():
     chat_ids_of_warned_users = data_service.get_chat_ids_of_warned_users()
 
-    # TODO bei get_active_warnings noch den Typ mit speichern
     print(nina_service.get_all_active_warnings())
     for (warning, warn_type) in nina_service.get_all_active_warnings():
         for chat_id in chat_ids_of_warned_users:
             if _should_user_receive_this_warning(chat_id, warning, warn_type):
                 # send warning out to user
+                print("Warning will be sent out!")
                 controller.general_warning(chat_id, nina_service.WarnType.NONE, [warning])
+                data_service.add_warning_id_to_users_warning_list(chat_id, warning.id)
 
 
 def _should_user_receive_this_warning(chat_id: int, warning: nina_service.GeneralWarning,
@@ -30,7 +36,7 @@ def _should_user_receive_this_warning(chat_id: int, warning: nina_service.Genera
     He should receive the warning given as parameter when...
     :return: True if for any of the useres subscriptions the warning is relevant
     """
-    if has_user_received_this_warning_before(chat_id, warning):
+    if data_service.has_user_already_received_warning(chat_id, warning.id):
         return False
     subscriptions = data_service.get_subscriptions(chat_id)
     for subscription in subscriptions.items():
@@ -41,12 +47,19 @@ def _should_user_receive_this_warning(chat_id: int, warning: nina_service.Genera
     return False
 
 
+# TODO comment in the code snippets after refactoring from Lauren (marked with TODO)
 def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, subscription: tuple,
                                           warn_type: nina_service.WarnType) -> bool:
     subscription_dict = subscription[1]
+
+    # TODO Use this
+    # subscription_location_id = subscription[0]
     subscription_location_name = subscription[0]
+
+    # TODO Use this
+    # for nina_places.get_name_for_id(subscription_location_name) in subscription_dict:
     for subscription_warning_type in subscription_dict:
-        if subscription_location_name.lower() in list(map(lambda s: s.lower(), get_warning_locations(warning))):
+        if subscription_location_name.lower() in list(map(lambda s: s.lower(), nina_service.get_warning_locations(warning))):
             print("The user has subscribed to the warning location: " + subscription_location_name)
             try:
                 subscription_warning_severity = subscription_dict[
@@ -60,27 +73,6 @@ def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, 
                 return False
 
     print("Warning is not relevant for subscription.")
-    return False
-
-
-# TODO move this to nina_service.py
-def get_warning_locations(warning: nina_service.GeneralWarning):
-    # Retrieve warning_location out of detailed_warning
-    #   this information is saved in DetailedWarningInfoArea.area_description as for example "Stubenberg, Tann, Triftern, Unterdietfurt, Wittibreut, Wurmannsquick"
-    detailed_warning = nina_service.get_detailed_warning(warning.id)
-    locations = []
-    for info in detailed_warning.infos:
-        for area in info.area:
-            for location in area.area_description.split(", "):
-                locations.append(location)
-
-
-    locations.append("Darmstadt") # TODO remove (just for debugging)
-    return locations
-
-
-def has_user_received_this_warning_before(chat_id: int, warning: nina_service.GeneralWarning):
-    # TODO implement
     return False
 
 

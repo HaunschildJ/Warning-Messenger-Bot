@@ -4,6 +4,7 @@ from enum import Enum
 # See the MVP document for all possible options
 
 file_path = "../source/data/data.json"
+warnings_sent_path = "../source/data/warnings_already_received.json"
 
 DEFAULT_DATA = {
     "current_state": 0,
@@ -348,3 +349,36 @@ def get_chat_ids_of_warned_users() -> list[int]:
     """
     filtered_ids = filter(lambda chat_id: get_receive_warnings(chat_id), get_all_chat_ids())
     return list(filtered_ids)
+
+
+def add_warning_id_to_users_warnings_received_list(chat_id: int, general_warning_id: str):
+    user_data = _read_file(warnings_sent_path)
+    chat_id_string = str(chat_id)
+
+    if chat_id_string not in user_data:
+        user_data[chat_id_string] = []
+
+    list_of_received_warnings = user_data[chat_id_string]
+    list_of_received_warnings.append(general_warning_id)
+
+    _write_file(warnings_sent_path, user_data)
+
+
+def get_users_already_received_warning_ids(chat_id: int) -> list[str]:
+    user_data = _read_file(warnings_sent_path)
+    chat_id_string = str(chat_id)
+
+    if chat_id_string not in user_data:
+        return []
+
+    return user_data[chat_id_string]
+
+
+def has_user_already_received_warning(chat_id: int, general_warning_id: str) -> bool:
+    list_of_received_warnings = get_users_already_received_warning_ids(chat_id)
+    if general_warning_id in list_of_received_warnings:
+        print("User " + str(chat_id) + " was already warned about warning with id: " + general_warning_id)
+        return True
+    else:
+        return False
+
