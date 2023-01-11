@@ -373,4 +373,3 @@ def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, sug
     return suggested_dicts_filtered
 
 
-print(get_suggestion_dicts_from_coordinates(50.190970432643425, 8.571208318894422))
