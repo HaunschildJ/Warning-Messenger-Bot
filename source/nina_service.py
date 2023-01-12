@@ -3,7 +3,6 @@ from enum import Enum
 from datetime import datetime
 import requests
 import nina_string_helper
-import place_converter
 
 _base_url = "https://warnung.bund.de/api31"
 
@@ -31,21 +30,33 @@ class CovidRules:
     fines: str
 
 
-def get_covid_rules(city_name) -> CovidRules:
+def _get_safely(dict, key: str):
+    """
+    Because some of the JSONs we get from the NINA API do not always contain all the fields that are defined by the NINA API
+    we need to check if the field exists first. If it does we get the Value from the field. If it does not we return None
+    :param dict: The dictionary to check the key in
+    :param key:  The kay of the field   for example: "fines" for CovidRules { "fines": "bla bla", }
+    :return: None if the key is not in the dictionary, Value of the key if it is
+    """
+    try:
+        return dict[key]
+    except KeyError:
+        return None
+
+
+def get_covid_rules(district_id: str) -> CovidRules:
     """
     Gets current covid rules from the NinaApi for a city and returns them as a CovidRules class
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
-    :param city_name: Each city may have different covid_rules
+    :param district_id: Each district may have different covid_rules
     :return: CovidRules class
+    :raises HTTPError:
     """
-    city_code = place_converter.get_district_id(city_name)
-    # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
-    # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
-    city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
+    district_id = nina_string_helper.expand_location_id_with_zeros(district_id)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
+    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
 
     response = response_raw.json()
 
@@ -67,22 +78,20 @@ class CovidInfo:
     allgemeine_hinweise: str
 
 
-def get_covid_infos(city_name) -> CovidInfo:
+def get_covid_infos(district_id: str) -> CovidInfo:
     """
     Gets current covid infos from the NinaApi for a certain city and returns them as a CovidInfo class
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
-    :param city_name:
-    :return:
+    :param district_id:
+    :return: CovidInfo class
+    :raises HTTPError:
     """
-    city_code = place_converter.get_district_id(city_name)
-    # der city_code muss 12-Stellig sein, was fehlt muss mit 0en aufgefüllt werden laut doku
-    # https://github.com/bundesAPI/nina-api/blob/main/Beispielcode/Python/CoronaZahlenNachGebietscode.py
-    city_code = nina_string_helper.expand_location_id_with_zeros(city_code)
+    district_id = nina_string_helper.expand_location_id_with_zeros(district_id)
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(_base_url + covid_info_api + city_code + ".json")
+    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
@@ -160,6 +169,7 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
     this is the general method to poll those
     :param api_string: the string for the exact api we poll for
     :return: a list of all warnings that are actual. An empty list is returned if there are none
+    :raises HTTPError:
     """
     response_raw = requests.get(_base_url + api_string)
     response = response_raw.json()
@@ -188,6 +198,7 @@ def poll_biwapp_warning() -> list[GeneralWarning]:
     """
     polls the current biwap warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     biwapp_api = "/biwapp/mapData.json"
     return _poll_general_warning(biwapp_api)
@@ -197,6 +208,7 @@ def poll_katwarn_warning() -> list[GeneralWarning]:
     """
     polls the current katwarn warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     katwarn_api = "/katwarn/mapData.json"
     return _poll_general_warning(katwarn_api)
@@ -206,6 +218,7 @@ def poll_mowas_warning() -> list[GeneralWarning]:
     """
     polls the current mowas warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     mowas_api = "/mowas/mapData.json"
     return _poll_general_warning(mowas_api)
@@ -215,6 +228,7 @@ def poll_dwd_warning() -> list[GeneralWarning]:
     """
     polls the current dwd warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     dwd_api = "/dwd/mapData.json"
     return _poll_general_warning(dwd_api)
@@ -224,6 +238,7 @@ def poll_lhp_warning() -> list[GeneralWarning]:
     """
     polls the current lhp warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     lhp_api = "/lhp/mapData.json"
     return _poll_general_warning(lhp_api)
@@ -233,6 +248,7 @@ def poll_police_warning() -> list[GeneralWarning]:
     """
     polls the current police warnings
     :return: a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
     """
     police_api = "/police/mapData.json"
     return _poll_general_warning(police_api)
@@ -269,7 +285,7 @@ def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
         return geocode
 
     for i in range(0, len(response_geocode)):
-        geocode.append(response_geocode[i]["value"])
+        geocode.append(_get_safely(response_geocode[i],"value"))
 
     return geocode
 
@@ -280,8 +296,8 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
         return area
 
     for i in range(0, len(response_area)):
-        area_description = response_area[i]["areaDesc"]
-        geocode = _get_detailed_warning_infos_area_geocode(response_area[i]["geocode"])
+        area_description = _get_safely(response_area[i],"areaDesc")
+        geocode = _get_detailed_warning_infos_area_geocode(_get_safely(response_area[i],"geocode"))
         area.append(
             DetailedWarningInfoArea(area_description=area_description, geocode=geocode)
         )
@@ -295,12 +311,17 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
         return infos
 
     for i in range(0, len(response_infos)):
-        event = response_infos[i]["event"]
-        severity = _get_warning_severity(response_infos[i]["severity"])
-        date_expires = _translate_time(response_infos[i]["expires"])
-        headline = response_infos[i]["headline"]
-        description = nina_string_helper.filter_html_tags(response_infos[i]["description"])
-        area = _get_detailed_warning_infos_area(response_infos[i]["area"])
+        info = response_infos[i]
+
+        event = _get_safely(info,"event")
+        severity = _get_warning_severity(_get_safely(info,"severity"))
+        headline = _get_safely(info,"headline")
+        description = nina_string_helper.filter_html_tags(_get_safely(info,"description"))
+        area = _get_detailed_warning_infos_area(_get_safely(info,"area"))
+
+        date_expires = _get_safely(info, "expires")
+        if (date_expires is not None):
+            date_expires = _translate_time(date_expires)
 
         infos.append(
             DetailedWarningInfo(event=event, severity=severity, date_expires=date_expires, headline=headline,
@@ -315,32 +336,44 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     This method should be called after a warning with one of the poll_****_warning methods was received
     :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
     :return: the detailed Warning as a DetailedWarning class
+    :raises HTTPError:
     """
     response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
-    print(response_raw.text)
 
-    id_response = response["identifier"]
-    sender = response["sender"]
-    date_sent = _translate_time(response["sent"])
-    status = response["status"]
-    infos = _get_detailed_warning_infos(response["info"])
+    id_response = _get_safely(response, "identifier")
+    sender = _get_safely(response, "sender")
+    status = _get_safely(response, "status")
+
+    date_sent = _get_safely(response, "sent")
+    if date_sent is not None:
+        date_sent = _translate_time(date_sent)
+
+    infos = _get_detailed_warning_infos(_get_safely(response, "info")) #_get_detailed_warning_infos already checks if the input is None
 
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 
 
 _call_general_warning_map = {
-    0: poll_biwapp_warning,
-    1: poll_katwarn_warning,
-    2: poll_mowas_warning,
-    3: poll_dwd_warning,
-    4: poll_lhp_warning,
-    5: poll_police_warning
+    WarnType.BIWAPP: poll_biwapp_warning,
+    WarnType.KATWARN: poll_katwarn_warning,
+    WarnType.MOWAS: poll_mowas_warning,
+    WarnType.DWD: poll_dwd_warning,
+    WarnType.LHP: poll_lhp_warning,
+    WarnType.POLICE: poll_police_warning
 }
 
 
 def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
+    """
+    The Nina Api has different API calls for each warning that all basically work the same.
+    Since we each user can subscribe to each warning individually we need to save their subscriptions.
+    This is done using the WarnType enum.
+    This method eases the calling of a specific poll_warning_method depending on the given WarnType
+    :param warning: A WarnType enum that specifies which warning should be polled from the Nina API
+    :return:  a list of GeneralWarnings, list ist empty if there are no current warnings
+    :raises HTTPError:
+    """
     if warning == WarnType.NONE:
         return []
-    return _call_general_warning_map[int(str(warning.value))]()
-
+    return _call_general_warning_map[warning]()
