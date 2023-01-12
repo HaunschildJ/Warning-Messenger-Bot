@@ -22,7 +22,8 @@
         "locations": {
             "Darmstadt": {
                 "weather": 4,
-                "biwapp": 0
+                "biwapp": 0,
+                "lhp": 0
             },
             "Gie\u00dfen": {
                 "weather": 3

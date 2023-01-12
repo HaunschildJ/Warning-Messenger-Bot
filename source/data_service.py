@@ -351,6 +351,8 @@ def get_chat_ids_of_warned_users() -> list[int]:
     return list(filtered_ids)
 
 
+# TODO: lhp warning_id look like this "lhp.HOCHWASSERZENTRALEN.DE.BY", which is most probably not a unique id
+# There has to be a more specific id
 def add_warning_id_to_users_warnings_received_list(chat_id: int, general_warning_id: str):
     user_data = _read_file(warnings_sent_path)
     chat_id_string = str(chat_id)
