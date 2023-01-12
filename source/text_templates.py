@@ -78,7 +78,7 @@ def get_button_name(button: Button) -> string:
         A String containing the desired button name.
     """
 
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     for topic in data:
@@ -97,7 +97,7 @@ def get_answers(answer: Answers) -> string:
         A String containing the desired answer text.
     """
 
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     for topic in data:
@@ -119,7 +119,7 @@ def get_replaceable_answer(r_answer: ReplaceableAnswer) -> string:
     """
     result = ""
 
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
     for topic in data:
