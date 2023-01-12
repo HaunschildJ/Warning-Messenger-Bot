@@ -37,5 +37,29 @@
             "Berlin"
         ],
         "language": "german"
+    },
+    "472775460": {
+        "current_state": 3,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {},
+        "recommendations": [
+            "M\u00fcnchen",
+            "Frankfurt",
+            "Berlin"
+        ],
+        "language": "german"
+    },
+    "5675094723": {
+        "current_state": 2,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {},
+        "recommendations": [
+            "F\u00fchrer",
+            "Frankfurt am Main",
+            "\ud83d\udc8b"
+        ],
+        "language": "german"
     }
 }
