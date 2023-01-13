@@ -124,6 +124,12 @@ class MyTestCase(unittest.TestCase):
         should_be = "Oberursel (Taunus), Stadt"
         self.assertEqual(should_be, place_converter.get_name_for_id(input_value))
 
+        input_value = "00000"
+        self.assertEqual(None, place_converter.get_name_for_id(input_value))
+
+        input_value = "000000000000"
+        self.assertEqual(None, place_converter.get_name_for_id(input_value))
+
         # cannot be found / not even a number
         input_value = "no"
         self.assertEqual(None, place_converter.get_name_for_id(input_value))
