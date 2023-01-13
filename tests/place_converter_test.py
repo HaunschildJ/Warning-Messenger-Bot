@@ -208,7 +208,7 @@ class MyTestCase(unittest.TestCase):
         input_lat = 49.866888380007595
         input_lon = 8.637452871622893
         input_limit = 11
-        result_list = place_converter.get_suggestion_dicts_from_coordinates(input_lat,input_lon,input_limit)
+        result_list = place_converter.get_suggestion_dicts_from_coordinates(input_lat, input_lon, input_limit)
         should_be = "Darmstadt, Wissenschaftsstadt"
         self.assertEqual(should_be, result_list[0]['place_name'])
 
