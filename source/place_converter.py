@@ -224,14 +224,19 @@ def get_name_for_id(given_id: str) -> Any:
             return None
         else:
             return district_name
-    elif given_id[5:12] == '0000000':  # district id
+    elif given_id[5:12] == '0000000':  # could still be only a district id
         try:
-            given_id = given_id[0:5]
-            district_name = _districts_dictionary[given_id]
+            place_name = _places_dictionary[given_id]
         except KeyError:
-            return None
+            try:
+                given_id = given_id[0:5]
+                district_name = _districts_dictionary[given_id]
+            except KeyError:
+                return None
+            else:
+                return district_name
         else:
-            return district_name
+            return place_name
     else:  # place id
         try:
             place_name = _places_dictionary[given_id]
