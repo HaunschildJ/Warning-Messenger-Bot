@@ -530,7 +530,7 @@ def show_suggestions(chat_id: int, button_text: str):
         name = data_service.get_recommendation_name(recommendation)
         place_id = data_service.get_recommendation_place_id(recommendation)
         district_id = data_service.get_recommendation_district_id(recommendation)
-        button = sender.create_inline_button(name, command_first_part + name + ";" + place_id + ";" + district_id)
+        button = sender.create_inline_button(name, command_first_part + place_id + ";" + district_id)
         markup.add(button)
     cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
     markup.add(cancel_button)
