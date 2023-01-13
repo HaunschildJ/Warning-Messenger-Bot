@@ -15,16 +15,15 @@ class Commands(Enum):
     """
     this enum is used to have all commands in one place
     current possible commands:
-    COVID ; (COVID_INFO || COVID_RULES) ; "name" ; "place_id" ; "district_id"
+    COVID ; (COVID_INFO || COVID_RULES) ; "place_id" ; "district_id"
     AUTO_WARNING + "bool as string"
-    ADD_RECOMMENDATION + "location as string"
 
     just for the bot not the user:
     CANCEL_INLINE
     DELETE_SUBSCRIPTION + "location" + "warn_type"
-    ADD_SUBSCRIPTION + "location" + "warn_type" + "warn_level"
+    ADD_SUBSCRIPTION ; "location_id" ; "warn_type" ; "warn_level"
     COVID_UPDATES + "ReceiveInformation from data_service as int"
-    ADD_RECOMMENDATION ; "name" ; "place_id" ; "district_id"
+    ADD_RECOMMENDATION ; "place_id" ; "district_id"
     """
     COVID = "/covid"
     COVID_INFO = "info"
@@ -132,47 +131,68 @@ def _get_subscription_settings_keyboard() -> telebot.types.ReplyKeyboardMarkup:
     return keyboard
 
 
-def _make_location_suggestions(chat_id: int, location_text: str, command_begin: str):
+def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str,
+                               district_id_bool: bool = True, place_id_bool: bool = True):
     """
+    When place_id_bool and district_id_bool are True then both will be in command (place_id first)
 
     Arguments:
         chat_id: an Integer for the chat id of the user
-        location_text: a string with the text of the user
+        dicts: list with the dicts from place_converter
         command_begin: a string with the beginning of the callback command (has to end with ;)
+        district_id_bool: boolean when True the district_id will be in the command
+        place_id_bool: boolean when True the place_id will be in command
     """
-    dicts = place_converter.get_dict_suggestions(location_text)
     markup = InlineKeyboardMarkup()
 
     if len(dicts) == 0:
-        # TODO text_templates
-        sender.send_message(chat_id, "Es konnten keine Städte gefunden werden.")
+        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_LOCATION_FOUND))
         return
 
     i = 0
-    text = "Wählen sie die Stadt aus die sie meinten:\n"
+    locations_text = []
     buttons = []
     for dic in dicts:
         place_name = place_converter.get_place_name_from_dict(dic)
         district_name = place_converter.get_district_name_from_dict(dic)
         place_id = place_converter.get_place_id_from_dict(dic)
         district_id = place_converter.get_district_id_from_dict(dic)
-        if place_name is not None:
-            name = place_name
+        button_name = str(i)
+        if place_name is None:
+            place_name = "---"
+
+        command = command_begin
+
+        if not place_id_bool and not district_id_bool:
+            error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
+            return
+        if place_id_bool:
+            command = command + place_id
+            if district_id_bool:
+                command = command + ";" + district_id
         else:
-            name = district_name
-        command = command_begin + name + ";" + place_id + ";" + district_id
-        button = sender.create_inline_button(str(i), command)
+            if district_id_bool:
+                command = command + district_id
+
+        button = sender.create_inline_button(button_name, command)
         buttons.append(button)
         if len(buttons) == 3:
             markup.add(buttons[0], buttons[1], buttons[2])
             buttons = []
-        text = text + str(i) + " = " + name + " " + district_name + "\n"
+        locations_text.append(text_templates.get_select_location_for_one_location_messsage(district_name, place_name,
+                                                                                           button_name))
         i = i + 1
+
+    if len(buttons) == 2:
+        markup.add(buttons[0], buttons[1])
+    elif len(buttons) == 1:
+        markup.add(buttons[0])
+
+    answer = text_templates.get_select_location_message(locations_text)
 
     cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
     markup.add(cancel_button)
-    # TODO text_templates
-    sender.send_message(chat_id, text, markup)
+    sender.send_message(chat_id, answer, markup)
 
 
 # global variables -----------------------------------------------------------------------------------------------------
@@ -334,16 +354,40 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
             return
 
         markup = InlineKeyboardMarkup()
+        buttons = []
+        subscriptions_text = []
+        i = 0
         for location in subscriptions.keys():
             command = Commands.DELETE_SUBSCRIPTION.value + " " + location + " "
+            location_name = place_converter.get_name_for_id(location)
+            warnings = []
+            levels = []
+            corresponding_buttons = []
             for warning in subscriptions[location]:
-                button = sender.create_inline_button(location + ": " + warning + " " +
-                                                     str(subscriptions[location][warning]), command + warning)
-                markup.add(button)
+                warning_name = _get_general_warning_name(nina_service.WarnType(int(warning)))
+                button_name = str(i)
+                button = sender.create_inline_button(button_name, command + warning)
+                warnings.append(warning_name)
+                levels.append(str(subscriptions[location][warning]))
+                corresponding_buttons.append(button_name)
+                buttons.append(button)
+                if len(buttons) == 3:
+                    markup.add(buttons[0], buttons[1], buttons[2])
+                    buttons = []
+                i = i + 1
+            subscriptions_text.append(
+                text_templates.get_delete_subscriptions_for_one_location_messsage(location_name, warnings, levels,
+                                                                                  corresponding_buttons))
+
+        answer = text_templates.get_delete_subscriptions_message(subscriptions_text)
+        if len(buttons) == 2:
+            markup.add(buttons[0], buttons[1])
+        elif len(buttons) == 1:
+            markup.add(buttons[0])
 
         cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)
-        sender.send_message(chat_id, text_templates.get_answers(Answers.DELETE_SUBSCRIPTION), markup)
+        sender.send_message(chat_id, answer, markup)
     else:
         error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
 
@@ -362,10 +406,26 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         chat_id: an integer for the chatID that the message is sent to
         callback_command: a string which contains the command that the inline buttons will send
     """
-    split_command = callback_command.split(' ')
-    if len(split_command) < 3:
+    split_command = callback_command.split(';')
+    if len(split_command) < 2:
         return
     location = split_command[1]
+    location_name = place_converter.get_name_for_id(location)
+    if len(split_command) == 2:
+        markup = InlineKeyboardMarkup()
+        command = Commands.ADD_SUBSCRIPTION.value + ";" + location + ";"
+
+        for warning in list(nina_service.WarnType):
+            if warning == nina_service.WarnType.NONE:
+                break
+            warn_name = _get_general_warning_name(warning)
+            button = sender.create_inline_button(warn_name, command + str(warning.value))
+            markup.add(button)
+
+        cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
+        markup.add(cancel_button)
+        sender.send_message(chat_id, text_templates.get_adding_subscription_warning_message(location_name), markup)
+        return
     warning = int(split_command[2])
     if len(split_command) == 3:
         # not done with process of adding subscription yet, ask for warning level
@@ -374,13 +434,13 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         # TODO add all Warning Level
 
         for i in [1, 2, 3, 4, 5]:
-            button = sender.create_inline_button(str(i), callback_command + " " + str(i))
+            button = sender.create_inline_button(str(i), callback_command + ";" + str(i))
             markup.add(button)
 
         cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)
         message = text_templates.get_adding_subscription_level_message(
-            location, _get_general_warning_name(nina_service.WarnType(warning)))
+            location_name, _get_general_warning_name(nina_service.WarnType(warning)))
         sender.send_message(chat_id, message, markup)
     else:
         # done with process of adding subscription, and it can now be added
@@ -409,7 +469,8 @@ def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str
     warning = split_command[2]
     data_service.delete_subscription(chat_id, location, warning)
     warning_name = _get_general_warning_name(nina_service.WarnType(int(warning)))
-    sender.send_message(chat_id, text_templates.get_delete_subscription_message(location, warning_name))
+    location_name = place_converter.get_name_for_id(location)
+    sender.send_message(chat_id, text_templates.get_delete_subscription_message(location_name, warning_name))
 
 
 def normal_input_depending_on_state(chat_id: int, text: str):
@@ -426,28 +487,20 @@ def normal_input_depending_on_state(chat_id: int, text: str):
     state = data_service.get_user_state(chat_id)
     if state == 10:
         command_begin = Commands.ADD_RECOMMENDATION.value + ";"
-        _make_location_suggestions(chat_id, text, command_begin)
+        dicts = place_converter.get_dict_suggestions(text)
+        _make_location_suggestions(chat_id, dicts, command_begin)
     elif state == 110:
-        # TODO check if text is a valid location
-        markup = InlineKeyboardMarkup()
-        command = Commands.ADD_SUBSCRIPTION.value + " " + text + " "
-
-        for warning in list(nina_service.WarnType):
-            if warning == nina_service.WarnType.NONE:
-                break
-            warn_name = _get_general_warning_name(warning)
-            button = sender.create_inline_button(warn_name, command + str(warning.value))
-            markup.add(button)
-
-        cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
-        markup.add(cancel_button)
-        sender.send_message(chat_id, text_templates.get_adding_subscription_warning_message(text), markup)
+        command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
+        dicts = place_converter.get_dict_suggestions(text)
+        _make_location_suggestions(chat_id, dicts, command_begin, place_id_bool=True, district_id_bool=False)
     elif state == 20:
         command_begin = Commands.COVID.value + ";" + Commands.COVID_INFO.value + ";"
-        _make_location_suggestions(chat_id, text, command_begin)
+        dicts = place_converter.get_dict_suggestions(text)
+        _make_location_suggestions(chat_id, dicts, command_begin)
     elif state == 21:
         command_begin = Commands.COVID.value + ";" + Commands.COVID_RULES.value + ";"
-        _make_location_suggestions(chat_id, text, command_begin)
+        dicts = place_converter.get_dict_suggestions(text)
+        _make_location_suggestions(chat_id, dicts, command_begin)
     else:
         error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
 
@@ -530,6 +583,8 @@ def covid_info(chat_id: int, city_name: str, district_id: str, info: nina_servic
         except:
             error_handler(chat_id, ErrorCodes.NINA_API)
             return
+    if city_name is None:
+        city_name = place_converter.get_name_for_id(district_id)
     message = text_templates.get_covid_info_message(city_name, info.infektionsgefahr_stufe,
                                                     info.sieben_tage_inzidenz_bundesland,
                                                     info.sieben_tage_inzidenz_kreis, info.allgemeine_hinweise)
@@ -558,6 +613,8 @@ def covid_rules(chat_id: int, city_name: str, district_id: str, rules: nina_serv
         except:
             error_handler(chat_id, ErrorCodes.NINA_API)
             return
+    if city_name is None:
+        city_name = place_converter.get_name_for_id(district_id)
     message = text_templates.get_covid_rules_message(city_name, rules.vaccine_info, rules.contact_terms,
                                                      rules.school_kita_rules,
                                                      rules.hospital_rules, rules.travelling_rules, rules.fines)
@@ -583,24 +640,35 @@ def show_subscriptions(chat_id: int):
         for warning in subscriptions[location].keys():
             warnings.append(_get_general_warning_name(nina_service.WarnType(int(warning))))
             levels.append(str(subscriptions[location][warning]))
-        subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location, warnings,
+        location_name = place_converter.get_name_for_id(location)
+        subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
+                                                                                                  warnings,
                                                                                                   levels))
     message = text_templates.get_show_subscriptions_message(subscriptions_text)
     sender.send_message(chat_id, message)
 
 
-def location_was_sent(chat_id: int, location: list):
+def location_was_sent(chat_id: int, latitude: float, longitude: float):
     """
     This method turns the location into a city name or PLZ and\n
     - adds it to the recommendations in the database
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
-        location: Array with 2 entries for latitude and longitude
+        latitude: float with latitude
+        longitude: float with longitude
     """
-    # TODO location verarbeiten mit state
-    location_name = "Your_Location"
-    add_recommendation_in_database(chat_id, location_name)
+    dicts = place_converter.get_suggestion_dicts_from_coordinates(latitude=latitude, longitude=longitude)
+    state = data_service.get_user_state(chat_id)
+    if state == 10:
+        command_begin = Commands.ADD_RECOMMENDATION.value + ";"
+        _make_location_suggestions(chat_id, dicts, command_begin)
+    elif state == 110:
+        command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
+        _make_location_suggestions(chat_id, dicts, command_begin, district_id_bool=False, place_id_bool=True)
+    else:
+        error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
+        return
 
 
 def change_auto_warning_in_database(chat_id: int, value: bool):
@@ -635,7 +703,7 @@ def change_auto_covid_updates_in_database(chat_id: int, updates: int):
     sender.send_message(chat_id, text_templates.get_changed_auto_covid_updates_message(how_often_text))
 
 
-def add_recommendation_in_database(chat_id: int, location_name: str, place_id: str, district_id: str):
+def add_recommendation_in_database(chat_id: int, place_id: str, district_id: str, location_name: str = None):
     """
     This method changes the recommended locations in the database and informs the user about the recommended locations
     that are stored now
@@ -646,6 +714,8 @@ def add_recommendation_in_database(chat_id: int, location_name: str, place_id: s
         place_id: string with the place id
         district_id: string with district id
     """
+    if location_name is None:
+        location_name = place_converter.get_name_for_id(place_id)
     # update the database
     recommendations = data_service.add_suggestion(chat_id, location_name, place_id, district_id)
 

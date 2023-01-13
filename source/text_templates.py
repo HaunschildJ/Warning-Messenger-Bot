@@ -63,8 +63,13 @@ class Answers(Enum):
     MANAGE_SUBSCRIPTIONS = "manage_subscriptions"
     MANAGE_AUTO_COVID_UPDATES = "manage_auto_covid_updates"
     NO_SUBSCRIPTIONS = "no_subscriptions"
-    DELETE_SUBSCRIPTION = "delete_subscription"
     CLICK_SUGGESTION = "click_suggestion"
+    NO_LOCATION_FOUND = "no_location_found"
+
+
+def _read_file(path: str):
+    with open(path, "r", encoding="utf-8") as file:
+        return json.load(file)
 
 
 def get_button_name(button: Button) -> string:
@@ -78,8 +83,7 @@ def get_button_name(button: Button) -> string:
         A String containing the desired button name.
     """
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
+    data = _read_file(file_path)
 
     for topic in data:
         if topic['topic'] == "buttons":
@@ -97,8 +101,7 @@ def get_answers(answer: Answers) -> string:
         A String containing the desired answer text.
     """
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
+    data = _read_file(file_path)
 
     for topic in data:
         if topic['topic'] == "answers":
@@ -119,8 +122,7 @@ def get_replaceable_answer(r_answer: ReplaceableAnswer) -> string:
     """
     result = ""
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
+    data = _read_file(file_path)
 
     for topic in data:
         if topic['topic'] == "replaceable_answers":
@@ -140,11 +142,40 @@ def _get_show_subscriptions() -> dict:
         a dictionary with the format for showing subscriptions
     """
 
-    with open(file_path, "r") as file:
-        data = json.load(file)
+    data = _read_file(file_path)
 
     for topic in data:
         if topic['topic'] == "show_subscriptions":
+            return topic
+
+
+def _get_delete_subscriptions() -> dict:
+    """
+    Returns a dictionary with the format for deleting subscriptions
+
+    Returns:
+        a dictionary with the format for deleting subscriptions
+    """
+
+    data = _read_file(file_path)
+
+    for topic in data:
+        if topic['topic'] == "delete_subscription":
+            return topic
+
+
+def _get_select_location() -> dict:
+    """
+    Returns a dictionary with the format for selecting a location
+
+    Returns:
+        a dictionary with the format for selecting a location
+    """
+
+    data = _read_file(file_path)
+
+    for topic in data:
+        if topic['topic'] == "select_location":
             return topic
 
 
@@ -156,8 +187,7 @@ def _get_show_recommendations() -> dict:
         a dictionary with the format for showing recommendations
     """
 
-    with open(file_path, "r") as file:
-        data = json.load(file)
+    data = _read_file(file_path)
 
     for topic in data:
         if topic['topic'] == "recommendations":
@@ -317,6 +347,52 @@ def get_show_subscriptions_message(subscriptions: list[str]) -> str:
     message = dic["headline"]
     for subscription in subscriptions:
         message = message + "\n" + subscription
+    return message
+
+
+def get_delete_subscriptions_for_one_location_messsage(location: str, warnings: list[str], levels: list[str],
+                                                       corresponding_button_names: list[str]) -> str:
+    dic = _get_delete_subscriptions()
+    message = dic["location"]
+    message = message.replace("%location", location)
+    for (warning, level, button) in zip(warnings, levels, corresponding_button_names):
+        single_warning = dic["warning"]
+        single_warning = single_warning.replace("%warning", warning)
+        single_warning = single_warning.replace("%level", level)
+        single_warning = single_warning.replace("%button_name", button)
+        message = message + "\n" + single_warning
+    return message
+
+
+def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
+    dic = _get_delete_subscriptions()
+    message = dic["headline"]
+    for subscription in subscriptions:
+        message = message + "\n" + subscription
+    end_text = dic["end"]
+    if end_text != "":
+        message = message + "\n" + end_text
+    return message
+
+
+def get_select_location_for_one_location_messsage(district_name: str, place_name: str,
+                                                  corresponding_button_name: str) -> str:
+    dic = _get_select_location()
+    message = dic["text"]
+    message = message.replace("%place_name", place_name)
+    message = message.replace("%district_name", district_name)
+    message = message.replace("%button_name", corresponding_button_name)
+    return message
+
+
+def get_select_location_message(locations: list[str]) -> str:
+    dic = _get_select_location()
+    message = dic["headline"]
+    for location in locations:
+        message = message + "\n" + location
+    end_text = dic["end"]
+    if end_text != "":
+        message = message + "\n" + end_text
     return message
 
 

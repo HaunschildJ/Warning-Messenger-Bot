@@ -33,7 +33,7 @@ def filter_callback_auto_warning(call: typ.CallbackQuery) -> bool:
 
 
 def filter_callback_add_subscription(call: typ.CallbackQuery) -> bool:
-    split_data = call.data.split(' ')
+    split_data = call.data.split(';')
     if split_data[0] == Commands.ADD_SUBSCRIPTION.value:
         return True
     return False
@@ -210,8 +210,9 @@ def back_to_main_keyboard(message: typ.Message):
 
 @bot.message_handler(content_types=['location'])
 def send_location_pressed(message: typ.Message):
-    location = [message.location.latitude, message.location.longitude]
-    controller.location_was_sent(message.chat.id, location)
+    long = message.location.longitude
+    lat = message.location.latitude
+    controller.location_was_sent(message.chat.id, latitude=lat, longitude=long)
 
 
 @bot.message_handler(func=filter_show_subscriptions)
@@ -319,13 +320,13 @@ def cancel_button(call: typ.CallbackQuery):
 @bot.callback_query_handler(func=filter_callback_add_recommendation)
 def add_recommendation(call: typ.CallbackQuery):
     split_message = call.data.split(';')
-    if len(split_message) < 4:
+    if len(split_message) < 3:
         controller.error_handler(call.message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
         return
-    name = split_message[1]
-    place_id = split_message[2]
-    district_id = split_message[3]
-    controller.add_recommendation_in_database(call.message.chat.id, name, place_id, district_id)
+    place_id = split_message[1]
+    district_id = split_message[2]
+    controller.add_recommendation_in_database(call.message.chat.id, place_id, district_id)
+    controller.delete_message(call.message.chat.id, call.message.id)
 
 
 # helper methods -------------------------------------------------------------------------------------------------------
@@ -342,16 +343,15 @@ def covid_helper(chat_id: int, message_string: str):
         message_string: a string of the message/text that is sent by the user/button
     """
     split_message = message_string.split(';')
-    if len(split_message) < 5:
+    if len(split_message) < 4:
         controller.error_handler(chat_id, ErrorCodes.ONLY_PART_OF_COMMAND)
         return
-    name = split_message[2]
-    place_id = split_message[3]
-    district_id = split_message[4]
+    place_id = split_message[2]
+    district_id = split_message[3]
     if split_message[1] == Commands.COVID_INFO.value:
-        controller.covid_info(chat_id, name, district_id)
+        controller.covid_info(chat_id, None, district_id)
     elif split_message[1] == Commands.COVID_RULES.value:
-        controller.covid_rules(chat_id, name, district_id)
+        controller.covid_rules(chat_id, None, district_id)
     else:
         controller.error_handler(chat_id, ErrorCodes.ONLY_PART_OF_COMMAND)
 

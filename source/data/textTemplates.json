@@ -183,12 +183,12 @@
       "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
       "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
       "back_to_main_menu": "Sie sind im Hauptmenü.",
-      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen geben sie \"[Stadtname oder PLZ]\" ein oder senden sie ihren aktuellen Standort",
+      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen, geben Sie \"[Stadtname oder PLZ]\" ein oder senden Sie ihren aktuellen Standort",
       "manage_subscriptions": "Was möchten Sie tun?",
       "manage_auto_covid_updates": "Wie oft möchten Sie automatische Corona Updates?",
       "no_subscriptions": "Sie haben keine Abonnements.",
-      "delete_subscription": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen.",
-      "click_suggestion": "Wählen Sie einen dieser Orte oder geben Sie einen Ort ein."
+      "click_suggestion": "Wählen Sie einen dieser Orte oder geben Sie einen Ort ein.",
+      "no_location_found": "Es konnten keine Städte gefunden werden."
     }
   },
   {
@@ -202,10 +202,27 @@
   },
   {
     "topic": "recommendations",
-    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt.",
+    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
     "description2": "%r in recommendation gibt an wo der Vorschlag stehen soll.",
     "headline": "Ihnen werden nun folgende Orte vorgeschlagen:",
     "recommendation": "%r",
     "end": "\nSie können jetzt den nächsten Vorschlag eingeben."
+  },
+  {
+    "topic": "delete_subscription",
+    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+    "description2": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe. %button_name für den Name des dazugehörigen Buttons.",
+    "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
+    "location": "\n%location:",
+    "warning": "\t[%button_name] %warning von Stufe %level",
+    "end": ""
+  },
+  {
+    "topic": "select_location",
+    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+    "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
+    "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
+    "text": "[%button_name] %place_name ; %district_name",
+    "end": ""
   }
 ]
