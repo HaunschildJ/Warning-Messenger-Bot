@@ -102,7 +102,7 @@ class MyTestCase(unittest.TestCase):
         result_list = place_converter._get_place_and_district_dict_suggestions(input_name, input_limit)
         should_be = "Frankfurt am Main, Stadt"
         self.assertEqual(should_be, result_list[0]['place_name'])
-        should_be = "064120000000"
+        should_be = "06412"
         self.assertEqual(should_be, result_list[0]['district_id'])
 
     def test_get_dicts_for_postal_code(self):
