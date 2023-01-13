@@ -96,6 +96,15 @@ class MyTestCase(unittest.TestCase):
         should_be = "06434"
         self.assertEqual(should_be, result_list[0]['district_id'])
 
+        # place with double dicts
+        input_name = "Frankfurt"
+        input_limit = 11
+        result_list = place_converter._get_place_and_district_dict_suggestions(input_name, input_limit)
+        should_be = "Frankfurt am Main, Stadt"
+        self.assertEqual(should_be, result_list[0]['place_name'])
+        should_be = "064120000000"
+        self.assertEqual(should_be, result_list[0]['district_id'])
+
     def test_get_dicts_for_postal_code(self):
         # postal code not found
         input_value = "00"

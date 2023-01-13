@@ -179,7 +179,7 @@ def _get_place_and_district_dict_suggestions(name: str, suggestion_limit: int) -
     dict_suggestions = place_dict_suggestions + district_dict_suggestions
     return dict_suggestions
 
-
+print(_get_place_and_district_dict_suggestions("Frankfurt", 11))
 def _get_dicts_for_postal_code(postal_code: str, suggestion_limit: int) -> list[dict]:
     """
     Returns a list of dicts {'place_name', 'place_id', 'district_name', 'district_id'} that fit the place name and
