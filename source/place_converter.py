@@ -70,8 +70,7 @@ def _get_exact_address_from_coordinates(latitude: float, longitude: float) -> Tu
     location_name = geo_loc.reverse((latitude, longitude))
     address = location_name.address
     address_as_list = address.split(", ")
-    print(address_as_list)
-    if "kreis" in address_as_list[-4]:
+    if "kreis" in address_as_list[-4].lower():
         place_name = address_as_list[-5]
     else:
         place_name = address_as_list[-4]
@@ -362,14 +361,8 @@ def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, sug
         suggested_dicts (list[dict]): dicts that fit the infos
     """
     place_tuple = _get_exact_address_from_coordinates(latitude, longitude)
-    place_name = place_tuple[0]
-    postal_code = str(place_tuple[1])
+
+    postal_code = place_tuple[1]
     suggested_dicts_postal_code = _get_dicts_for_postal_code(postal_code, suggestion_limit)
-    suggested_dicts_filtered = []
-    for place_dict in suggested_dicts_postal_code:
-        if place_name in place_dict['place_name']:
-            suggested_dicts_filtered.append(place_dict)
 
-    return suggested_dicts_filtered
-
-
+    return suggested_dicts_postal_code
