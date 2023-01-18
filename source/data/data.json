@@ -1,53 +1,25 @@
 {
-    "5635169582": {
-        "current_state": 1,
-        "receive_warnings": false,
-        "receive_covid_information": 0,
-        "locations": {
-            "Test": {
-                "biwapp": 2
-            }
-        },
-        "recommendations": [
-            "Test",
-            "M\u00fcnchen",
-            "Frankfurt"
-        ],
-        "language": "german"
-    },
-    "1770942669": {
-        "current_state": 1,
-        "receive_warnings": true,
-        "receive_covid_information": 0,
-        "locations": {
-            "Darmstadt": {
-                "weather": 4,
-                "biwapp": 0,
-                "lhp": 0
-            },
-            "Gie\u00dfen": {
-                "weather": 3
-            },
-            "Stubenberg": {
-                "mowas": 2
-            }
-        },
-        "recommendations": [
-            "M\u00fcnchen",
-            "Frankfurt",
-            "Berlin"
-        ],
-        "language": "german"
-    },
     "472775460": {
         "current_state": 3,
         "receive_warnings": true,
         "receive_covid_information": 0,
         "locations": {},
         "recommendations": [
-            "M\u00fcnchen",
-            "Frankfurt",
-            "Berlin"
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            },
+            {
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            },
+            {
+                "name": "Darmstadt, Wissenschaftsstadt",
+                "place_id": "064110000000",
+                "district_id": "06411"
+            }
         ],
         "language": "german"
     },
@@ -57,9 +29,100 @@
         "receive_covid_information": 0,
         "locations": {},
         "recommendations": [
-            "F\u00fchrer",
-            "Frankfurt am Main",
-            "\ud83d\udc8b"
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            },
+            {
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            },
+            {
+                "name": "Darmstadt, Wissenschaftsstadt",
+                "place_id": "064110000000",
+                "district_id": "06411"
+            }
+        ],
+        "language": "german"
+    },
+    "1770942669": {
+        "current_state": 20,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {},
+        "recommendations": [
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            },
+            {
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            },
+            {
+                "name": "Darmstadt, Wissenschaftsstadt",
+                "place_id": "064110000000",
+                "district_id": "06411"
+            }
+        ],
+        "language": "german"
+    },
+    "810938598": {
+        "current_state": 10,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {},
+        "recommendations": [
+            {
+                "name": "Aalen, Stadt",
+                "place_id": "081365001088",
+                "district_id": "08136"
+            },
+            {
+                "name": "Berlin, Stadt",
+                "place_id": "110000000000",
+                "district_id": "11000"
+            },
+            {
+                "name": "Berlin-Mitte",
+                "place_id": "110010000000",
+                "district_id": "11001"
+            }
+        ],
+        "language": "german"
+    },
+    "5635169582": {
+        "current_state": 0,
+        "receive_warnings": true,
+        "receive_covid_information": 0,
+        "locations": {
+            "064110000000": {
+                "1": 3
+            },
+            "064360001001": {
+                "4": 4
+            }
+        },
+        "recommendations": [
+            {
+                "name": "Darmstadt",
+                "place_id": "064110000000",
+                "district_id": "06411"
+            },
+            {
+                "name": "Bad Soden am Taunus, Stadt",
+                "place_id": "064360001001",
+                "district_id": "06436"
+            },
+            {
+                "name": "Hofheim am Taunus, Kreisstadt",
+                "place_id": "064360007007",
+                "district_id": "06436"
+            }
         ],
         "language": "german"
     }
