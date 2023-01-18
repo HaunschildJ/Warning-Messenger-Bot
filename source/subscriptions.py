@@ -6,9 +6,9 @@ import time
 import place_converter
 
 
-
+# This should be called when the main script is executed (receiver.py)
 def start():
-    # TODO Check if there are any updates to the list returned from get_all_active_warnings()
+    # (for optimization) you could check first if there are any updates to the list returned from get_all_active_warnings()
     while True:
         warn_users()
         time.sleep(120)  # 2 minutes
@@ -63,7 +63,7 @@ def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, 
     print(lower_case_locations_list)
     # TODO Use this
     # for nina_places.get_name_for_id(subscription_location_name) in subscription_dict:
-    for subscription_warning_type in subscription_dict:
+    for _ in subscription_dict:
         if subscription_location_name.lower() in lower_case_locations_list:
             try:
                 subscription_warning_severity = subscription_dict[warn_type.name.lower()]  # TODO handle conversion from database warn_type to nina_service warn_type better
@@ -76,6 +76,7 @@ def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, 
 
     print("Warning is not relevant for subscription_location_name: " + subscription_location_name)
     return False
+
 
 
 warn_users()
