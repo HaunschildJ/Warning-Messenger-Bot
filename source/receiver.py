@@ -132,8 +132,6 @@ def start(message: typ.Message):
 
     Arguments:
         message: the message that the user sent in the chat
-    Returns:
-        Nothing
     """
     name = message.chat.username
     if name is None:
@@ -151,12 +149,21 @@ def covid(message: typ.Message):
     """
     This method is called when the user sends Commands.COVID.value (currently '/covid') and will call the methods
     needed to give the user the desired output
+
+    Arguments:
+        message: the message that the user sent in the chat
     """
     covid_helper(message.chat.id, message.text)
 
 
 @bot.message_handler(func=filer_everything_else)
 def everything_else(message: typ.Message):
+    """
+    This method is called when the user sends a message that is not handled by another method
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     controller.normal_input_depending_on_state(message.chat.id, message.text)
 
 
@@ -165,11 +172,23 @@ def everything_else(message: typ.Message):
 
 @bot.message_handler(func=filter_main_button)
 def main_menu_button(message: typ.Message):
+    """
+
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     controller.main_button_pressed(message.chat.id, message.text)
 
 
 @bot.message_handler(func=filter_buttons_in_settings)
 def button_in_settings_pressed(message: typ.Message):
+    """
+
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     controller.button_in_settings_pressed(message.chat.id, message.text)
 
 
@@ -188,6 +207,12 @@ def covid_for_inline(message: typ.Message):
 
 @bot.message_handler(func=filter_general_warning)
 def general_warning_button_pressed(message: typ.Message):
+    """
+    This method is called whenever the user presses a general warning in the Warnings menu (or types the text)
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     t = message.text
     if t == controller.WARNING_DISASTER_TEXT:
         controller.general_warning(message.chat.id, WarnType.DISASTER)
@@ -201,11 +226,24 @@ def general_warning_button_pressed(message: typ.Message):
 
 @bot.message_handler(regexp=controller.BACK_TO_MAIN_TEXT)
 def back_to_main_keyboard(message: typ.Message):
+    """
+    This method is called whenever the user types controller.BACK_TO_MAIN_TEXT
+    and will then set the user back to the main menu
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     controller.back_to_main_keyboard(message.chat.id)
 
 
 @bot.message_handler(content_types=['location'])
 def send_location_pressed(message: typ.Message):
+    """
+    This method is called whenever the user sends a location in the chat and will give the location to the controller
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     long = message.location.longitude
     lat = message.location.latitude
     controller.location_was_sent(message.chat.id, latitude=lat, longitude=long)
@@ -213,11 +251,23 @@ def send_location_pressed(message: typ.Message):
 
 @bot.message_handler(func=filter_show_subscriptions)
 def show_subscription_pressed(message: typ.Message):
+    """
+    This method is called whenever the user wants to see the subscriptions they have
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     controller.show_subscriptions(message.chat.id)
 
 
 @bot.message_handler(func=filter_add_or_delete_subscription)
 def add_or_delete_subscription_pressed(message: typ.Message):
+    """
+    This method is called whenever the user wants to add or delete one of their subscriptions
+
+    Arguments:
+        message: the message that the user sent in the chat
+    """
     controller.button_in_subscriptions_pressed(message.chat.id, message.text)
 
 
@@ -315,6 +365,12 @@ def cancel_button(call: typ.CallbackQuery):
 
 @bot.callback_query_handler(func=filter_callback_add_recommendation)
 def add_recommendation(call: typ.CallbackQuery):
+    """
+    This method is called whenever the user presses a button for adding a recommendation
+
+    Arguments:
+        call: data that has been sent by the inline button
+    """
     split_message = call.data.split(';')
     if len(split_message) < 3:
         controller.error_handler(call.message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
