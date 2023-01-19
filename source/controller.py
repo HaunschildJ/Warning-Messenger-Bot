@@ -766,9 +766,16 @@ def delete_message(chat_id: int, message_id: int):
 
 
 def error_handler(chat_id: int, error_code: ErrorCodes):
+    """
+    TODO in a future US
+    this method will/should be called whenever a error occurs that the user needs to know of
+    """
     sender.send_message(chat_id, "currently no real error message for error " + error_code.name)
 
 
 def _get_general_warning_name(warn_type: nina_service.WarnType) -> str:
+    """
+    Helper Method to convert a nina_service.WarnType to a string from text_templates
+    """
     button = Button.__getitem__(warn_type.name)
     return text_templates.get_button_name(button)

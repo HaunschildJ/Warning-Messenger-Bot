@@ -315,14 +315,41 @@ def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id:
 
 
 def get_recommendation_name(recommendation: dict) -> str:
+    """
+    Returns the name of the dict given by add_suggestion or get_suggestions
+
+    Arguments:
+        recommendation: dict given by add_suggestion or get_suggestions
+
+    Returns:
+        name of the recommendation
+    """
     return recommendation["name"]
 
 
 def get_recommendation_place_id(recommendation: dict) -> str:
+    """
+    Returns the place id of the dict given by add_suggestion or get_suggestions
+
+    Arguments:
+        recommendation: dict given by add_suggestion or get_suggestions
+
+    Returns:
+        place id of the recommendation
+    """
     return recommendation["place_id"]
 
 
 def get_recommendation_district_id(recommendation: dict) -> str:
+    """
+    Returns the district id of the dict given by add_suggestion or get_suggestions
+
+    Arguments:
+        recommendation: dict given by add_suggestion or get_suggestions
+
+    Returns:
+        district id of the recommendation
+    """
     return recommendation["district_id"]
 
 

@@ -332,6 +332,21 @@ def get_delete_subscription_message(location: str, warning: str) -> str:
 
 
 def get_show_subscriptions_for_one_location_messsage(location: str, warnings: list[str], levels: list[str]) -> str:
+    """
+    This method returns the string for showing one subscription (example: Darmstadt -> warnings + levels).
+    The returned value can later be combined to one message in get_show_subscriptions_message
+
+    ATTENTION:
+    warnings and levels must be of same length -> warnings[0] has the level levels[0]
+
+    Arguments:
+        location: a string with the location name
+        warnings: a list of strings with the warning names for that location
+        levels: a list of string with the warning level names for the different warnings
+
+    Returns:
+        string with text for all subscriptions of one location
+    """
     dic = _get_show_subscriptions()
     message = dic["location"]
     message = message.replace("%location", location)
@@ -344,6 +359,15 @@ def get_show_subscriptions_for_one_location_messsage(location: str, warnings: li
 
 
 def get_show_subscriptions_message(subscriptions: list[str]) -> str:
+    """
+    This method will build the show subscription message.
+
+    Arguments:
+        subscriptions: list of strings given from multiple calls of get_show_subscriptions_for_one_location_messsage
+
+    Returns:
+        The subscriptions combined with the headline for showing subscriptions
+    """
     dic = _get_show_subscriptions()
     message = dic["headline"]
     for subscription in subscriptions:
@@ -353,6 +377,23 @@ def get_show_subscriptions_message(subscriptions: list[str]) -> str:
 
 def get_delete_subscriptions_for_one_location_messsage(location: str, warnings: list[str], levels: list[str],
                                                        corresponding_button_names: list[str]) -> str:
+    """
+    This method returns the string for deleting one subscription (example: Darmstadt -> warnings + levels).
+    The returned value can later be combined to one message in get_delete_subscriptions_message
+
+    ATTENTION:
+    warnings, levels and corresponding_button_names must be of same length
+    -> warnings[0] has the level levels[0] and will be deleted when pressing button corresponding_button_names[0]
+
+    Arguments:
+        location: a string with the location name
+        warnings: a list of strings with the warning names for that location
+        levels: a list of string with the warning level names for the different warnings
+        corresponding_button_names: a list of string with the button name for deleting that subscription
+
+    Returns:
+        string with text for all subscriptions of one location and an information to the corresponding button name
+    """
     dic = _get_delete_subscriptions()
     message = dic["location"]
     message = message.replace("%location", location)
@@ -366,6 +407,15 @@ def get_delete_subscriptions_for_one_location_messsage(location: str, warnings: 
 
 
 def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
+    """
+    This method will build the delete-subscription message.
+
+    Arguments:
+        subscriptions: list of strings given from multiple calls of get_delete_subscriptions_for_one_location_messsage
+
+    Returns:
+        string with the subscriptions combined with the headline for deleting subscriptions
+    """
     dic = _get_delete_subscriptions()
     message = dic["headline"]
     for subscription in subscriptions:
@@ -378,7 +428,21 @@ def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
 
 def get_select_location_for_one_location_messsage(district_name: str, place_name: str,
                                                   corresponding_button_name: str) -> str:
+    """
+    This method will return the text for one location suggestion from place_converter.
+    The returned value can later be combined to one message in get_select_location_message
+
+    Arguments:
+        district_name: string with the name of the suggested district
+        place_name: string with the name of the suggested place (can be None)
+        corresponding_button_name: string with the name of the button that will represent this suggestion
+
+    Returns:
+        string with the text for one suggestion
+    """
     dic = _get_select_location()
+    if place_name is None:
+        place_name = "---"
     message = dic["text"]
     message = message.replace("%place_name", place_name)
     message = message.replace("%district_name", district_name)
@@ -387,6 +451,16 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
 
 
 def get_select_location_message(locations: list[str]) -> str:
+    """
+    This method will combine multiple suggestions to one message.
+
+    Arguments:
+        locations: list of strings with the suggestions
+            (suggestions come from the method get_select_location_for_one_location_messsage)
+
+    Returns:
+        string with the combined suggestions and a headline (and ending)
+    """
     dic = _get_select_location()
     message = dic["headline"]
     for location in locations:
@@ -398,15 +472,33 @@ def get_select_location_message(locations: list[str]) -> str:
 
 
 def get_changed_auto_covid_updates_message(interval: str) -> str:
+    """
+    This method will return the message that is sent to the user when auto covid updates are changed.
+
+    Arguments:
+        interval: string with the new interval
+
+    Returns:
+        string with the message informing the user what the new interval of auto covid updates is
+    """
     message = get_replaceable_answer(ReplaceableAnswer.CHANGED_AUTO_COVID_UPDATES)
     message = message.replace("%interval", interval)
     return message
 
 
-def get_show_recommendations_message(suggestions: list[str]) -> str:
+def get_show_recommendations_message(recommendations: list[str]) -> str:
+    """
+    This method will build the message containing the recommendations that the user has set
+
+    Arguments:
+        recommendations: list of strings representing the recommendations the user has set
+
+    Returns:
+        string with the message showing the user all recommendations
+    """
     dic = _get_show_recommendations()
     message = dic["headline"]
-    for suggestion in suggestions:
+    for suggestion in recommendations:
         message = message + "\n" + dic["recommendation"].replace("%r", suggestion)
     message = message + "\n" + dic["end"]
     return message

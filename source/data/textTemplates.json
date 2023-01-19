@@ -222,7 +222,7 @@
     "topic": "select_location",
     "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
     "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
-    "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
+    "headline": "Wählen Sie aus was Sie meinten:",
     "text": "[%button_name] %place_name ; %district_name",
     "end": ""
   }
