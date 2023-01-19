@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
+from typing import List
+
 import requests
 import nina_string_helper
 
@@ -11,13 +13,11 @@ class WarnType(Enum):
     """
     this enum is used to differ between the different general warnings from the nina api
     """
-    BIWAPP = 0
-    KATWARN = 1
-    MOWAS = 2
-    DWD = 3
-    LHP = 4
-    POLICE = 5
-    NONE = 6
+    WEATHER = 0
+    GENERAL = 1
+    DISASTER = 2
+    FLOOD = 3
+    NONE = 4
 
 
 @dataclass
@@ -32,8 +32,8 @@ class CovidRules:
 
 def _get_safely(dict, key: str):
     """
-    Because some of the JSONs we get from the NINA API do not always contain all the fields that are defined by the NINA API
-    we need to check if the field exists first. If it does we get the Value from the field. If it does not we return None
+    Because some JSONs we get from the NINA API do not always contain all the fields that are defined by the NINA API
+    we need to check if the field exists first. If it does, we get the Value from the field. If it does not we return None
     :param dict: The dictionary to check the key in
     :param key:  The kay of the field   for example: "fines" for CovidRules { "fines": "bla bla", }
     :return: None if the key is not in the dictionary, Value of the key if it is
@@ -125,7 +125,8 @@ def _get_warning_severity(warn_severity: str) -> WarningSeverity:
 class WarningType(Enum):
     Update = 0
     Alert = 1
-    Unknown = 2
+    Cancel = 2
+    Unknown = 3
 
 
 def _get_warning_type(warn_type: str) -> WarningType:
@@ -354,13 +355,29 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 
 
+def _poll_disaster_warnings() -> list[GeneralWarning]:
+    result = [poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning()]
+    return _filter_disaster_warnings(result)
+
+
+def _poll_general_warnings() -> list[GeneralWarning]:
+    result = [poll_police_warning(), poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning()]
+    return _filter_disaster_warnings(result)
+
+
+def _filter_disaster_warnings(warnings: list[list[GeneralWarning]]) -> list[GeneralWarning]:
+    result = []
+    for listWarning in warnings:
+        for singleWarning in listWarning:
+            result.append(singleWarning)
+    return result
+
+
 _call_general_warning_map = {
-    WarnType.BIWAPP: poll_biwapp_warning,
-    WarnType.KATWARN: poll_katwarn_warning,
-    WarnType.MOWAS: poll_mowas_warning,
-    WarnType.DWD: poll_dwd_warning,
-    WarnType.LHP: poll_lhp_warning,
-    WarnType.POLICE: poll_police_warning
+    WarnType.WEATHER: poll_dwd_warning,
+    WarnType.FLOOD: poll_lhp_warning,
+    WarnType.DISASTER: _poll_disaster_warnings,
+    WarnType.GENERAL: _poll_general_warnings,
 }
 
 

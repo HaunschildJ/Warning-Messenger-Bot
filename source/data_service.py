@@ -12,9 +12,21 @@ DEFAULT_DATA = {
     "locations": {
     },
     "recommendations": [
-        "München",
-        "Frankfurt",
-        "Berlin"
+        {
+            "name": "Berlin, Stadt",
+            "place_id": "110000000000",
+            "district_id": "11000"
+        },
+        {
+            "name": "Berlin-Mitte",
+            "place_id": "110010000000",
+            "district_id": "11001"
+        },
+        {
+            "name": "Darmstadt, Wissenschaftsstadt",
+            "place_id": "064110000000",
+            "district_id": "06411"
+        }
     ],
     "language": "german"
 }
@@ -192,7 +204,7 @@ def get_subscriptions(chat_id: int) -> dict:
     return DEFAULT_DATA[Attributes.LOCATIONS.value]
 
 
-def add_subscription(chat_id: int, location: str, warning: str, warning_level: int):
+def add_subscription(chat_id: int, location: str, warning: str, warning_level: str):
     """
     Adds/Sets the subscription for the user (chat_id) for the location and the warning given
 
@@ -200,7 +212,7 @@ def add_subscription(chat_id: int, location: str, warning: str, warning_level: i
         chat_id: Integer to identify the user
         location: String with the location of the subscription
         warning: String with the warning for the subscription (int of nina_service WarnType)
-        warning_level: Integer representing the Level a warning is relevant to the user
+        warning_level: String representing the Level a warning is relevant to the user
     """
     all_user = _read_file(file_path)
     cid = str(chat_id)
@@ -245,7 +257,7 @@ def delete_subscription(chat_id: int, location: str, warning: str):
     _write_file(file_path, all_user)
 
 
-def get_suggestions(chat_id: int) -> list[str]:
+def get_suggestions(chat_id: int) -> list[dict]:
     """
     Returns an array of suggestions of the user (chat_id)
 
@@ -253,7 +265,7 @@ def get_suggestions(chat_id: int) -> list[str]:
         chat_id: Integer to identify the user
 
     Returns:
-        list of string with the recommendations (locations the user set or default locations)
+        list of dictionaries with the recommendations (locations the user set or default locations)
     """
     all_user = _read_file(file_path)
 
@@ -262,7 +274,7 @@ def get_suggestions(chat_id: int) -> list[str]:
     return DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
 
 
-def add_suggestion(chat_id: int, location: str) -> list[str]:
+def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id: str) -> list[dict]:
     """
     This method adds a location to the recommended location list of a user. \n
     The list is sorted: The most recently added location is the first element and the oldest added location
@@ -270,9 +282,11 @@ def add_suggestion(chat_id: int, location: str) -> list[str]:
 
     Arguments:
         chat_id: Integer to identify the user
-        location: String representing the location the user wants to be added to suggestions
+        location_name: string with the location name of the recommendation
+        place_id: string with the place id
+        district_id: string with district id
     Returns:
-        list of strings representing the recommendations after the new one has been added
+        list of dictionaries representing the recommendations after the new one has been added
     """
     all_user = _read_file(file_path)
     cid = str(chat_id)
@@ -282,6 +296,11 @@ def add_suggestion(chat_id: int, location: str) -> list[str]:
 
     current_recommendations = all_user[cid][Attributes.RECOMMENDATIONS.value]
     i = 0
+    location = {
+        "name": location_name,
+        "place_id": place_id,
+        "district_id": district_id
+        }
     prev_recommendation = location
     for recommendation in current_recommendations:
         tmp = recommendation
@@ -293,6 +312,18 @@ def add_suggestion(chat_id: int, location: str) -> list[str]:
 
     _write_file(file_path, all_user)
     return current_recommendations
+
+
+def get_recommendation_name(recommendation: dict) -> str:
+    return recommendation["name"]
+
+
+def get_recommendation_place_id(recommendation: dict) -> str:
+    return recommendation["place_id"]
+
+
+def get_recommendation_district_id(recommendation: dict) -> str:
+    return recommendation["district_id"]
 
 
 def get_language(chat_id: int) -> Language:

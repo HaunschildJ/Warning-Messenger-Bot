@@ -4,7 +4,8 @@ import sender
 import text_templates
 import nina_service
 import data_service
-from text_templates import Button, ReplaceableAnswer, Answers
+import place_converter
+from text_templates import Button, Answers
 
 from enum import Enum
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
@@ -14,15 +15,15 @@ class Commands(Enum):
     """
     this enum is used to have all commands in one place
     current possible commands:
-    COVID + (COVID_INFO || COVID_RULES) + "string"
+    COVID ; (COVID_INFO || COVID_RULES) ; "place_id" ; "district_id"
     AUTO_WARNING + "bool as string"
-    ADD_RECOMMENDATION + "location as string"
 
     just for the bot not the user:
     CANCEL_INLINE
     DELETE_SUBSCRIPTION + "location" + "warn_type"
-    ADD_SUBSCRIPTION + "location" + "warn_type" + "warn_level"
+    ADD_SUBSCRIPTION ; "location_id" ; "warn_type" ; "warn_level"
     COVID_UPDATES + "ReceiveInformation from data_service as int"
+    ADD_RECOMMENDATION ; "place_id" ; "district_id"
     """
     COVID = "/covid"
     COVID_INFO = "info"
@@ -42,6 +43,8 @@ class ErrorCodes(Enum):
     NOT_IMPLEMENTED_YET = 0
     UNKNOWN_COMMAND = 1
     ONLY_PART_OF_COMMAND = 2
+    NINA_API = 3
+    UNKNOWN_LOCATION = 4
 
 
 def _get_main_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
@@ -85,18 +88,15 @@ def _get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     Returns:
          telebot.types.ReplyKeyboardMarkup
     """
-    # TODO add all warnings for buttons here
     keyboard = ReplyKeyboardMarkup(resize_keyboard=False, one_time_keyboard=True)
     button1 = sender.create_button(WARNING_COVID_INFO_TEXT)
     button2 = sender.create_button(WARNING_COVID_RULES_TEXT)
-    button3 = sender.create_button(WARNING_BIWAPP_TEXT)
-    button4 = sender.create_button(WARNING_KATWARN_TEXT)
-    button5 = sender.create_button(WARNING_MOWAS_TEXT)
-    button6 = sender.create_button(WARNING_DWD_TEXT)
-    button7 = sender.create_button(WARNING_LHP_TEXT)
-    button8 = sender.create_button(WARNING_POLICE_TEXT)
+    button3 = sender.create_button(WARNING_WEATHER_TEXT)
+    button4 = sender.create_button(WARNING_DISASTER_TEXT)
+    button5 = sender.create_button(WARNING_FLOOD_TEXT)
+    button6 = sender.create_button(WARNING_GENERAL_TEXT)
     button9 = sender.create_button(BACK_TO_MAIN_TEXT)
-    keyboard.add(button1).add(button2).add(button3, button4, button5).add(button6, button7, button8).add(button9)
+    keyboard.add(button1, button2).add(button3, button4).add(button5, button6).add(button9)
     return keyboard
 
 
@@ -130,6 +130,70 @@ def _get_subscription_settings_keyboard() -> telebot.types.ReplyKeyboardMarkup:
     return keyboard
 
 
+def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str,
+                               district_id_bool: bool = True, place_id_bool: bool = True):
+    """
+    When place_id_bool and district_id_bool are True then both will be in command (place_id first)
+
+    Arguments:
+        chat_id: an Integer for the chat id of the user
+        dicts: list with the dicts from place_converter
+        command_begin: a string with the beginning of the callback command (has to end with ;)
+        district_id_bool: boolean when True the district_id will be in the command
+        place_id_bool: boolean when True the place_id will be in command
+    """
+    markup = InlineKeyboardMarkup()
+
+    if len(dicts) == 0:
+        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_LOCATION_FOUND))
+        return
+
+    i = 0
+    locations_text = []
+    buttons = []
+    for dic in dicts:
+        place_name = place_converter.get_place_name_from_dict(dic)
+        district_name = place_converter.get_district_name_from_dict(dic)
+        place_id = place_converter.get_place_id_from_dict(dic)
+        district_id = place_converter.get_district_id_from_dict(dic)
+        button_name = str(i)
+        if place_name is None:
+            place_name = "---"
+
+        command = command_begin
+
+        if not place_id_bool and not district_id_bool:
+            error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
+            return
+        if place_id_bool:
+            command = command + place_id
+            if district_id_bool:
+                command = command + ";" + district_id
+        else:
+            if district_id_bool:
+                command = command + district_id
+
+        button = sender.create_inline_button(button_name, command)
+        buttons.append(button)
+        if len(buttons) == 3:
+            markup.add(buttons[0], buttons[1], buttons[2])
+            buttons = []
+        locations_text.append(text_templates.get_select_location_for_one_location_messsage(district_name, place_name,
+                                                                                           button_name))
+        i = i + 1
+
+    if len(buttons) == 2:
+        markup.add(buttons[0], buttons[1])
+    elif len(buttons) == 1:
+        markup.add(buttons[0])
+
+    answer = text_templates.get_select_location_message(locations_text)
+
+    cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
+    markup.add(cancel_button)
+    sender.send_message(chat_id, answer, markup)
+
+
 # global variables -----------------------------------------------------------------------------------------------------
 # main keyboard buttons
 SETTING_BUTTON_TEXT = text_templates.get_button_name(Button.SETTINGS)  # MVP 4.
@@ -140,12 +204,10 @@ HELP_BUTTON_TEXT = text_templates.get_button_name(Button.HELP)  # MVP 7.
 # warning keyboard buttons
 WARNING_COVID_INFO_TEXT = text_templates.get_button_name(Button.COVID_INFORMATION)  # MVP 5. i)
 WARNING_COVID_RULES_TEXT = text_templates.get_button_name(Button.COVID_RULES)  # MVP 5. i)
-WARNING_BIWAPP_TEXT = text_templates.get_button_name(Button.BIWAPP)  # MVP 5. i)
-WARNING_KATWARN_TEXT = text_templates.get_button_name(Button.KATWARN)  # MVP 5. i)
-WARNING_MOWAS_TEXT = text_templates.get_button_name(Button.MOWAS)  # MVP 5. i)
-WARNING_DWD_TEXT = text_templates.get_button_name(Button.DWD)  # MVP 5. i)
-WARNING_LHP_TEXT = text_templates.get_button_name(Button.LHP)  # MVP 5. i)
-WARNING_POLICE_TEXT = text_templates.get_button_name(Button.POLICE)  # MVP 5. i)
+WARNING_WEATHER_TEXT = text_templates.get_button_name(Button.WEATHER)  # MVP 5. i)
+WARNING_DISASTER_TEXT = text_templates.get_button_name(Button.DISASTER)  # MVP 5. i)
+WARNING_FLOOD_TEXT = text_templates.get_button_name(Button.FLOOD)  # MVP 5. i)
+WARNING_GENERAL_TEXT = text_templates.get_button_name(Button.GENERAL)  # MVP 5. i)
 
 # settings keyboard buttons
 SETTING_AUTO_WARNING_TEXT = text_templates.get_button_name(Button.AUTO_WARNING)  # MVP 4. a)
@@ -154,10 +216,10 @@ SETTING_SUBSCRIPTION_TEXT = text_templates.get_button_name(Button.SUBSCRIPTION) 
 SETTING_AUTO_COVID_INFO_TEXT = text_templates.get_button_name(Button.AUTO_COVID_INFO)  # MVP 4. d)
 SETTING_LANGUAGE_TEXT = text_templates.get_button_name(Button.LANGUAGE)  # MVP 4. e)
 
-# subscription keyboard buttons TODO text_templates
-SHOW_SUBSCRIPTION_TEXT = "Aktuelle Abos anzeigen"
-DELETE_SUBSCRIPTION_TEXT = "Abo löschen"
-ADD_SUBSCRIPTION_TEXT = "Abo hinzufügen"
+# subscription keyboard buttons
+SHOW_SUBSCRIPTION_TEXT = text_templates.get_button_name(Button.SHOW_SUBSCRIPTION)
+DELETE_SUBSCRIPTION_TEXT = text_templates.get_button_name(Button.DELETE_SUBSCRIPTION)
+ADD_SUBSCRIPTION_TEXT = text_templates.get_button_name(Button.ADD_SUBSCRIPTION)
 
 # back to main keyboard button
 BACK_TO_MAIN_TEXT = text_templates.get_button_name(Button.BACK_TO_MAIN_MENU)  # MVP 2.
@@ -168,7 +230,9 @@ CANCEL_TEXT = text_templates.get_button_name(Button.CANCEL)
 # Choose answers
 YES_TEXT = text_templates.get_answers(Answers.YES)  # MVP 4. a) Ja
 NO_TEXT = text_templates.get_answers(Answers.NO)  # MVP 4. a) Nein
-DELETE_TEXT = "entfernen"  # TODO TexTemplates
+
+# delete subscription
+DELETE_TEXT = text_templates.get_button_name(Button.DELETE)
 
 # Send location
 SEND_LOCATION_BUTTON_TEXT = text_templates.get_button_name(Button.SEND_LOCATION)  # MVP 4. b i)
@@ -177,7 +241,7 @@ SEND_LOCATION_BUTTON_TEXT = text_templates.get_button_name(Button.SEND_LOCATION)
 # methods called from the ChatReceiver ---------------------------------------------------------------------------------
 
 
-def start(chat_id: int):
+def start(chat_id: int, username: str):
     """
     This method is called when the user adds the bot (or /start is called) \n
     It then creates buttons on the keyboard so that the user can interact with the bot more uncomplicated and sends a
@@ -185,11 +249,9 @@ def start(chat_id: int):
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
-    Returns:
-        Nothing
+        username: a String representing the username
     """
-    answer = text_templates.get_replaceable_answer(ReplaceableAnswer.GREETING)
-    # TODO replaceable
+    answer = text_templates.get_greeting_message(username)
     sender.send_message(chat_id, answer, _get_main_keyboard_buttons())
 
 
@@ -250,22 +312,19 @@ def button_in_settings_pressed(chat_id: int, button_text: str):
     elif button_text == SETTING_SUBSCRIPTION_TEXT:
         data_service.set_user_state(chat_id, 11)
         keyboard = _get_subscription_settings_keyboard()
-        # TODO text_templates
-        sender.send_message(chat_id, "Was möchten sie tun?", keyboard)
+        sender.send_message(chat_id, text_templates.get_answers(Answers.MANAGE_SUBSCRIPTIONS), keyboard)
     elif button_text == SETTING_AUTO_COVID_INFO_TEXT:
         markup = InlineKeyboardMarkup()
         command = Commands.COVID_UPDATES.value + " "
 
         for how_often in list(data_service.ReceiveInformation):
-            # TODO get warn_name from text_templates
-            warn_name = how_often.name
-            button = sender.create_inline_button(warn_name, command + str(how_often.value))
+            how_often_text = text_templates.get_button_name(Button.__getitem__(how_often.name))
+            button = sender.create_inline_button(how_often_text, command + str(how_often.value))
             markup.add(button)
 
         cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)
-        # TODO text_templates
-        sender.send_message(chat_id, "Wie oft möchten sie automatische Corona Updates?", markup)
+        sender.send_message(chat_id, text_templates.get_answers(Answers.MANAGE_AUTO_COVID_UPDATES), markup)
     elif button_text == SETTING_LANGUAGE_TEXT:
         sender.send_message(chat_id, "TODO " + button_text)
     else:
@@ -284,28 +343,49 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
     if button_text == ADD_SUBSCRIPTION_TEXT:
         data_service.set_user_state(chat_id, 110)
         keyboard = _get_send_location_keyboard()
-        # TODO text_templates
-        sender.send_message(chat_id, "Geben sie entweder den Ort ein oder klicken sie auf " +
-                            SEND_LOCATION_BUTTON_TEXT, keyboard)
+        sender.send_message(chat_id, text_templates.get_add_subscription_message(), keyboard)
     elif button_text == DELETE_SUBSCRIPTION_TEXT:
         subscriptions = data_service.get_subscriptions(chat_id)
         if len(subscriptions.keys()) == 0:
-            # TODO text_templates
-            sender.send_message(chat_id, "Sie haben keine Abonnements")
+            sender.send_message(chat_id, text_templates.get_answers(Answers.NO_SUBSCRIPTIONS))
             return
 
         markup = InlineKeyboardMarkup()
+        buttons = []
+        subscriptions_text = []
+        i = 0
         for location in subscriptions.keys():
             command = Commands.DELETE_SUBSCRIPTION.value + " " + location + " "
+            location_name = place_converter.get_name_for_id(location)
+            warnings = []
+            levels = []
+            corresponding_buttons = []
             for warning in subscriptions[location]:
-                button = sender.create_inline_button(location + ": " + warning + " " +
-                                                     str(subscriptions[location][warning]), command + warning)
-                markup.add(button)
+                warning_name = _get_general_warning_name(nina_service.WarnType(int(warning)))
+                button_name = str(i)
+                button = sender.create_inline_button(button_name, command + warning)
+                warnings.append(warning_name)
+                level = str(subscriptions[location][warning])
+                levels.append(text_templates.get_button_name(Button(level)))
+                corresponding_buttons.append(button_name)
+                buttons.append(button)
+                if len(buttons) == 3:
+                    markup.add(buttons[0], buttons[1], buttons[2])
+                    buttons = []
+                i = i + 1
+            subscriptions_text.append(
+                text_templates.get_delete_subscriptions_for_one_location_messsage(location_name, warnings, levels,
+                                                                                  corresponding_buttons))
+
+        answer = text_templates.get_delete_subscriptions_message(subscriptions_text)
+        if len(buttons) == 2:
+            markup.add(buttons[0], buttons[1])
+        elif len(buttons) == 1:
+            markup.add(buttons[0])
 
         cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)
-        # TODO text_templates
-        sender.send_message(chat_id, "Klicken sie auf das Abonnement,\nwelches sie entfernen wollen.", markup)
+        sender.send_message(chat_id, answer, markup)
     else:
         error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
 
@@ -324,36 +404,50 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         chat_id: an integer for the chatID that the message is sent to
         callback_command: a string which contains the command that the inline buttons will send
     """
-    split_command = callback_command.split(' ')
-    if len(split_command) < 3:
+    split_command = callback_command.split(';')
+    if len(split_command) < 2:
         return
     location = split_command[1]
+    location_name = place_converter.get_name_for_id(location)
+    if len(split_command) == 2:
+        markup = InlineKeyboardMarkup()
+        command = Commands.ADD_SUBSCRIPTION.value + ";" + location + ";"
+
+        for warning in list(nina_service.WarnType):
+            if warning == nina_service.WarnType.NONE:
+                break
+            warn_name = _get_general_warning_name(warning)
+            button = sender.create_inline_button(warn_name, command + str(warning.value))
+            markup.add(button)
+
+        cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
+        markup.add(cancel_button)
+        sender.send_message(chat_id, text_templates.get_adding_subscription_warning_message(location_name), markup)
+        return
     warning = int(split_command[2])
     if len(split_command) == 3:
         # not done with process of adding subscription yet, ask for warning level
         markup = InlineKeyboardMarkup()
 
-        # TODO add all Warning Level
-
-        for i in [1, 2, 3, 4, 5]:
-            button = sender.create_inline_button(str(i), callback_command + " " + str(i))
+        for button_level in [text_templates.Button.MINOR, text_templates.Button.MODERATE, text_templates.Button.SEVERE]:
+            button_name = text_templates.get_button_name(button_level)
+            button = sender.create_inline_button(button_name, callback_command + ";" + str(button_level.value))
             markup.add(button)
 
         cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
         markup.add(cancel_button)
-        # TODO text_templates
-        sender.send_message(chat_id, "Wählen sie eine Warnungstufe für " + location + " mit der Warnung " +
-                            _get_general_warning_name(data_service.WarnType(warning)) + " aus:",
-                            markup)
+        message = text_templates.get_adding_subscription_level_message(
+            location_name, _get_general_warning_name(nina_service.WarnType(warning)))
+        sender.send_message(chat_id, message, markup)
     else:
         # done with process of adding subscription, and it can now be added
         warning_level = split_command[3]
-        warning_type = data_service.WarnType(warning)
+        warning_type = nina_service.WarnType(warning)
 
-        data_service.add_subscription(chat_id, location, warning_type, int(warning_level))
+        data_service.add_subscription(chat_id, location, str(warning_type.value), str(warning_level))
 
         show_subscriptions(chat_id)
-        back_to_main_keyboard(chat_id)
+        inline_button_for_adding_subscriptions(chat_id, split_command[0] + ";" + split_command[1])
 
 
 def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str):
@@ -371,8 +465,9 @@ def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str
     location = split_command[1]
     warning = split_command[2]
     data_service.delete_subscription(chat_id, location, warning)
-    sender.send_message(chat_id, "Für den Ort: " + location + " wurde die Warnung: " + warning +
-                        " erfolgreich gelöscht")
+    warning_name = _get_general_warning_name(nina_service.WarnType(int(warning)))
+    location_name = place_converter.get_name_for_id(location)
+    sender.send_message(chat_id, text_templates.get_delete_subscription_message(location_name, warning_name))
 
 
 def normal_input_depending_on_state(chat_id: int, text: str):
@@ -387,60 +482,60 @@ def normal_input_depending_on_state(chat_id: int, text: str):
         text: a string which contains the message the user sent
     """
     state = data_service.get_user_state(chat_id)
-    if state == 10:
-        # TODO check if text is a valid location
-        add_recommendation_in_database(chat_id, text)
-    elif state == 110:
-        # TODO check if text is a valid location
-        markup = InlineKeyboardMarkup()
-        command = Commands.ADD_SUBSCRIPTION.value + " " + text + " "
-
-        for warning in list(nina_service.WarnType):
-            if warning == nina_service.WarnType.NONE:
-                break
-            # TODO get warn_name from text_templates
-            warn_name = _get_general_warning_name(warning)
-            button = sender.create_inline_button(warn_name, command + str(warning.value))
-            markup.add(button)
-
-        cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
-        markup.add(cancel_button)
-        # TODO text_templates
-        sender.send_message(chat_id, "Wählen sie eine Warnung für " + text + " aus:", markup)
-    elif state == 20:
-        covid_info(chat_id, text)
-    elif state == 21:
-        covid_rules(chat_id, text)
-    else:
-        error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
+    try:
+        if state == 10:
+            command_begin = Commands.ADD_RECOMMENDATION.value + ";"
+            dicts = place_converter.get_dict_suggestions(text)
+            _make_location_suggestions(chat_id, dicts, command_begin)
+        elif state == 110:
+            command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
+            dicts = place_converter.get_dict_suggestions(text)
+            _make_location_suggestions(chat_id, dicts, command_begin, place_id_bool=True, district_id_bool=False)
+        elif state == 20:
+            command_begin = Commands.COVID.value + ";" + Commands.COVID_INFO.value + ";"
+            dicts = place_converter.get_dict_suggestions(text)
+            _make_location_suggestions(chat_id, dicts, command_begin)
+        elif state == 21:
+            command_begin = Commands.COVID.value + ";" + Commands.COVID_RULES.value + ";"
+            dicts = place_converter.get_dict_suggestions(text)
+            _make_location_suggestions(chat_id, dicts, command_begin)
+        else:
+            error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
+    except KeyError:
+        error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
+        back_to_main_keyboard(chat_id)
 
 
-def show_inline_button(chat_id: int, button_text: str):
+def show_suggestions(chat_id: int, button_text: str):
     """
-    This method is called by a specific button with button_text as text to show inline buttons so that the user can
-    finish the command in the chat (chat_id)
+    This method is called when the suggestions should be shown in chat with chat_id to finish a command.
+    The button that was pressed will be determined via button_text.
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
         button_text: a string which is the text of the button that was pressed (constant of this class)
     """
-    command_first_part = Commands.COVID.value + " "
-    markup = InlineKeyboardMarkup()
-    suggestions = data_service.get_suggestions(chat_id)
+    command_first_part = Commands.COVID.value + ";"
     if button_text == WARNING_COVID_INFO_TEXT:
-        command_first_part = command_first_part + Commands.COVID_INFO.value + " "
+        data_service.set_user_state(chat_id, 20)
+        command_first_part = command_first_part + Commands.COVID_INFO.value + ";"
     elif button_text == WARNING_COVID_RULES_TEXT:
-        command_first_part = command_first_part + Commands.COVID_RULES.value + " "
+        data_service.set_user_state(chat_id, 21)
+        command_first_part = command_first_part + Commands.COVID_RULES.value + ";"
     else:
         sender.send_message(chat_id, "Not implemented yet: " + button_text)
         return
-    # TODO text_templates text
-    button1 = sender.create_inline_button(suggestions[0], command_first_part + suggestions[0])
-    button2 = sender.create_inline_button(suggestions[1], command_first_part + suggestions[1])
-    button3 = sender.create_inline_button(suggestions[2], command_first_part + suggestions[2])
-    button4 = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
-    markup.add(button1, button2, button3).add(button4)
-    sender.send_message(chat_id, "TODO text_templates", markup)
+    markup = InlineKeyboardMarkup()
+    recommendations = data_service.get_suggestions(chat_id)
+    for recommendation in recommendations:
+        name = data_service.get_recommendation_name(recommendation)
+        place_id = data_service.get_recommendation_place_id(recommendation)
+        district_id = data_service.get_recommendation_district_id(recommendation)
+        button = sender.create_inline_button(name, command_first_part + place_id + ";" + district_id)
+        markup.add(button)
+    cancel_button = sender.create_inline_button(CANCEL_TEXT, Commands.CANCEL_INLINE.value)
+    markup.add(cancel_button)
+    sender.send_message(chat_id, text_templates.get_answers(Answers.CLICK_SUGGESTION), markup)
 
 
 def general_warning(chat_id: int, warning: nina_service.WarnType, warnings: list[nina_service.GeneralWarning] = None):
@@ -452,20 +547,31 @@ def general_warning(chat_id: int, warning: nina_service.WarnType, warnings: list
     """
     if warning != nina_service.WarnType.NONE:
         sender.send_chat_action(chat_id, "typing")
-        warnings = nina_service.call_general_warning(warning)
+        try:
+            warnings = nina_service.call_general_warning(warning)
+        except:
+            error_handler(chat_id, ErrorCodes.NINA_API)
+            return
         if len(warnings) == 0:
             sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
                                 _get_warning_keyboard_buttons())
             return
 
+    counter = 0
     for warning in warnings:
         message = text_templates.get_general_warning_message(str(warning.id), str(warning.version), warning.start_date,
                                                              str(warning.severity.value), str(warning.type.name),
                                                              warning.title)
-        sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
+        try:
+            detail = nina_service.get_detailed_warning(warning.id)
+            sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
+        except:
+            counter += 1
+    if counter == (len(warnings)+1)/2:
+        error_handler(chat_id, ErrorCodes.NINA_API)
 
 
-def covid_info(chat_id: int, city_name: str, info: nina_service.CovidInfo = None):
+def covid_info(chat_id: int, city_name: str, district_id: str, info: nina_service.CovidInfo = None):
     """
     Sets the chat action of the bot to typing
     Calls for covid information of a city (city_name) from the Nina API via the nina_service
@@ -474,18 +580,27 @@ def covid_info(chat_id: int, city_name: str, info: nina_service.CovidInfo = None
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
-        city_name: a string with the city name for the information of this city
+        city_name: a string with the name of the city
+        district_id: a string with the district id for the rules of this city
         info: an Enum CovidInfo from nina_service if this parameter is set the info will not be pulled from nina_service
     """
     if info is None:
         sender.send_chat_action(chat_id, "typing")
-        info = nina_service.get_covid_infos(city_name)
-    message = text_templates.get_covid_info_message(info.infektionsgefahr_stufe, info.sieben_tage_inzidenz_bundesland,
+        try:
+            info = nina_service.get_covid_infos(district_id)
+        except:
+            error_handler(chat_id, ErrorCodes.NINA_API)
+            return
+    if city_name is None:
+        city_name = place_converter.get_name_for_id(district_id)
+    message = text_templates.get_covid_info_message(city_name, info.infektionsgefahr_stufe,
+                                                    info.sieben_tage_inzidenz_bundesland,
                                                     info.sieben_tage_inzidenz_kreis, info.allgemeine_hinweise)
-    sender.send_message(chat_id, city_name + ":\n" + message, _get_warning_keyboard_buttons())
+    data_service.set_user_state(chat_id, 2)
+    sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
 
 
-def covid_rules(chat_id: int, city_name: str, rules: nina_service.CovidRules = None):
+def covid_rules(chat_id: int, city_name: str, district_id: str, rules: nina_service.CovidRules = None):
     """
     Sets the chat action of the bot to typing\n
     Calls for covid rules of a city (city_name) from the Nina API via the nina_service\n
@@ -494,16 +609,25 @@ def covid_rules(chat_id: int, city_name: str, rules: nina_service.CovidRules = N
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
-        city_name: a string with the city name for the rules of this city
+        city_name: a string with the name of the city
+        district_id: a string with the district id for the rules of this city
         rules: an Enum of CovidRules from nina_service if this parameter is set the info will not be pulled from
             nina_service
     """
     if rules is None:
         sender.send_chat_action(chat_id, "typing")
-        rules = nina_service.get_covid_rules(city_name)
-    message = text_templates.get_covid_rules_message(rules.vaccine_info, rules.contact_terms, rules.school_kita_rules,
+        try:
+            rules = nina_service.get_covid_rules(district_id)
+        except:
+            error_handler(chat_id, ErrorCodes.NINA_API)
+            return
+    if city_name is None:
+        city_name = place_converter.get_name_for_id(district_id)
+    message = text_templates.get_covid_rules_message(city_name, rules.vaccine_info, rules.contact_terms,
+                                                     rules.school_kita_rules,
                                                      rules.hospital_rules, rules.travelling_rules, rules.fines)
-    sender.send_message(chat_id, city_name + ":\n" + message, _get_warning_keyboard_buttons())
+    data_service.set_user_state(chat_id, 2)
+    sender.send_message(chat_id, message, _get_warning_keyboard_buttons())
 
 
 def show_subscriptions(chat_id: int):
@@ -515,31 +639,45 @@ def show_subscriptions(chat_id: int):
     """
     subscriptions = data_service.get_subscriptions(chat_id)
     if len(subscriptions.keys()) == 0:
-        # TODO text_templates
-        sender.send_message(chat_id, "Sie haben keine Abonnement")
+        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_SUBSCRIPTIONS))
         return
-    # TODO text_templates
-    message = "Ihre Abonnements:"
+    subscriptions_text = []
     for location in subscriptions.keys():
-        # TODO ["name"] ["warnings"] ["warning_level"] auslagern oder so
-        message = message + "\n\n" + location + ":"
+        warnings = []
+        levels = []
         for warning in subscriptions[location].keys():
-            message = message + "\n" + _get_general_warning_name(nina_service.WarnType(int(warning))) + " -> "
-            message = message + str(subscriptions[location][warning])
+            warnings.append(_get_general_warning_name(nina_service.WarnType(int(warning))))
+            level = str(subscriptions[location][warning])
+            levels.append(text_templates.get_button_name(Button(level)))
+        location_name = place_converter.get_name_for_id(location)
+        subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
+                                                                                                  warnings,
+                                                                                                  levels))
+    message = text_templates.get_show_subscriptions_message(subscriptions_text)
     sender.send_message(chat_id, message)
 
 
-def location_was_sent(chat_id: int, location: list):
+def location_was_sent(chat_id: int, latitude: float, longitude: float):
     """
-    This method turns the location into a city name or PLZ and adds it to the recommendations in the database
+    This method turns the location into a city name or PLZ and\n
+    - adds it to the recommendations in the database
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
-        location: Array with 2 entries for latitude and longitude
+        latitude: float with latitude
+        longitude: float with longitude
     """
-    # TODO location verarbeiten
-    location_name = "Your_Location"
-    add_recommendation_in_database(chat_id, location_name)
+    dicts = place_converter.get_suggestion_dicts_from_coordinates(latitude=latitude, longitude=longitude)
+    state = data_service.get_user_state(chat_id)
+    if state == 10:
+        command_begin = Commands.ADD_RECOMMENDATION.value + ";"
+        _make_location_suggestions(chat_id, dicts, command_begin)
+    elif state == 110:
+        command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
+        _make_location_suggestions(chat_id, dicts, command_begin, district_id_bool=False, place_id_bool=True)
+    else:
+        error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
+        return
 
 
 def change_auto_warning_in_database(chat_id: int, value: bool):
@@ -567,31 +705,36 @@ def change_auto_covid_updates_in_database(chat_id: int, updates: int):
         chat_id: an integer for the chatID that the message is sent to
         updates: an integer with the value of the Enum ReceiveInformation in data_service
     """
-    data_service.set_auto_covid_information(chat_id, data_service.ReceiveInformation(updates))
-    # TODO get text from text_templates
-    sender.send_message(chat_id, "Sie werden nun " + data_service.ReceiveInformation(updates).name +
-                        " automatische Corona Informationen bekommen.")
+    sender.send_chat_action(chat_id, "typing")
+    how_often = data_service.ReceiveInformation(updates)
+    how_often_text = text_templates.get_button_name(Button.__getitem__(how_often.name))
+    data_service.set_auto_covid_information(chat_id, how_often)
+    sender.send_message(chat_id, text_templates.get_changed_auto_covid_updates_message(how_often_text))
 
 
-def add_recommendation_in_database(chat_id: int, location: str):
+def add_recommendation_in_database(chat_id: int, place_id: str, district_id: str, location_name: str = None):
     """
     This method changes the recommended locations in the database and informs the user about the recommended locations
     that are stored now
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
-        location: a string with the location that should be added to the recommended locations in the database
+        location_name: string with the location name of the recommendation
+        place_id: string with the place id
+        district_id: string with district id
     """
-    # TODO check if location is valid
+    if location_name is None:
+        location_name = place_converter.get_name_for_id(place_id)
     # update the database
-    suggestions = data_service.add_suggestion(chat_id, location)
+    recommendations = data_service.add_suggestion(chat_id, location_name, place_id, district_id)
 
     # inform the user
-    answer = text_templates.get_replaceable_answer(ReplaceableAnswer.RECOMMENDATIONS)
-    answer = answer.replace("%r1", suggestions[0])
-    answer = answer.replace("%r2", suggestions[1])
-    answer = answer.replace("%r3", suggestions[2])
-    sender.send_message(chat_id, answer, _get_send_location_keyboard())
+    names = []
+    for recommendation in recommendations:
+        names.append(data_service.get_recommendation_name(recommendation))
+    message = text_templates.get_show_recommendations_message(names)
+    sender.send_message(chat_id, message, _get_send_location_keyboard())
+
 
 # helper/short methods -------------------------------------------------------------------------------------------------
 
@@ -604,6 +747,8 @@ def back_to_main_keyboard(chat_id: int):
     Arguments:
         chat_id: an integer for the chatID that the message is sent to
     """
+    if data_service.get_user_state(chat_id) == 0:
+        return
     data_service.set_user_state(chat_id, 0)
     keyboard = _get_main_keyboard_buttons()
     sender.send_message(chat_id, text_templates.get_answers(Answers.BACK_TO_MAIN_MENU), keyboard)
@@ -627,4 +772,3 @@ def error_handler(chat_id: int, error_code: ErrorCodes):
 def _get_general_warning_name(warn_type: nina_service.WarnType) -> str:
     button = Button.__getitem__(warn_type.name)
     return text_templates.get_button_name(button)
-
