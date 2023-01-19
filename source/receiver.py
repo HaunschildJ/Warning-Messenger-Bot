@@ -102,9 +102,9 @@ def filter_add_or_delete_subscription(message: typ.Message) -> bool:
 
 def filter_general_warning(message: typ.Message) -> bool:
     t = message.text
-    if t == controller.WARNING_KATWARN_TEXT or t == controller.WARNING_MOWAS_TEXT or \
-            t == controller.WARNING_BIWAPP_TEXT or t == controller.WARNING_LHP_TEXT or \
-            t == controller.WARNING_POLICE_TEXT or t == controller.WARNING_DWD_TEXT:
+    if t == controller.WARNING_DISASTER_TEXT or t == controller.WARNING_FLOOD_TEXT or \
+            t == controller.WARNING_WEATHER_TEXT or \
+            t == controller.WARNING_GENERAL_TEXT:
         if data_service.get_user_state(message.chat.id) == 2:
             return True
     return False
@@ -114,7 +114,7 @@ def filer_everything_else(message: typ.Message) -> bool:
     # TODO add all filter that are not callbacks here
     if filter_covid(message) or filter_main_button(message) or \
             filter_buttons_in_settings(message) or filter_covid_for_inline(message) or \
-            message.text == controller.BACK_TO_MAIN_TEXT or message.text == controller.WARNING_BIWAPP_TEXT or \
+            message.text == controller.BACK_TO_MAIN_TEXT or message.text == controller.WARNING_WEATHER_TEXT or \
             filter_show_subscriptions(message) or filter_add_or_delete_subscription(message) or \
             filter_general_warning(message):
         return False
@@ -189,18 +189,14 @@ def covid_for_inline(message: typ.Message):
 @bot.message_handler(func=filter_general_warning)
 def general_warning_button_pressed(message: typ.Message):
     t = message.text
-    if t == controller.WARNING_KATWARN_TEXT:
-        controller.general_warning(message.chat.id, WarnType.KATWARN)
-    elif t == controller.WARNING_MOWAS_TEXT:
-        controller.general_warning(message.chat.id, WarnType.MOWAS)
-    elif t == controller.WARNING_BIWAPP_TEXT:
-        controller.general_warning(message.chat.id, WarnType.BIWAPP)
-    elif t == controller.WARNING_LHP_TEXT:
-        controller.general_warning(message.chat.id, WarnType.LHP)
-    elif t == controller.WARNING_POLICE_TEXT:
-        controller.general_warning(message.chat.id, WarnType.POLICE)
-    elif t == controller.WARNING_DWD_TEXT:
-        controller.general_warning(message.chat.id, WarnType.DWD)
+    if t == controller.WARNING_DISASTER_TEXT:
+        controller.general_warning(message.chat.id, WarnType.DISASTER)
+    elif t == controller.WARNING_FLOOD_TEXT:
+        controller.general_warning(message.chat.id, WarnType.FLOOD)
+    elif t == controller.WARNING_WEATHER_TEXT:
+        controller.general_warning(message.chat.id, WarnType.WEATHER)
+    elif t == controller.WARNING_GENERAL_TEXT:
+        controller.general_warning(message.chat.id, WarnType.GENERAL)
 
 
 @bot.message_handler(regexp=controller.BACK_TO_MAIN_TEXT)

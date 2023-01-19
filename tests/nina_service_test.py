@@ -91,4 +91,4 @@ def manual_test():
         _print_detailed_warnings_from_general_warnings(warnings)
 
 
-//manual_test()
+manual_test()

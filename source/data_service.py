@@ -204,7 +204,7 @@ def get_subscriptions(chat_id: int) -> dict:
     return DEFAULT_DATA[Attributes.LOCATIONS.value]
 
 
-def add_subscription(chat_id: int, location: str, warning: str, warning_level: int):
+def add_subscription(chat_id: int, location: str, warning: str, warning_level: str):
     """
     Adds/Sets the subscription for the user (chat_id) for the location and the warning given
 
@@ -212,7 +212,7 @@ def add_subscription(chat_id: int, location: str, warning: str, warning_level: i
         chat_id: Integer to identify the user
         location: String with the location of the subscription
         warning: String with the warning for the subscription (int of nina_service WarnType)
-        warning_level: Integer representing the Level a warning is relevant to the user
+        warning_level: String representing the Level a warning is relevant to the user
     """
     all_user = _read_file(file_path)
     cid = str(chat_id)

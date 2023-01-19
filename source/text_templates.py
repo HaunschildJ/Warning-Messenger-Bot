@@ -32,12 +32,10 @@ class Button(Enum):
     LANGUAGE = "language"
     CANCEL = "cancel"
     SEND_LOCATION = "send_location"
-    BIWAPP = "biwapp"
-    KATWARN = "katwarn"
-    MOWAS = "mowas"
-    DWD = "dwd"
-    LHP = "lhp"
-    POLICE = "police"
+    WEATHER = "weather"  # name needs to be equal to name in nina_service.WarnType
+    GENERAL = "general"  # name needs to be equal to name in nina_service.WarnType
+    DISASTER = "disaster"  # name needs to be equal to name in nina_service.WarnType
+    FLOOD = "flood"  # name needs to be equal to name in nina_service.WarnType
     SHOW_SUBSCRIPTION = "show_subscriptions"
     DELETE_SUBSCRIPTION = "delete_subscription"
     ADD_SUBSCRIPTION = "add_subscription"
@@ -46,6 +44,9 @@ class Button(Enum):
     DAILY = "daily"  # name needs to be equal to name in data_service.ReceiveInformation
     WEEKLY = "weekly"  # name needs to be equal to name in data_service.ReceiveInformation
     MONTHLY = "monthly"  # name needs to be equal to name in data_service.ReceiveInformation
+    MINOR = "minor"
+    MODERATE = "moderate"
+    SEVERE = "severe"
 
 
 class Answers(Enum):

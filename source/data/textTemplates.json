@@ -140,7 +140,7 @@
   {
     "topic": "buttons",
     "names": {
-      "settings": "Einstellungen",
+      "settings": "Einstellungen ⚙",
       "warnings": "Warnungen",
       "emergency_tips": "Notfalltipps",
       "help": "Hilfe",
@@ -154,12 +154,10 @@
       "language": "Sprache auswählen",
       "cancel": "Abbrechen",
       "send_location": "Standort senden",
-      "biwapp": "biwapp",
-      "katwarn": "katwarn",
-      "mowas": "Katastrophenwarnung",
-      "dwd": "Wetter Warnungen",
-      "lhp": "lhp",
-      "police": "Polizei Warnungen",
+      "flood": "Hochwasser Warnungen",
+      "general": "Generelle Warnungen",
+      "disaster": "Katastrophenwarnung",
+      "weather": "Wetter Warnungen",
       "show_subscriptions": "Aktuelle Abos anzeigen",
       "delete_subscription": "Abo löschen",
       "add_subscription": "Abo hinzufügen",
@@ -167,7 +165,10 @@
       "never": "Nie",
       "daily": "Täglich",
       "weekly": "Wöchentlich",
-      "monthly": "Monatlich"
+      "monthly": "Monatlich",
+      "minor": "alle",
+      "moderate": "mittel",
+      "severe": "ernst"
     }
   },
   {
