@@ -1,23 +1,15 @@
 from dataclasses import dataclass
-from enum import Enum
 from datetime import datetime
 from typing import List
+
+from enum_types import WarningSeverity
+from enum_types import WarnType
+from enum_types import WarningType
 
 import requests
 import nina_string_helper
 
 _base_url = "https://warnung.bund.de/api31"
-
-
-class WarnType(Enum):
-    """
-    this enum is used to differ between the different general warnings from the nina api
-    """
-    WEATHER = 0
-    GENERAL = 1
-    DISASTER = 2
-    FLOOD = 3
-    NONE = 4
 
 
 @dataclass
@@ -103,30 +95,16 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     return CovidInfo(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
 
 
-class WarningSeverity(Enum):
-    Minor = 0
-    Moderate = 1
-    Severe = 2
-    Unknown = 3
-
-
 def _get_warning_severity(warn_severity: str) -> WarningSeverity:
     """
     translates a string into an enum of WarningSeverity
-    :param warn_severity: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningSeverity.Unknown
-    :return: if the string is a valid enum, the enum if not: WarningSeverity.Unknown
+    :param warn_severity: the exact Enum as a String, for example: "Minor" <- valid
+    :return: if the string is a valid enum, the enum if not: WarningSeverity.MINOR
     """
     try:
-        return WarningSeverity[warn_severity]
+        return WarningSeverity(warn_severity)
     except KeyError:
-        return WarningSeverity.Unknown
-
-
-class WarningType(Enum):
-    Update = 0
-    Alert = 1
-    Cancel = 2
-    Unknown = 3
+        return WarningSeverity.MINOR
 
 
 def _get_warning_type(warn_type: str) -> WarningType:
@@ -286,7 +264,7 @@ def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
         return geocode
 
     for i in range(0, len(response_geocode)):
-        geocode.append(_get_safely(response_geocode[i],"value"))
+        geocode.append(_get_safely(response_geocode[i], "value"))
 
     return geocode
 
@@ -297,8 +275,8 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
         return area
 
     for i in range(0, len(response_area)):
-        area_description = _get_safely(response_area[i],"areaDesc")
-        geocode = _get_detailed_warning_infos_area_geocode(_get_safely(response_area[i],"geocode"))
+        area_description = _get_safely(response_area[i], "areaDesc")
+        geocode = _get_detailed_warning_infos_area_geocode(_get_safely(response_area[i], "geocode"))
         area.append(
             DetailedWarningInfoArea(area_description=area_description, geocode=geocode)
         )
@@ -314,14 +292,14 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
     for i in range(0, len(response_infos)):
         info = response_infos[i]
 
-        event = _get_safely(info,"event")
-        severity = _get_warning_severity(_get_safely(info,"severity"))
-        headline = _get_safely(info,"headline")
-        description = nina_string_helper.filter_html_tags(_get_safely(info,"description"))
-        area = _get_detailed_warning_infos_area(_get_safely(info,"area"))
+        event = _get_safely(info, "event")
+        severity = _get_warning_severity(_get_safely(info, "severity"))
+        headline = _get_safely(info, "headline")
+        description = nina_string_helper.filter_html_tags(_get_safely(info, "description"))
+        area = _get_detailed_warning_infos_area(_get_safely(info, "area"))
 
         date_expires = _get_safely(info, "expires")
-        if (date_expires is not None):
+        if date_expires is not None:
             date_expires = _translate_time(date_expires)
 
         infos.append(
@@ -350,7 +328,8 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     if date_sent is not None:
         date_sent = _translate_time(date_sent)
 
-    infos = _get_detailed_warning_infos(_get_safely(response, "info")) #_get_detailed_warning_infos already checks if the input is None
+    # _get_detailed_warning_infos already checks if the input is None
+    infos = _get_detailed_warning_infos(_get_safely(response, "info"))
 
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 

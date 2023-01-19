@@ -1,71 +1,11 @@
 import json
 import string
-from enum import Enum
+
+from enum_types import Button
+from enum_types import Answers
+from enum_types import ReplaceableAnswer
 
 file_path = "data/textTemplates.json"
-
-
-class ReplaceableAnswer(Enum):
-    COVID_INFO = "covid_info"
-    COVID_RULES = "covid_rules"
-    GENERAL_WARNING = "general_warning"
-    GREETING = "greeting"
-    ADD_SUBSCRIPTION = "add_subscription"
-    ADDING_SUBSCRIPTION_WARNING = "adding_subscription_warning"
-    ADDING_SUBSCRIPTION_LEVEL = "adding_subscription_level"
-    DELETE_SUBSCRIPTION = "delete_subscription"
-    CHANGED_AUTO_COVID_UPDATES = "changed_auto_covid_updates"
-
-
-class Button(Enum):
-    SETTINGS = "settings"
-    WARNINGS = "warnings"
-    EMERGENCY_TIPS = "emergency_tips"
-    COVID_INFORMATION = "covid_information"
-    COVID_RULES = "covid_rules"
-    HELP = "help"
-    BACK_TO_MAIN_MENU = "back_to_main_menu"
-    AUTO_WARNING = "auto_warning"
-    SUGGESTION_LOCATION = "suggestion_location"
-    SUBSCRIPTION = "subscription"
-    AUTO_COVID_INFO = "auto_covid_info"
-    LANGUAGE = "language"
-    CANCEL = "cancel"
-    SEND_LOCATION = "send_location"
-    WEATHER = "weather"  # name needs to be equal to name in nina_service.WarnType
-    GENERAL = "general"  # name needs to be equal to name in nina_service.WarnType
-    DISASTER = "disaster"  # name needs to be equal to name in nina_service.WarnType
-    FLOOD = "flood"  # name needs to be equal to name in nina_service.WarnType
-    SHOW_SUBSCRIPTION = "show_subscriptions"
-    DELETE_SUBSCRIPTION = "delete_subscription"
-    ADD_SUBSCRIPTION = "add_subscription"
-    DELETE = "delete"
-    NEVER = "never"  # name needs to be equal to name in data_service.ReceiveInformation
-    DAILY = "daily"  # name needs to be equal to name in data_service.ReceiveInformation
-    WEEKLY = "weekly"  # name needs to be equal to name in data_service.ReceiveInformation
-    MONTHLY = "monthly"  # name needs to be equal to name in data_service.ReceiveInformation
-    MINOR = "minor"
-    MODERATE = "moderate"
-    SEVERE = "severe"
-
-
-class Answers(Enum):
-    YES = "yes"
-    NO = "no"
-    SETTINGS = "settings"
-    WARNINGS = "warnings"
-    HELP = "help"
-    AUTO_WARNINGS_TEXT = "auto_warnings_text"
-    AUTO_WARNINGS_ENABLE = "auto_warnings_enable"
-    AUTO_WARNINGS_DISABLE = "auto_warnings_disable"
-    NO_CURRENT_WARNINGS = "no_current_warnings"
-    BACK_TO_MAIN_MENU = "back_to_main_menu"
-    SUGGESTION_HELPER_TEXT = "suggestion_helper_text"
-    MANAGE_SUBSCRIPTIONS = "manage_subscriptions"
-    MANAGE_AUTO_COVID_UPDATES = "manage_auto_covid_updates"
-    NO_SUBSCRIPTIONS = "no_subscriptions"
-    CLICK_SUGGESTION = "click_suggestion"
-    NO_LOCATION_FOUND = "no_location_found"
 
 
 def _read_file(path: str):
@@ -247,8 +187,8 @@ def get_covid_info_message(location: str, infektionsgefahr_stufe: str, sieben_ta
     return message
 
 
-def get_covid_rules_message(location: str, vaccine_info: str, contact_terms: str, school_kita_rules: str, hospital_rules: str,
-                            travelling_rules: str, fines: str) -> str:
+def get_covid_rules_message(location: str, vaccine_info: str, contact_terms: str, school_kita_rules: str,
+                            hospital_rules: str, travelling_rules: str, fines: str) -> str:
     """
     This method will replace the placeholder (%name) with the given parameters from the message for covid rules in
     the json

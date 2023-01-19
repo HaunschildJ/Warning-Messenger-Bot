@@ -2,10 +2,12 @@ import telebot.types as typ
 
 import bot
 import controller
-from controller import Commands
-from controller import ErrorCodes
-from nina_service import WarnType
 import data_service
+
+from enum_types import Commands
+from enum_types import ErrorCodes
+from enum_types import WarnType
+
 
 bot = bot.bot
 
@@ -56,6 +58,13 @@ def filter_callback_auto_covid_updates(call: typ.CallbackQuery) -> bool:
 def filter_callback_add_recommendation(call: typ.CallbackQuery) -> bool:
     split_data = call.data.split(';')
     if split_data[0] == Commands.ADD_RECOMMENDATION.value:
+        return True
+    return False
+
+
+def filter_callback_set_default_level(call: typ.CallbackQuery) -> bool:
+    split_data = call.data.split(';')
+    if split_data[0] == Commands.SET_DEFAULT_LEVEL.value:
         return True
     return False
 
@@ -379,6 +388,21 @@ def add_recommendation(call: typ.CallbackQuery):
     district_id = split_message[2]
     controller.add_recommendation_in_database(call.message.chat.id, place_id, district_id)
     controller.delete_message(call.message.chat.id, call.message.id)
+
+
+@bot.callback_query_handler(func=filter_callback_set_default_level)
+def set_default_level(call: typ.CallbackQuery):
+    """
+    This method gets called when the user selects a default level for all Warnings
+
+    Arguments:
+        call: data that has been sent by the inline button
+    """
+    split_message = call.data.split(';')
+    if len(split_message) != 2:
+        controller.error_handler(call.message.chat.id, ErrorCodes.ONLY_PART_OF_COMMAND)
+        return
+    controller.set_default_level(call.message.chat.id, split_message[1])
 
 
 # helper methods -------------------------------------------------------------------------------------------------------

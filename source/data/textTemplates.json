@@ -86,7 +86,11 @@
         "information": [
           {
             "description": "Schreibe %username an die Stelle, wo der Name der nutzenden Person stehen soll.",
-            "text": "Hallo %username"
+            "text": "Hallo %username, \nMöchten Sie beim Einstellen von Abonnements alle Warnungen erhalten, \nWarnungen von mittlerer Wichtigkeit oder nur sehr ernste Warnungen erhalten?"
+          },
+          {
+            "description": "",
+            "text": "Wenn Sie möchten können Sie auch manuell beim Erstellen der Abonnements für jede Warnung eine Wichtigkeit angeben."
           }
         ]
       },
@@ -168,7 +172,8 @@
       "monthly": "Monatlich",
       "minor": "alle",
       "moderate": "mittel",
-      "severe": "ernst"
+      "severe": "ernst",
+      "manual": "manuell"
     }
   },
   {

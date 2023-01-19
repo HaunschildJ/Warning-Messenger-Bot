@@ -1,5 +1,9 @@
 import json
-from enum import Enum
+
+from enum_types import Attributes
+from enum_types import Language
+from enum_types import ReceiveInformation
+from enum_types import WarningSeverity
 
 # See the MVP document for all possible options
 
@@ -9,6 +13,7 @@ DEFAULT_DATA = {
     "current_state": 0,
     "receive_warnings": True,
     "receive_covid_information": 0,
+    "default_level": "manual",
     "locations": {
     },
     "recommendations": [
@@ -30,27 +35,6 @@ DEFAULT_DATA = {
     ],
     "language": "german"
 }
-
-
-class ReceiveInformation(Enum):
-    NEVER = 0
-    DAILY = 1
-    WEEKLY = 2
-    MONTHLY = 3
-
-
-class Language(Enum):
-    GERMAN = "german"
-
-
-class Attributes(Enum):
-    CHAT_ID = "chat_id"
-    CURRENT_STATE = "current_state"
-    RECEIVE_WARNINGS = "receive_warnings"
-    COVID_AUTO_INFO = "receive_covid_information"
-    LOCATIONS = "locations"
-    RECOMMENDATIONS = "recommendations"
-    LANGUAGE = "language"
 
 
 def _read_file(path: str) -> dict:
@@ -387,3 +371,32 @@ def set_language(chat_id: int, new_language: Language):
     all_user[cid][Attributes.LANGUAGE.value] = new_language.value
 
     _write_file(file_path, all_user)
+
+
+def set_default_level(chat_id: int, new_level: WarningSeverity):
+    all_user = _read_file(file_path)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        all_user[cid] = DEFAULT_DATA.copy()
+
+    all_user[cid][Attributes.DEFAULT_LEVEL.value] = new_level.value
+
+    _write_file(file_path, all_user)
+
+
+def get_default_level(chat_id: int) -> WarningSeverity:
+    """
+    Returns the language the user (chat_id) has currently active or the default language
+
+    Arguments:
+        chat_id: Integer to identify the user
+
+    Returns:
+        WarningSeverity the user has currently as the default level
+    """
+    all_user = _read_file(file_path)
+
+    if str(chat_id) in all_user:
+        return WarningSeverity(all_user[str(chat_id)][Attributes.DEFAULT_LEVEL.value])
+    return WarningSeverity(DEFAULT_DATA[Attributes.DEFAULT_LEVEL.value])
