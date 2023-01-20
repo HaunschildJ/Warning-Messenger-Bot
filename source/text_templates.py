@@ -1,9 +1,13 @@
 import json
 import string
+import os
 
 from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity
 
 file_path = "data/textTemplates.json"
+
+if not os.path.exists(file_path):
+    raise FileNotFoundError("text templates file not found in given path")
 
 
 def _read_file(path: str):

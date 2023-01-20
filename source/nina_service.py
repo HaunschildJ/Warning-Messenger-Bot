@@ -9,7 +9,7 @@ from enum_types import WarningType
 import requests
 import nina_string_helper
 
-_base_url = "https://warnung.bund.de/api31"
+_BASE_URL = "https://warnung.bund.de/api31"
 
 
 @dataclass
@@ -48,7 +48,7 @@ def get_covid_rules(district_id: str) -> CovidRules:
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
+    response_raw = requests.get(_BASE_URL + covid_info_api + district_id + ".json")
 
     response = response_raw.json()
 
@@ -83,7 +83,7 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
+    response_raw = requests.get(_BASE_URL + covid_info_api + district_id + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
@@ -150,7 +150,7 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
     :return: a list of all warnings that are actual. An empty list is returned if there are none
     :raises HTTPError:
     """
-    response_raw = requests.get(_base_url + api_string)
+    response_raw = requests.get(_BASE_URL + api_string)
     response = response_raw.json()
 
     warning_list = []
@@ -317,7 +317,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     :return: the detailed Warning as a DetailedWarning class
     :raises HTTPError:
     """
-    response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
+    response_raw = requests.get(_BASE_URL + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
 
     id_response = _get_safely(response, "identifier")
