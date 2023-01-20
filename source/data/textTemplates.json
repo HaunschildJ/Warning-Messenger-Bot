@@ -198,37 +198,44 @@
     }
   },
   {
-    "topic": "show_subscriptions",
-    "description": "Es wird zwischen jedem der Folgenden Zeilen ein Zeilenumbruch gemacht und sie werden zusammengeführt um die Abonnements der nutzenden Person anzuzeigen.",
-    "description2": "headline wird einmal am Anfang stehen, danach werden für je eine location immer die Warnungen mit den jeweiligen Warnstufen aufgelistet.",
-    "description3": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe.",
-    "headline": "Ihre Abonnements:",
-    "location": "\n%location:",
-    "warning": "\t%warning von Stufe %level"
-  },
-  {
-    "topic": "recommendations",
-    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
-    "description2": "%r in recommendation gibt an wo der Vorschlag stehen soll.",
-    "headline": "Ihnen werden nun folgende Orte vorgeschlagen:",
-    "recommendation": "%r",
-    "end": "\nSie können jetzt den nächsten Vorschlag eingeben."
-  },
-  {
-    "topic": "delete_subscription",
-    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
-    "description2": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe. %button_name für den Name des dazugehörigen Buttons.",
-    "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
-    "location": "\n%location:",
-    "warning": "\t[%button_name] %warning von Stufe %level",
-    "end": ""
-  },
-  {
-    "topic": "select_location",
-    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
-    "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
-    "headline": "Wählen Sie aus was Sie meinten:",
-    "text": "[%button_name] %place_name ; %district_name",
-    "end": ""
+    "topic": "complex_answers",
+    "all_answers": {
+      "show_subscriptions": {
+        "description": "Es wird zwischen jedem der Folgenden Zeilen ein Zeilenumbruch gemacht und sie werden zusammengeführt um die Abonnements der nutzenden Person anzuzeigen.",
+        "description2": "headline wird einmal am Anfang stehen, danach werden für je eine location immer die Warnungen mit den jeweiligen Warnstufen aufgelistet.",
+        "description3": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe.",
+        "headline": "Ihre Abonnements:",
+        "location": "\n%location:",
+        "warning": "\t%warning von Stufe %level"
+      },
+      "recommendations": {
+        "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
+        "description2": "%r in recommendation gibt an wo der Vorschlag stehen soll.",
+        "headline": "Ihnen werden nun folgende Orte vorgeschlagen:",
+        "recommendation": "%r",
+        "end": "\nSie können jetzt den nächsten Vorschlag eingeben."
+      },
+      "delete_subscription": {
+        "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+        "description2": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe. %button_name für den Name des dazugehörigen Buttons.",
+        "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
+        "location": "\n%location:",
+        "warning": "\t[%button_name] %warning von Stufe %level",
+        "end": ""
+      },
+      "select_location": {
+        "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+        "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
+        "headline": "Wählen Sie aus was Sie meinten:",
+        "text": "[%button_name] %place_name ; %district_name",
+        "end": ""
+      },
+      "set_default_level": {
+        "description": "Die nutzende Person wird als Text manual sehen, wenn Sie die Standardstufe für Abonnements auf manuell gestellt hat. ",
+        "description2": "Ansonsten other (in other %level schreiben um anzugeben was jetzt für eine Standardstufe gesetzt ist.",
+        "manual": "Sie müssen von jetzt an bei jeder Erstellung von Abonnements manuell die gewünschte Stufe einstellen. Die Stufe gibt an welche Warnungen ihnen geschickt werden.",
+        "other": "Es wird bei der Erstellung eines Abonnements von nun an automatisch \"%level\" als Stufe eingestellt. Die Stufe gibt an welche Warnungen ihnen geschickt werden."
+      }
+    }
   }
 ]

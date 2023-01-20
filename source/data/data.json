@@ -1,12 +1,18 @@
 {
     "5635169582": {
-        "current_state": 1,
+        "current_state": 0,
         "receive_warnings": true,
         "receive_covid_information": 1,
-        "default_level": "Moderate",
+        "default_level": "Manual",
         "locations": {
             "064110000000": {
-                "weather": "severe"
+                "weather": "moderate",
+                "general": "moderate",
+                "flood": "moderate"
+            },
+            "064320004004": {
+                "weather": "severe",
+                "disaster": "moderate"
             }
         },
         "recommendations": [

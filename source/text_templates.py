@@ -1,9 +1,7 @@
 import json
 import string
 
-from enum_types import Button
-from enum_types import Answers
-from enum_types import ReplaceableAnswer
+from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity
 
 file_path = "data/textTemplates.json"
 
@@ -75,64 +73,21 @@ def get_replaceable_answer(r_answer: ReplaceableAnswer) -> string:
     return result
 
 
-def _get_show_subscriptions() -> dict:
+def _get_complex_answer_dict(name: str) -> dict:
     """
-    Returns a dictionary with the format for showing subscriptions
+    Returns a dictionary with the format for the given parameter
+
+    Arguments:
+        name: string with the name to search for in the json
 
     Returns:
-        a dictionary with the format for showing subscriptions
+        a dictionary with the format requested with name
     """
-
     data = _read_file(file_path)
 
     for topic in data:
-        if topic['topic'] == "show_subscriptions":
-            return topic
-
-
-def _get_delete_subscriptions() -> dict:
-    """
-    Returns a dictionary with the format for deleting subscriptions
-
-    Returns:
-        a dictionary with the format for deleting subscriptions
-    """
-
-    data = _read_file(file_path)
-
-    for topic in data:
-        if topic['topic'] == "delete_subscription":
-            return topic
-
-
-def _get_select_location() -> dict:
-    """
-    Returns a dictionary with the format for selecting a location
-
-    Returns:
-        a dictionary with the format for selecting a location
-    """
-
-    data = _read_file(file_path)
-
-    for topic in data:
-        if topic['topic'] == "select_location":
-            return topic
-
-
-def _get_show_recommendations() -> dict:
-    """
-    Returns a dictionary with the format for showing recommendations
-
-    Returns:
-        a dictionary with the format for showing recommendations
-    """
-
-    data = _read_file(file_path)
-
-    for topic in data:
-        if topic['topic'] == "recommendations":
-            return topic
+        if topic['topic'] == "complex_answers":
+            return topic["all_answers"][name]
 
 
 # fill in the replaceable answer ---------------------------------------------------------------------------------------
@@ -287,7 +242,7 @@ def get_show_subscriptions_for_one_location_messsage(location: str, warnings: li
     Returns:
         string with text for all subscriptions of one location
     """
-    dic = _get_show_subscriptions()
+    dic = _get_complex_answer_dict("show_subscriptions")
     message = dic["location"]
     message = message.replace("%location", location)
     for (warning, level) in zip(warnings, levels):
@@ -308,7 +263,7 @@ def get_show_subscriptions_message(subscriptions: list[str]) -> str:
     Returns:
         The subscriptions combined with the headline for showing subscriptions
     """
-    dic = _get_show_subscriptions()
+    dic = _get_complex_answer_dict("show_subscriptions")
     message = dic["headline"]
     for subscription in subscriptions:
         message = message + "\n" + subscription
@@ -334,7 +289,7 @@ def get_delete_subscriptions_for_one_location_messsage(location: str, warnings: 
     Returns:
         string with text for all subscriptions of one location and an information to the corresponding button name
     """
-    dic = _get_delete_subscriptions()
+    dic = _get_complex_answer_dict("delete_subscription")
     message = dic["location"]
     message = message.replace("%location", location)
     for (warning, level, button) in zip(warnings, levels, corresponding_button_names):
@@ -356,7 +311,7 @@ def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
     Returns:
         string with the subscriptions combined with the headline for deleting subscriptions
     """
-    dic = _get_delete_subscriptions()
+    dic = _get_complex_answer_dict("delete_subscription")
     message = dic["headline"]
     for subscription in subscriptions:
         message = message + "\n" + subscription
@@ -380,7 +335,7 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
     Returns:
         string with the text for one suggestion
     """
-    dic = _get_select_location()
+    dic = _get_complex_answer_dict("select_location")
     if place_name is None:
         place_name = "---"
     message = dic["text"]
@@ -401,7 +356,7 @@ def get_select_location_message(locations: list[str]) -> str:
     Returns:
         string with the combined suggestions and a headline (and ending)
     """
-    dic = _get_select_location()
+    dic = _get_complex_answer_dict("select_location")
     message = dic["headline"]
     for location in locations:
         message = message + "\n" + location
@@ -436,9 +391,28 @@ def get_show_recommendations_message(recommendations: list[str]) -> str:
     Returns:
         string with the message showing the user all recommendations
     """
-    dic = _get_show_recommendations()
+    dic = _get_complex_answer_dict("recommendations")
     message = dic["headline"]
     for suggestion in recommendations:
         message = message + "\n" + dic["recommendation"].replace("%r", suggestion)
     message = message + "\n" + dic["end"]
+    return message
+
+
+def get_set_default_level_message(level: WarningSeverity) -> str:
+    """
+    This method will build the message to inform the user what default level they have now
+
+    Arguments:
+        level: WarningSeverity representing the new default level
+
+    Returns:
+        string with the message showing the default level the user has now
+    """
+    dic = _get_complex_answer_dict("set_default_level")
+    if level == WarningSeverity.MANUAL:
+        message = dic["manual"]
+    else:
+        message = dic["other"]
+        message = message.replace("%level", get_button_name(Button[level.name]))
     return message

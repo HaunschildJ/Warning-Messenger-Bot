@@ -7,10 +7,7 @@ import data_service
 import place_converter
 
 from text_templates import Button, Answers
-from enum_types import Commands
-from enum_types import ErrorCodes
-from enum_types import WarningSeverity
-from enum_types import ReceiveInformation
+from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 
@@ -402,6 +399,12 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         return
     warning = split_command[2]
     if len(split_command) == 3:
+        # first see if user has set a default level
+        default_level = data_service.get_default_level(chat_id)
+        if default_level != WarningSeverity.MANUAL:
+            default_button = Button[default_level.name]
+            inline_button_for_adding_subscriptions(chat_id, callback_command + ";" + str(default_button.value))
+            return
         # not done with process of adding subscription yet, ask for warning level
         markup = InlineKeyboardMarkup()
 
@@ -712,10 +715,15 @@ def add_recommendation_in_database(chat_id: int, place_id: str, district_id: str
 
 
 def set_default_level(chat_id: int, level: str):
+    severity = WarningSeverity.MANUAL
     try:
         data_service.set_default_level(chat_id, WarningSeverity(level))
+        severity = WarningSeverity(level)
     except ValueError:
         data_service.set_default_level(chat_id, WarningSeverity.MANUAL)
+    message = text_templates.get_set_default_level_message(severity)
+    data_service.set_user_state(chat_id, 0)
+    sender.send_message(chat_id, message, _get_main_keyboard_buttons())
 
 
 # helper/short methods -------------------------------------------------------------------------------------------------
