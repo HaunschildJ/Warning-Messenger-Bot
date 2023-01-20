@@ -408,4 +408,6 @@ def covid_helper(chat_id: int, message_string: str):
         controller.error_handler(chat_id, ErrorCodes.ONLY_PART_OF_COMMAND)
 
 
-bot.polling()
+def start_receiver():
+    print("Receiver running...")
+    bot.polling()

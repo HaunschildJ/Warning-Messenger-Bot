@@ -6,19 +6,20 @@ import time
 import place_converter
 
 
-def start_subscriptions(minutes_to_wait: int):
+def start_subscriptions(minutes_to_wait: int = 2):
     """
 
     This endless loop should only be started once when the main script is started.
 
     Args:
-        minutes_to_wait: amount of minutes to wait after checking for new warnings
+        minutes_to_wait: amount of minutes to wait after checking for new warnings (2 minutes by default)
 
 
     """
+    print("Subscriptions running...")
     while True:
         warn_users()
-        time.sleep(120)  # 2 minutes
+        time.sleep(minutes_to_wait*60)
 
 
 def warn_users():
@@ -37,8 +38,8 @@ def warn_users():
                 data_service.add_warning_id_to_users_warnings_received_list(chat_id, warning.id)
                 warnings_sent_counter += 1
 
-    print(f'There are ${str(len(active_warnings))} active warnings.')
-    print(f'${warnings_sent_counter} users were warned.')
+    print(f'There are {str(len(active_warnings))} active warnings.')
+    print(f'{warnings_sent_counter} users were warned.')
 
 
 def _should_user_receive_this_warning(chat_id: int, warning: nina_service.GeneralWarning,
@@ -89,6 +90,3 @@ def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, 
                 return False
 
     return False
-
-
-warn_users()

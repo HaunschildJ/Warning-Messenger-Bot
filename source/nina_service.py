@@ -6,7 +6,7 @@ from typing import List
 import requests
 import nina_string_helper
 
-_base_url = "https://warnung.bund.de/api31"
+_API_URL = "https://warnung.bund.de/api31"
 
 
 class WarnType(Enum):
@@ -56,7 +56,7 @@ def get_covid_rules(district_id: str) -> CovidRules:
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
+    response_raw = requests.get(_API_URL + covid_info_api + district_id + ".json")
 
     response = response_raw.json()
 
@@ -91,7 +91,7 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
+    response_raw = requests.get(_API_URL + covid_info_api + district_id + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
@@ -129,14 +129,14 @@ class WarningType(Enum):
     Unknown = 3
 
 
-def _get_warning_type(warn_type: str) -> WarningType:
+def _get_warning_type(warning_type: str) -> WarningType:
     """
     translates a string into an enum of WarningType
-    :param warn_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
+    :param warning_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
     :return: if the string is a valid enum, the enum if not: WarningType.Unknown
     """
     try:
-        return WarningType[warn_type]
+        return WarningType[warning_type]
     except KeyError:
         return WarningType.Unknown
 
@@ -172,7 +172,7 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
     :return: a list of all warnings that are actual. An empty list is returned if there are none
     :raises HTTPError:
     """
-    response_raw = requests.get(_base_url + api_string)
+    response_raw = requests.get(_API_URL + api_string)
     response = response_raw.json()
 
     warning_list = []
@@ -339,7 +339,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     :return: the detailed Warning as a DetailedWarning class
     :raises HTTPError:
     """
-    response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
+    response_raw = requests.get(_API_URL + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
 
     id_response = _get_safely(response, "identifier")
@@ -426,5 +426,4 @@ def get_warning_locations(warning: GeneralWarning):
             for location in area.area_description.split(", "):
                 locations.append(location)
 
-    locations.append("Darmstadt")  # TODO remove (just for debugging)
     return locations
