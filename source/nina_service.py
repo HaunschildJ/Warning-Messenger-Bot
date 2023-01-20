@@ -380,6 +380,11 @@ def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
 
 
 def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
+    """
+
+    Returns: a list of tuples where each tuple contains an active warning and its WarnType
+
+    """
     warnings = []
     for warn_type in WarnType:
         for warning in call_general_warning(warn_type):
@@ -389,8 +394,14 @@ def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
 
 
 def get_warning_locations(warning: GeneralWarning):
-    # Retrieve warning_location out of detailed_warning
-    #   this information is saved in DetailedWarningInfoArea.area_description as for example "Stubenberg, Tann, Triftern, Unterdietfurt, Wittibreut, Wurmannsquick"
+    """
+
+    Args:
+        warning: warning the locations should be retrieved of
+
+    Returns: a list of locations the warning is relevant for
+
+    """
     detailed_warning = get_detailed_warning(warning.id)
     locations = []
     for info in detailed_warning.infos:
