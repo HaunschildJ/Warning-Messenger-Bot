@@ -1,9 +1,10 @@
 import importlib.util
 import unittest
+import sys
 
+sys.path.insert(0, "..\source")
 
-data_service = importlib.util.spec_from_file_location("data_service", "../source/data_service.py")\
-    .loader.load_module()
+import data_service
 
 file_path = "../source/data/data.json"
 
@@ -166,10 +167,18 @@ class MyTestCase(unittest.TestCase):
                 "district_id": "11001"
             }
         ]
-        data_service.add_suggestion(10, "Test", "12345", "12345")
+        return_value = data_service.add_suggestion(10, "Test", "12345", "12345")
 
         # check if the user entries are equal
         self.assertEqual(control_user, data_service.get_suggestions(10))
+
+        for (control_recommendation, result_recommendation) in zip(control_user, return_value):
+            self.assertEqual(control_recommendation["name"],
+                             data_service.get_recommendation_name(result_recommendation))
+            self.assertEqual(control_recommendation["place_id"],
+                             data_service.get_recommendation_place_id(result_recommendation))
+            self.assertEqual(control_recommendation["district_id"],
+                             data_service.get_recommendation_district_id(result_recommendation))
 
         # adding the least recently added location
         control_user = [{
