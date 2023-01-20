@@ -120,12 +120,17 @@ class MyTestCase(unittest.TestCase):
     def test_get_name_for_id(self):
         # is a valid district id with 7 zeroes
         input_value = "064120000000"
-        should_be = "Frankfurt am Main"
+        should_be = "Frankfurt am Main, Stadt"
         self.assertEqual(should_be, place_converter.get_name_for_id(input_value))
 
         # is a valid district id
         input_value = "06412"
         should_be = "Frankfurt am Main"
+        self.assertEqual(should_be, place_converter.get_name_for_id(input_value))
+
+        # is a district id with 7 zeroes but without place name
+        input_value = "064340000000"
+        should_be = "Hochtaunuskreis"
         self.assertEqual(should_be, place_converter.get_name_for_id(input_value))
 
         # is a valid place id
