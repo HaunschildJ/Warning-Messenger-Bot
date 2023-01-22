@@ -44,7 +44,8 @@ def _fill_places_dict() -> None:
         'https://www.xrepository.de/api/xrepository/urn:de:bund:destatis:bevoelkerungsstatistik:schluessel:rs_2021-07'
         '-31/download/Regionalschl_ssel_2021-07-31.json').json()
     for area_triple in bevoelkerungsstaat_key['daten']:
-        _places_dictionary[area_triple[0]] = area_triple[1]
+        if area_triple[2] is None:
+            _places_dictionary[area_triple[0]] = area_triple[1]
 
 
 def _fill_postal_code_dict() -> None:
