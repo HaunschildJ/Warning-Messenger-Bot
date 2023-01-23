@@ -1,5 +1,4 @@
 import data_service
-import sender
 import nina_service
 import controller
 import time
