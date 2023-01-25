@@ -2,7 +2,7 @@ import json
 import string
 from enum import Enum
 
-file_path = "data/textTemplates.json"
+file_path = "data/text_templates.json"
 
 
 class ReplaceableAnswer(Enum):
