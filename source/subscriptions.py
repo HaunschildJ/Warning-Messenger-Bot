@@ -3,6 +3,7 @@ import nina_service
 import controller
 import time
 import place_converter
+from unittest import mock
 
 
 def start_subscriptions(minutes_to_wait: int = 2):
@@ -38,7 +39,7 @@ def warn_users():
                 warnings_sent_counter += 1
 
     print(f'There are {str(len(active_warnings))} active warnings.')
-    print(f'{warnings_sent_counter} users were warned.')
+    print(f'{warnings_sent_counter} users were warned.\n')
 
 
 def _should_user_receive_this_warning(chat_id: int, warning: nina_service.GeneralWarning,
