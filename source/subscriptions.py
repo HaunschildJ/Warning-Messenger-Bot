@@ -3,7 +3,6 @@ import nina_service
 import controller
 import time
 import place_converter
-from unittest import mock
 
 
 def start_subscriptions(minutes_to_wait: int = 2):
