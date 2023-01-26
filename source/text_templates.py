@@ -4,7 +4,7 @@ import os
 
 from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity
 
-file_path = "data/textTemplates.json"
+file_path = "data/text_templates.json"
 
 if not os.path.exists(file_path):
     raise FileNotFoundError("text templates file not found in given path")
