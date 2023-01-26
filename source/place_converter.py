@@ -33,6 +33,9 @@ def _fill_districts_dict() -> None:
         _districts_dictionary[district_id] = district_description["n"]
 
 
+_fill_districts_dict()
+
+
 def _fill_places_dict() -> None:
     """
     Fills the _places_dictionary dictionary with selected infos from
@@ -46,6 +49,17 @@ def _fill_places_dict() -> None:
     for area_triple in bevoelkerungsstaat_key['daten']:
         if area_triple[2] is None:
             _places_dictionary[area_triple[0]] = area_triple[1]
+        else:
+            possible_district_id = area_triple[0][0:5]
+            try:
+                _districts_dictionary[possible_district_id]
+            except KeyError:
+                pass
+            else:
+                _places_dictionary[area_triple[0]] = area_triple[1]
+
+
+_fill_places_dict()
 
 
 def _fill_postal_code_dict() -> None:
@@ -61,8 +75,6 @@ def _fill_postal_code_dict() -> None:
                                                                  record['fields']['krs_code']]
 
 
-_fill_districts_dict()
-_fill_places_dict()
 _fill_postal_code_dict()
 
 
