@@ -148,12 +148,15 @@
       "warnings": "Warnungen",
       "emergency_tips": "Notfalltipps",
       "help": "Hilfe",
+      "covid": "Corona",
       "covid_information": "Corona Informationen",
       "covid_rules": "Corona Regeln",
       "back_to_main_menu": "Zurück zur Startseite",
-      "auto_warning": "Automatische Warnung",
-      "suggestion_location": "Standort zu Schnellzugriff hinzufügen",
+      "auto_warning": "Abonnements stummschalten",
+      "default_level": "Standard Warnstufe einstellen",
+      "suggestion_location": "Standort zu Favoriten hinzufügen",
       "subscription": "Abonnements verwalten",
+      "delete_data": "Meine Daten löschen",
       "auto_covid_info": "Automatische Coronawarnung",
       "language": "Sprache auswählen",
       "cancel": "Abbrechen",
@@ -173,7 +176,10 @@
       "minor": "alle",
       "moderate": "mittel",
       "severe": "ernst",
-      "manual": "manuell"
+      "manual": "manuell",
+      "delete_data_subscriptions": "Alle Abonnements löschen",
+      "delete_data_favorites": "Ortsfavoriten zurücksetzten",
+      "delete_data_everything": "Alle Daten löschen"
     }
   },
   {
@@ -194,7 +200,16 @@
       "manage_auto_covid_updates": "Wie oft möchten Sie automatische Corona Updates?",
       "no_subscriptions": "Sie haben keine Abonnements.",
       "click_suggestion": "Wählen Sie einen dieser Orte oder geben Sie einen Ort ein.",
-      "no_location_found": "Es konnten keine Städte gefunden werden."
+      "no_location_found": "Es konnten keine Städte gefunden werden.",
+      "delete_data_subscriptions": "Möchtest du wirklich alle deine Abonnements löschen?",
+      "delete_data_favorites": "Möchtest du wirklich deine Favoriten zurücksetzten?",
+      "delete_data_everything": "Möchtest du wirklich alle deine Daten löschen?",
+      "deleted_subscriptions": "Deine Abonnements wurden nun gelöscht.",
+      "deleted_favorites": "Deine Favoriten wurden zurückgesetzt.",
+      "deleted_everything": "Alle deine Daten wurden nun gelöscht. Du bist zurück im Hauptmenü.",
+      "manual_warning_covid_choice": "Möchtest du Corona Informationen oder Corona Regeln abfragen?",
+      "default_level": "Möchtest du beim Einstellen von Abonnements von nun an automatisch alle Warnungen erhalten, \nWarnungen von mittlerer Wichtigkeit oder nur sehr ernste Warnungen erhalten? \nOder möchtest du es bei jedem Abonnement manuell einstellen?",
+      "delete_data": "Du kannst jetzt auswählen welche Daten du löschen möchtest:"
     }
   },
   {

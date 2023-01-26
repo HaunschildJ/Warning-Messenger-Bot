@@ -493,3 +493,56 @@ def has_user_already_received_warning(chat_id: int, general_warning_id: str) -> 
     else:
         return False
 
+
+def delete_all_subscriptions(chat_id: int):
+    """
+    This method deletes all subscriptions for the given user
+
+    Args:
+        chat_id: to identify the user
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return
+
+    all_user[cid][Attributes.LOCATIONS.value] = DEFAULT_DATA[Attributes.LOCATIONS.value]
+
+    _write_file(_USER_DATA_PATH, all_user)
+
+
+def reset_favorites(chat_id: int):
+    """
+    This method resets the favorites for the given user
+
+    Args:
+        chat_id: to identify the user
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return
+
+    all_user[cid][Attributes.RECOMMENDATIONS.value] = DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
+
+    _write_file(_USER_DATA_PATH, all_user)
+
+
+def delete_user(chat_id: int):
+    """
+    This method removes a user from the database
+
+    Args:
+        chat_id: to identify the user
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return
+
+    del all_user[cid]
+
+    _write_file(_USER_DATA_PATH, all_user)

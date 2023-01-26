@@ -8,7 +8,6 @@ class Commands(Enum):
     """
     this enum is used to have all commands in one place \n
     current possible commands:\n
-    COVID ; (COVID_INFO || COVID_RULES) ; "place_id" ; "district_id"\n
     AUTO_WARNING + "bool as string"\n
 
     just for the bot not the user:\n
@@ -18,10 +17,9 @@ class Commands(Enum):
     COVID_UPDATES + "ReceiveInformation from data_service as int"\n
     ADD_RECOMMENDATION ; "place_id" ; "district_id"\n
     SET_DEFAULT_LEVEL ; "value"\n
+    (DELETE_DATA_SUBSCRIPTION || DELETE_DATA_FAVORITES || DELETE_DATA_EVERYTHING)
+    (COVID_INFO || COVID_RULES || WEATHER || DISASTER || FLOOD || COVID_INFO) ; "place_id" ; "district_id"\n
     """
-    COVID = "/covid"
-    COVID_INFO = "info"
-    COVID_RULES = "rule"
     AUTO_WARNING = "/autowarning"
     CANCEL_INLINE = "/cancel"
     ADD_RECOMMENDATION = "/add"
@@ -29,6 +27,15 @@ class Commands(Enum):
     ADD_SUBSCRIPTION = "/addSubscription"
     COVID_UPDATES = "/covidupdates"
     SET_DEFAULT_LEVEL = "/setValue"
+    DELETE_DATA_SUBSCRIPTIONS = "/delAllSubs"
+    DELETE_DATA_FAVORITES = "/delAllFav"
+    DELETE_DATA_EVERYTHING = "/delAllAll"
+    COVID_INFO = "/covidInfo"
+    COVID_RULES = "/covidRule"
+    WEATHER = "/weather"
+    DISASTER = "/disaster"
+    FLOOD = "/flood"
+    GENERAL = "/general"
 
 
 class ErrorCodes(Enum):
@@ -40,6 +47,11 @@ class ErrorCodes(Enum):
     ONLY_PART_OF_COMMAND = 2
     NINA_API = 3
     UNKNOWN_LOCATION = 4
+    MAIN_MENU = 5
+    SETTINGS = 6
+    MANAGE_SUBSCRIPTIONS = 7
+    NO_INPUT_EXPECTED = 8
+    CALLBACK_MISTAKE = 9
 
 
 # data_service ---------------------------------------------------------------------------------------------------------
@@ -114,6 +126,7 @@ class Button(Enum):
     SETTINGS = "settings"
     WARNINGS = "warnings"
     EMERGENCY_TIPS = "emergency_tips"
+    COVID = "covid"
     COVID_INFORMATION = "covid_information"
     COVID_RULES = "covid_rules"
     HELP = "help"
@@ -121,6 +134,7 @@ class Button(Enum):
     AUTO_WARNING = "auto_warning"
     SUGGESTION_LOCATION = "suggestion_location"
     SUBSCRIPTION = "subscription"
+    DELETE_DATA = "delete_data"
     AUTO_COVID_INFO = "auto_covid_info"
     LANGUAGE = "language"
     CANCEL = "cancel"
@@ -141,6 +155,10 @@ class Button(Enum):
     MINOR = "minor"  # name should be equal to name in nina_service.WarningSeverity
     MODERATE = "moderate"  # name should be equal to name in nina_service.WarningSeverity
     SEVERE = "severe"  # name should be equal to name in nina_service.WarningSeverity
+    DELETE_DATA_SUBSCRIPTIONS = "delete_data_subscriptions"
+    DELETE_DATA_FAVORITES = "delete_data_favorites"
+    DELETE_DATA_EVERYTHING = "delete_data_everything"
+    DEFAULT_LEVEL = "default_level"
 
 
 class Answers(Enum):
@@ -149,6 +167,7 @@ class Answers(Enum):
     SETTINGS = "settings"
     WARNINGS = "warnings"
     HELP = "help"
+    DELETE_DATA = "delete_data"
     AUTO_WARNINGS_TEXT = "auto_warnings_text"
     AUTO_WARNINGS_ENABLE = "auto_warnings_enable"
     AUTO_WARNINGS_DISABLE = "auto_warnings_disable"
@@ -160,3 +179,11 @@ class Answers(Enum):
     NO_SUBSCRIPTIONS = "no_subscriptions"
     CLICK_SUGGESTION = "click_suggestion"
     NO_LOCATION_FOUND = "no_location_found"
+    DELETE_DATA_SUBSCRIPTIONS = "delete_data_subscriptions"
+    DELETE_DATA_FAVORITES = "delete_data_favorites"
+    DELETE_DATA_EVERYTHING = "delete_data_everything"
+    DELETE_SUBSCRIPTIONS = "deleted_subscriptions"
+    DELETE_FAVORITES = "deleted_favorites"
+    DELETE_EVERYTHING = "deleted_everything"
+    MANUAL_WARNING_COVID_CHOICE = "manual_warning_covid_choice"
+    DEFAULT_LEVEL = "default_level"
