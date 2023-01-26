@@ -15,7 +15,7 @@ DEFAULT_DATA = {
     "current_state": 0,
     "receive_warnings": True,
     "receive_covid_information": 0,
-    "default_level": "manual",
+    "default_level": "Manual",
     "locations": {
     },
     "recommendations": [

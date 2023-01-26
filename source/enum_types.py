@@ -137,7 +137,7 @@ class Button(Enum):
     DAILY = "daily"  # name needs to be equal to name in data_service.ReceiveInformation
     WEEKLY = "weekly"  # name needs to be equal to name in data_service.ReceiveInformation
     MONTHLY = "monthly"  # name needs to be equal to name in data_service.ReceiveInformation
-    MANUAL = "manual"  # name needs to be equal to name in data_service.ReceiveInformation
+    MANUAL = "manual"  # name needs to be equal to name in data_service.WarningSeverity
     MINOR = "minor"  # name should be equal to name in nina_service.WarningSeverity
     MODERATE = "moderate"  # name should be equal to name in nina_service.WarningSeverity
     SEVERE = "severe"  # name should be equal to name in nina_service.WarningSeverity
