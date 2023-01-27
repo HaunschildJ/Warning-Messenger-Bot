@@ -76,7 +76,6 @@ def _is_warning_relevant_for_subscription(warning: GeneralWarning, subscription:
 
     """
     subscription_location_name = place_converter.get_name_for_id(subscription[0])
-    locations_list = nina_service.get_warning_locations(warning)
     subscription_dict = subscription[1]
 
     for _ in subscription_dict:

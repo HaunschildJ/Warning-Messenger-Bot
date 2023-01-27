@@ -3,7 +3,15 @@
         "current_state": 3,
         "receive_warnings": true,
         "receive_covid_information": 0,
-        "locations": {},
+        "locations": {
+            "064110000000": {
+                "0": "moderate",
+                "3": "minor"
+            },
+                "064360001001": {
+                "0": "minor"
+            }
+        },
         "recommendations": [
             {
                 "name": "Berlin, Stadt",
@@ -106,12 +114,7 @@
         "current_state": 20,
         "receive_warnings": false,
         "receive_covid_information": 2,
-        "locations": {
-            "064110000000": {
-                "0": "moderate",
-                "3": "minor"
-            }
-        },
+        "locations": {},
         "recommendations": [
             {
                 "name": "Darmstadt",
