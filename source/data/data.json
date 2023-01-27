@@ -48,10 +48,17 @@
         "language": "german"
     },
     "1770942669": {
-        "current_state": 0,
+        "current_state": 110,
         "receive_warnings": true,
         "receive_covid_information": 0,
-        "locations": {},
+        "locations": {
+            "064110000000": {
+                "1": "minor"
+            },
+            "032540017017": {
+                "0": "minor"
+            }
+        },
         "recommendations": [
             {
                 "name": "Berlin, Stadt",

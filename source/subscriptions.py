@@ -1,5 +1,6 @@
 import data_service
 import nina_service
+from nina_service import WarnType, WarningType, WarningSeverity, GeneralWarning, get_all_active_warnings
 import controller
 import time
 import place_converter
@@ -28,12 +29,12 @@ def warn_users():
 
     """
     chat_ids_of_warned_users = data_service.get_chat_ids_of_warned_users()
-    active_warnings = nina_service.get_all_active_warnings()
+    active_warnings = get_all_active_warnings()
     warnings_sent_counter = 0
     for (warning, warn_type) in active_warnings:
         for chat_id in chat_ids_of_warned_users:
             if _should_user_receive_this_warning(chat_id, warning, warn_type):
-                controller.general_warning(chat_id, nina_service.WarnType.NONE, [warning])
+                controller.general_warning(chat_id, WarnType.NONE, [warning])
                 data_service.add_warning_id_to_users_warnings_received_list(chat_id, warning.id)
                 warnings_sent_counter += 1
 
@@ -41,8 +42,7 @@ def warn_users():
     print(f'{warnings_sent_counter} users were warned.\n')
 
 
-def _should_user_receive_this_warning(chat_id: int, warning: nina_service.GeneralWarning,
-                                      warn_type: nina_service.WarnType) -> bool:
+def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, warn_type: WarnType) -> bool:
     """
 
     Args:
@@ -63,8 +63,8 @@ def _should_user_receive_this_warning(chat_id: int, warning: nina_service.Genera
     return False
 
 
-def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, subscription: tuple,
-                                          warn_type: nina_service.WarnType) -> bool:
+def _is_warning_relevant_for_subscription(warning: GeneralWarning, subscription: tuple,
+                                          warn_type: WarnType) -> bool:
     """
 
     Args:
@@ -76,11 +76,11 @@ def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, 
 
     """
     subscription_location_name = place_converter.get_name_for_id(subscription[0])
-    lower_case_locations_list = list(map(lambda s: s.lower(), nina_service.get_warning_locations(warning)))
+    locations_list = nina_service.get_warning_locations(warning)
     subscription_dict = subscription[1]
 
     for _ in subscription_dict:
-        if subscription_location_name.lower() in lower_case_locations_list:
+        if _subscription_location_matches_warning_location(subscription_location_name, warning):
             try:
                 subscription_warning_severity = subscription_dict[str(warn_type.value)]
                 if subscription_warning_severity <= warning.severity.value:
@@ -89,3 +89,31 @@ def _is_warning_relevant_for_subscription(warning: nina_service.GeneralWarning, 
                 return False
 
     return False
+
+
+def _subscription_location_matches_warning_location(subscription_location_name: str, warning: GeneralWarning) -> bool:
+    """
+
+        Args:
+            subscription_location_name: name of the location the subscription is for
+            warning: warning that should be checked
+
+        Returns: True if the location of the subscription matches the location of the warning
+
+        """
+    # what should be done if "darmstadt, wissenschaftsstadt" is in the subscription but the warning is for "darmstadt"
+    lower_case_locations_list = list(map(lambda s: s.lower(), nina_service.get_warning_locations(warning)))
+    subscription_location_name = subscription_location_name.lower()
+    for location in lower_case_locations_list:
+        for word in subscription_location_name.split(','):
+            if word.strip() == location:
+                return True
+    return subscription_location_name in lower_case_locations_list
+
+
+
+
+
+
+
+
