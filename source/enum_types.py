@@ -159,6 +159,10 @@ class Button(Enum):
     DELETE_DATA_FAVORITES = "delete_data_favorites"
     DELETE_DATA_EVERYTHING = "delete_data_everything"
     DEFAULT_LEVEL = "default_level"
+    HELP_BOT_USAGE = "help_bot_usage"
+    HELP_FAQ = "help_faq"
+    HELP_IMPRINT = "help_imprint"
+    HELP_PRIVACY = "help_privacy"
 
 
 class Answers(Enum):
@@ -187,3 +191,17 @@ class Answers(Enum):
     DELETE_EVERYTHING = "deleted_everything"
     MANUAL_WARNING_COVID_CHOICE = "manual_warning_covid_choice"
     DEFAULT_LEVEL = "default_level"
+    IMPRINT_TEXT = "imprint"
+    PRIVACY_TEXT = "privacy"
+
+
+class BotUsageHelp(Enum):
+    EVERYTHING = "everything"
+    MAIN_MENU = "main_menu"
+    MANUAL_WARNINGS = "manual_warnings"
+    HELP_MENU = "help_menu"
+    EMERGENCY_TIPS_MENU = "emergency_tips_menu"
+    SETTINGS_MENU = "settings_menu"
+    DELETE_DATA_MENU = "delete_data_menu"
+    FAVORITES = "favorites"
+    SUBSCRIPTIONS_MENU = "subscriptions_menu"

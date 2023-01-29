@@ -147,7 +147,7 @@
       "settings": "Einstellungen ⚙",
       "warnings": "Warnungen",
       "emergency_tips": "Notfalltipps",
-      "help": "Hilfe",
+      "help": "Mehr",
       "covid": "Corona",
       "covid_information": "Corona Informationen",
       "covid_rules": "Corona Regeln",
@@ -179,7 +179,11 @@
       "manual": "manuell",
       "delete_data_subscriptions": "Alle Abonnements löschen",
       "delete_data_favorites": "Ortsfavoriten zurücksetzten",
-      "delete_data_everything": "Alle Daten löschen"
+      "delete_data_everything": "Alle Daten löschen",
+      "help_bot_usage": "Bot Bedienung",
+      "help_faq": "FAQ",
+      "help_imprint": "Impressum",
+      "help_privacy": "Datenschutz"
     }
   },
   {
@@ -189,7 +193,7 @@
       "no": "Nein",
       "settings": "Sie sind jetzt in den Einstellungen.",
       "warnings": "Sie sind jetzt in den Warnungen.",
-      "help": "Hier sind ein paar Tipps:",
+      "help": "Du kannst jetzt wählen für was du Informationen möchtest.",
       "auto_warnings_text": "Möchtest du automatische Warnungen erhalten? (nur eingestellte)",
       "auto_warnings_enable": "Sie erhalten ab jetzt automatische Warnungen.",
       "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
@@ -209,7 +213,9 @@
       "deleted_everything": "Alle deine Daten wurden nun gelöscht. Du bist zurück im Hauptmenü.",
       "manual_warning_covid_choice": "Möchtest du Corona Informationen oder Corona Regeln abfragen?",
       "default_level": "Möchtest du beim Einstellen von Abonnements von nun an automatisch alle Warnungen erhalten, \nWarnungen von mittlerer Wichtigkeit oder nur sehr ernste Warnungen erhalten? \nOder möchtest du es bei jedem Abonnement manuell einstellen?",
-      "delete_data": "Du kannst jetzt auswählen welche Daten du löschen möchtest:"
+      "delete_data": "Du kannst jetzt auswählen welche Daten du löschen möchtest:",
+      "imprint": "TODO Impressumstext",
+      "privacy": "TODO Datenschutztext"
     }
   },
   {
@@ -250,6 +256,34 @@
         "description2": "Ansonsten other (in other %level schreiben um anzugeben was jetzt für eine Standardstufe gesetzt ist.",
         "manual": "Sie müssen von jetzt an bei jeder Erstellung von Abonnements manuell die gewünschte Stufe einstellen. Die Stufe gibt an welche Warnungen ihnen geschickt werden.",
         "other": "Es wird bei der Erstellung eines Abonnements von nun an automatisch \"%level\" als Stufe eingestellt. Die Stufe gibt an welche Warnungen ihnen geschickt werden."
+      },
+      "faq": {
+        "description": "Es wird beim FAQ zuerst die headline zu sehen sein und dann für jede Frage einmal question_format und am ende nochmal end.",
+        "description2": "In question_format %question für die Frage und %answer für die Antwort.",
+        "headline": "Hier sind ein paar Fragen für dich:",
+        "question_format": "\nFrage: %question \nAntwort: %answer",
+        "end": "\nFür weitere Informationen gehe auf die offizielle Seite der Bundesregierung: https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/warn-app-nina_node.html"
+      },
+      "bot_usage": {
+        "description": "Hierbei wird entweder nur eine Nachricht genommen oder potentiell alle. (general wird immer angefügt)",
+        "headline": "Hilfe:",
+        "main_menu_navigation": "Hauptmenü\nUm in das Hauptmenü zu gelangen kannst du immer den Zurück Knopf drücken.",
+        "main_menu": "Vom Hauptmenü kannst du zu allen Funktionen dieses Bots gelangen.",
+        "manual_warnings_navigation": "Manuel Warnungen abrufen\nUm manuel Warnungen abfragen zu können musst du im Hauptmenü den Warnungen Knopf drücken.",
+        "manual_warnings": "Um manuel Warnungen abzufragen musst du eine Warnung auswählen und dann den Ort eingeben/ auswählen für den du diese Warnung sehen willst.",
+        "help_menu_navigation": "Hilfe Menü\nUm mehr über den Bot und rechtliches zu erfahren musst du im Hauptmenü den Mehr Knopf drücken.",
+        "help_menu": "Im Hilfe-/ Mehr-Menü kannst du eine Anleitung für den Bot oder andere rechtliche/ wichtige Informationen erhalten.",
+        "emergency_tips_menu_navigation": "Notfalltipps\nUm die NotfallPDFs zu erhalten musst du im Hauptmenü den Notfalltipps Knopf drücken.",
+        "emergency_tips_menu": "Im Notfalltipps Menü kannst du dir das Thema aussuchen, über das du für eine Notfallsituation bescheid wissen willst.",
+        "settings_menu_navigation": "Einstellungen\nUm in die Einstellungen zu gelangen muss du im Hauptmenü den Einstellungen Knopf drücken.",
+        "settings_menu": "In den Einstellungen kannst du Abonnements verwalten, Daten die dieser Bot über dich speichert löschen und Favoriten für die manuelle Abfrage von Warnungen einstellen.",
+        "delete_data_menu_navigation": "Meine Daten löschen\nUm Daten, die dieser Bot über dich speichert, löschen zu können musst du in den Einstellungen den Meine Daten löschen Knopf drücken.",
+        "delete_data_menu": "In dem Daten löschen Menü kannst du auswählen ob du nur deine bereits erstellten Abonnements, deine eingestellten Favoriten zurücksetzen oder gar alle Daten zu dir löschen willst.",
+        "favorites_navigation": "Favoriten hinzufügen\nUm deine Ortsfavoriten für die Abfrage von manuellen Warnungen einstellen zu können musst du in den Einstellungen den Ortsfavoriten hinzufügen Knopf drücken.",
+        "favorites": "In Favoriten kannst du einen Ort eingeben oder deinen Aktuellen Standort schicken um einen Ort für die manuelle Abfrage von Warnungen vorgeschlagen zu bekommen.",
+        "subscriptions_menu_navigation": "Abonnements verwalten\nUm deine Abonnements verwalten zu können musst du ein den Einstellungen Abonnements verwalten drücken.",
+        "subscriptions_menu": "Im Abonnements verwalten Menü kannst du die deine aktuellen Abonnements anzeigen lassen und stumm schalten, Abonnements hinzufügen und löschen und eine standard Warnstufe für das Hinzufügen von Abonnements einstellen.",
+        "general": "Solltest du nicht in der Lage sein das Menü zu sehen musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
       }
     }
   }

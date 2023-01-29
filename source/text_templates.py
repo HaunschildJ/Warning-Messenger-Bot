@@ -2,7 +2,7 @@ import json
 import string
 import os
 
-from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity
+from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity, BotUsageHelp
 
 file_path = "data/text_templates.json"
 
@@ -419,4 +419,54 @@ def get_set_default_level_message(level: WarningSeverity) -> str:
     else:
         message = dic["other"]
         message = message.replace("%level", get_button_name(Button[level.name]))
+    return message
+
+
+def get_faq_message(questions: list[str], answers: list[str]) -> str:
+    """
+    This method will create the faq answer with the given questions and answers
+    IMPORTANT: question[0] gets answered by answer[0] and so on
+
+    Args:
+        questions: list with the questions as string
+        answers: list with the answers as strings
+
+    Returns:
+        string with the faq
+    """
+    dic = _get_complex_answer_dict("faq")
+
+    message = dic["headline"]
+    for (question, answer) in zip(questions, answers):
+        one_faq = dic["question_format"]
+        one_faq = one_faq.replace("%question", question)
+        one_faq = one_faq.replace("%answer", answer)
+        message = message + "\n" + one_faq
+    message = message + "\n" + dic["end"]
+    return message
+
+
+def get_help_message(help_for: BotUsageHelp) -> str:
+    """
+    This method will create the requested help answer
+
+    Args:
+        help_for: BotUsageHelp enum which tells this method what help to return
+
+    Returns:
+        string with the requested help message
+    """
+    dic = _get_complex_answer_dict("bot_usage")
+
+    if help_for == BotUsageHelp.EVERYTHING:
+        message = dic["headline"]
+        list_help = list(BotUsageHelp)
+        list_help.remove(BotUsageHelp.EVERYTHING)
+        for help_in in list_help:
+            one_help = "\n\n" + dic[help_in.value + "_navigation"]
+            one_help = one_help + "\n" + dic[help_in.value]
+            message = message + one_help
+    else:
+        message = dic[help_for.value]
+    message = message + "\n" + dic["general"]
     return message

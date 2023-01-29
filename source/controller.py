@@ -7,7 +7,7 @@ import data_service
 import place_converter
 
 from text_templates import Button, Answers
-from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarnType
+from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarnType, BotUsageHelp
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 
@@ -58,6 +58,23 @@ def _get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     general = sender.create_button(WARNING_GENERAL_TEXT)
     back = sender.create_button(BACK_TO_MAIN_TEXT)
     keyboard.add(covid).add(weather, disaster).add(flood, general).add(back)
+    return keyboard
+
+
+def _get_help_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
+    """
+    This is a helper method which returns the keyboard for the help menu
+
+    Returns:
+         telebot.types.ReplyKeyboardMarkup
+    """
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=False, one_time_keyboard=False)
+    bot_info = sender.create_button(HELP_BOT_USAGE_TEXT)
+    faq = sender.create_button(HELP_FAQ_TEXT)
+    imprint = sender.create_button(HELP_IMPRINT_TEXT)
+    privacy = sender.create_button(HELP_PRIVACY_TEXT)
+    back = sender.create_button(BACK_TO_MAIN_TEXT)
+    keyboard.add(bot_info, faq).add(imprint, privacy).add(back)
     return keyboard
 
 
@@ -218,6 +235,12 @@ ADD_SUBSCRIPTION_TEXT = text_templates.get_button_name(Button.ADD_SUBSCRIPTION)
 DEFAULT_LEVEL_TEXT = text_templates.get_button_name(Button.DEFAULT_LEVEL)
 SILENCE_SUBSCRIPTIONS_TEXT = text_templates.get_button_name(Button.AUTO_WARNING)
 
+# help keyboard buttons
+HELP_BOT_USAGE_TEXT = text_templates.get_button_name(Button.HELP_BOT_USAGE)
+HELP_FAQ_TEXT = text_templates.get_button_name(Button.HELP_FAQ)
+HELP_IMPRINT_TEXT = text_templates.get_button_name(Button.HELP_IMPRINT)
+HELP_PRIVACY_TEXT = text_templates.get_button_name(Button.HELP_PRIVACY)
+
 # delete data buttons
 DELETE_DATA_SUBSCRIPTIONS_TEXT = text_templates.get_button_name(Button.DELETE_DATA_SUBSCRIPTIONS)
 DELETE_DATA_FAVORITES_TEXT = text_templates.get_button_name(Button.DELETE_DATA_FAVORITES)
@@ -283,11 +306,35 @@ def main_button_pressed(chat_id: int, button_text: str):
         sender.send_message(chat_id, "TODO tips")
     elif button_text == HELP_BUTTON_TEXT:
         data_service.set_user_state(chat_id, 4)
-        # TODO help
-        data_service.set_user_state(chat_id, 0)  # remove when implemented
-        sender.send_message(chat_id, "TODO help")
+        keyboard = _get_help_keyboard_buttons()
+        sender.send_message(chat_id, text_templates.get_answers(Answers.HELP), keyboard)
     else:
         error_handler(chat_id, ErrorCodes.MAIN_MENU)
+
+
+def button_in_help_pressed(chat_id: int, button_text: str):
+    """
+    This method gets called when the user presses a button (sends a message) while in the help menu state
+
+    Args:
+        chat_id: an integer for the chatID that the message is sent to
+        button_text: a string which is the text of the button that was pressed (constant of this class)
+    """
+    if button_text == HELP_BOT_USAGE_TEXT:
+        message = text_templates.get_help_message(BotUsageHelp.EVERYTHING)
+        sender.send_message(chat_id, message)
+    elif button_text == HELP_FAQ_TEXT:
+        # TODO get the FAQ from nina api
+        questions = ["Wie würde eine Frage aussehen?", "Und wie die 2te?"]
+        answers = ["So würde eine Antwort aussehen.", "Und so die 2te."]
+        message = text_templates.get_faq_message(questions, answers)
+        sender.send_message(chat_id, message)
+    elif button_text == HELP_IMPRINT_TEXT:
+        sender.send_message(chat_id, text_templates.get_answers(Answers.IMPRINT_TEXT))
+    elif button_text == HELP_PRIVACY_TEXT:
+        sender.send_message(chat_id, text_templates.get_answers(Answers.PRIVACY_TEXT))
+    else:
+        error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED)
 
 
 def button_in_manual_warnings_pressed(chat_id: int, button_text: str):

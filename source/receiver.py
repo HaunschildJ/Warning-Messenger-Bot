@@ -209,6 +209,7 @@ def normal_message_handler(message: typ.Message):
     elif state_first_number == 3:  # 3?
         return
     elif state_first_number == 4:  # 4?
+        controller.button_in_help_pressed(chat_id, text)
         return
     else:  # 5? - 9?
         controller.state_error_handler(chat_id, int(state))
@@ -246,7 +247,7 @@ def start(message: typ.Message):
     controller.start(message.chat.id, name)
 
 
-# ------------------------ message handlers for location
+# ------------------------ message handler for location
 
 
 @bot.message_handler(content_types=['location'])
