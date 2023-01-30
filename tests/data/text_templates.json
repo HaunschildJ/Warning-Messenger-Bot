@@ -1,0 +1,229 @@
+[
+  {
+    "topic": "replaceable_answers",
+    "all_answers": [
+      {
+        "topic": "covid_info",
+        "information": [
+          {
+            "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
+            "text": "%location:"
+          },
+          {
+            "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
+            "text": "Die Infektionsgefahr Stufe beträgt: %infektionsgefahr_stufe."
+          },
+          {
+            "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
+            "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis."
+          },
+          {
+            "description": "Schreib unten im text %sieben_tage_inzidenz_bundesland an die Stelle, wo die 7-Tage-Inzidenz im Bundesland stehen soll.",
+            "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland."
+          },
+          {
+            "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
+            "text": "Allgemeine Hinweise sind: %allgemeine_hinweise."
+          }
+        ]
+      },
+      {
+        "topic": "covid_rules",
+        "information": [
+          {
+            "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
+            "text": "%location:"
+          },
+          {
+            "description": "Schreib unten im text %vaccine_info an die Stelle, wo Impf-Infos stehen sollen.",
+            "text": "Infos über die Impfung: %vaccine_info."
+          },
+          {
+            "description": "Schreib unten im text %contact_terms an die Stelle, wo Abstandsregeln stehen sollen.",
+            "text": "Die Abstandsregeln lauten: %contact_terms."
+          },
+          {
+            "description": "Schreib unten im text %school_kita_rules an die Stelle, wo Regeln für Kitas/Schulen stehen sollen.",
+            "text": "Regeln für Kitas/Schulen lauten: %school_kita_rules."
+          },
+          {
+            "description": "Schreib unten im text %hospital_rules an die Stelle, wo Regeln für Kliniken stehen sollen.",
+            "text": "Regeln für Kliniken lauten: %hospital_rules."
+          },
+          {
+            "description": "Schreib unten im text %travelling_rules an die Stelle, wo Regeln für Reisen stehen sollen.",
+            "text": "Regeln für Reisen lauten: %travelling_rules."
+          },
+          {
+            "description": "Schreib unten im text %fines an die Stelle, wo Infos über Bußgelder stehen sollen.",
+            "text": "Infos über Bußgelder: %fines."
+          }
+        ]
+      },
+      {
+        "topic": "general_warning",
+        "information": [
+          {
+            "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
+            "text": "Der Titel der Warnung ist: %title"
+          },
+          {
+            "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
+            "text": "Die Warnung gilt seit: %start_date"
+          },
+          {
+            "description": "Schreibe %severity an die Stelle, wo die Dringlichkeit der Warnung stehen soll.",
+            "text": "Die Dringlichkeit der Warnung ist: %severity"
+          },
+          {
+            "description": "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
+            "text": "Der Typ der Warnung ist: %type"
+          }
+        ]
+      },
+      {
+        "topic": "greeting",
+        "information": [
+          {
+            "description": "Schreibe %username an die Stelle, wo der Name der nutzenden Person stehen soll.",
+            "text": "Hallo %username"
+          }
+        ]
+      },
+      {
+        "topic": "add_subscription",
+        "information": [
+          {
+            "description": "Schreibe %location_button an die Stelle, wo der Name der nutzenden Person stehen soll.",
+            "text": "Geben Sie entweder den Ort ein oder klicken sie auf \"%location_button\""
+          }
+        ]
+      },
+      {
+        "topic": "adding_subscription_warning",
+        "information": [
+          {
+            "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht.",
+            "text": "Wählen sie eine Warnung für %location aus:"
+          }
+        ]
+      },
+      {
+        "topic": "adding_subscription_level",
+        "information": [
+          {
+            "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht. Und %warning für die zugehörige Warnung.",
+            "text": "Wählen sie die Stufe der Warnung %warning für %location aus:"
+          }
+        ]
+      },
+      {
+        "topic": "delete_subscription",
+        "information": [
+          {
+            "description": "Schreibe %location an die Stelle, wo der Ortsname steht, für welchen die Warnung %warning entfernt wurde. ",
+            "text": "Für den Ort: %location wurde die Warnung: %warning erfolgreich gelöscht"
+          }
+        ]
+      },
+      {
+        "topic": "changed_auto_covid_updates",
+        "information": [
+          {
+            "description": "Schreibe %interval an die Stelle, wo stehen soll wie oft die nutzende Person nun Corona Updates erhält.",
+            "text": "Sie werden nun %interval automatische Corona Informationen bekommen."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "topic": "buttons",
+    "names": {
+      "settings": "Einstellungen ⚙",
+      "warnings": "Warnungen",
+      "emergency_tips": "Notfalltipps",
+      "help": "Hilfe",
+      "covid_information": "Corona Informationen",
+      "covid_rules": "Corona Regeln",
+      "back_to_main_menu": "Zurück zur Startseite",
+      "auto_warning": "Automatische Warnung",
+      "suggestion_location": "Standort zu Schnellzugriff hinzufügen",
+      "subscription": "Abonnements verwalten",
+      "auto_covid_info": "Automatische Coronawarnung",
+      "language": "Sprache auswählen",
+      "cancel": "Abbrechen",
+      "send_location": "Standort senden",
+      "flood": "Hochwasser Warnungen",
+      "general": "Generelle Warnungen",
+      "disaster": "Katastrophenwarnung",
+      "weather": "Wetter Warnungen",
+      "show_subscriptions": "Aktuelle Abos anzeigen",
+      "delete_subscription": "Abo löschen",
+      "add_subscription": "Abo hinzufügen",
+      "delete": "entfernen",
+      "never": "Nie",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "monthly": "Monatlich",
+      "minor": "alle",
+      "moderate": "mittel",
+      "severe": "ernst"
+    }
+  },
+  {
+    "topic": "answers",
+    "text": {
+      "yes": "Ja",
+      "no": "Nein",
+      "settings": "Sie sind jetzt in den Einstellungen.",
+      "warnings": "Sie sind jetzt in den Warnungen.",
+      "help": "Hier sind ein paar Tipps:",
+      "auto_warnings_text": "Möchtest du automatische Warnungen erhalten? (nur eingestellte)",
+      "auto_warnings_enable": "Sie erhalten ab jetzt automatische Warnungen.",
+      "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
+      "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
+      "back_to_main_menu": "Sie sind im Hauptmenü.",
+      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen, geben Sie \"[Stadtname oder PLZ]\" ein oder senden Sie ihren aktuellen Standort",
+      "manage_subscriptions": "Was möchten Sie tun?",
+      "manage_auto_covid_updates": "Wie oft möchten Sie automatische Corona Updates?",
+      "no_subscriptions": "Sie haben keine Abonnements.",
+      "click_suggestion": "Wählen Sie einen dieser Orte oder geben Sie einen Ort ein.",
+      "no_location_found": "Es konnten keine Städte gefunden werden."
+    }
+  },
+  {
+    "topic": "show_subscriptions",
+    "description": "Es wird zwischen jedem der Folgenden Zeilen ein Zeilenumbruch gemacht und sie werden zusammengeführt um die Abonnements der nutzenden Person anzuzeigen.",
+    "description2": "headline wird einmal am Anfang stehen, danach werden für je eine location immer die Warnungen mit den jeweiligen Warnstufen aufgelistet.",
+    "description3": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe.",
+    "headline": "Ihre Abonnements:",
+    "location": "\n%location:",
+    "warning": "\t%warning von Stufe %level"
+  },
+  {
+    "topic": "recommendations",
+    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
+    "description2": "%r in recommendation gibt an wo der Vorschlag stehen soll.",
+    "headline": "Ihnen werden nun folgende Orte vorgeschlagen:",
+    "recommendation": "%r",
+    "end": "\nSie können jetzt den nächsten Vorschlag eingeben."
+  },
+  {
+    "topic": "delete_subscription",
+    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+    "description2": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe. %button_name für den Name des dazugehörigen Buttons.",
+    "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
+    "location": "\n%location:",
+    "warning": "\t[%button_name] %warning von Stufe %level",
+    "end": ""
+  },
+  {
+    "topic": "select_location",
+    "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+    "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
+    "headline": "Wählen Sie aus was Sie meinten:",
+    "text": "[%button_name] %place_name ; %district_name",
+    "end": ""
+  }
+]

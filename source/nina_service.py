@@ -389,7 +389,7 @@ def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
     return warnings
 
 
-def get_warning_locations(warning: GeneralWarning):
+def get_warning_locations(warning: GeneralWarning) -> list[str]:
     """
 
     Args:
