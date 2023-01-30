@@ -7,10 +7,6 @@ import nina_service
 import subscriptions
 from nina_service import GeneralWarning, WarnType, WarningType, WarningSeverity
 
-# Test data
-_TEST_DATA_PATH = './../tests/data/data.json'
-_TEST_WARNINGS_ALREADY_RECEIVED_PATH = './../tests/data/warnings_already_received.json'
-
 
 def get_test_subscription(warn_type: nina_service.WarnType, warning_severity: nina_service.WarningSeverity,
                           place_id="064110000000"):
@@ -56,9 +52,62 @@ def get_test_general_warning(warning_id, severity: WarningSeverity, version=0, s
 
 class TestSubscriptions(TestCase):
 
+    @patch('controller.general_warning')
+    @patch('data_service.add_warning_id_to_users_warnings_received_list')
+    @patch('subscriptions._should_user_receive_this_warning')
+    @patch('data_service.get_chat_ids_of_warned_users')
+    @patch('nina_service.get_all_active_warnings')
+    def test_warn_users(self,
+                        get_all_active_warnings_mock,
+                        get_chat_ids_of_warned_users_mock,
+                        should_user_receive_this_warning_mock,
+                        add_warning_id_to_users_warnings_received_list_mock,
+                        general_warning_mock):
+        # Mock data_service (database should not be affected by tests)
+        add_warning_id_to_users_warnings_received_list_mock.side_effect = \
+            lambda chat_id, warning_id: print(f"Added warning_id {warning_id} to database")
+
+        # Mock controller
+        general_warning_mock.side_effect = lambda chat_id, warn_type, warning: print("Sent warning")
+
+        # Mock active warnings + warn_type
+        warning_1 = (get_test_general_warning(warning_id="WARNING_ID_ABC", severity=WarningSeverity.Moderate),
+                     WarnType.FLOOD)
+        warning_2 = (get_test_general_warning(warning_id="WARNING_ID_DEF", severity=WarningSeverity.Severe),
+                     WarnType.DISASTER)
+
+        # Mock chat ids
+        chat_ids = [123, 456]
+
+        with self.subTest('There are no active warnings'):
+            get_all_active_warnings_mock.return_value = []
+            get_chat_ids_of_warned_users_mock.return_value = chat_ids
+            result = subscriptions.warn_users()
+            self.assertFalse(result)
+
+        with self.subTest('There are active warnings but no user wants to be warned'):
+            get_all_active_warnings_mock.return_value = [warning_1, warning_2]
+            get_chat_ids_of_warned_users_mock.return_value = []
+            result = subscriptions.warn_users()
+            self.assertFalse(result)
+
+        with self.subTest('There are active warnings and all users want to be warned'):
+            should_user_receive_this_warning_mock.return_value = True
+            get_chat_ids_of_warned_users_mock.return_value = chat_ids
+            result = subscriptions.warn_users()
+            self.assertTrue(result)
+
+        with self.subTest('There are active warnings and some users want to be warned'):
+            should_user_receive_this_warning_mock.side_effect = lambda chat_id, warning, warn_type: chat_id == 123
+            get_chat_ids_of_warned_users_mock.return_value = chat_ids
+            general_warning_mock.call_count = 0
+            result = subscriptions.warn_users()
+            self.assertEqual(general_warning_mock.call_count, 2)  # only chat_id=123 should be warned
+            self.assertTrue(result)
+
+    @patch('nina_service.get_warning_locations')
     @patch('data_service.has_user_already_received_warning')
     @patch('data_service.get_subscriptions')
-    @patch('nina_service.get_warning_locations')
     def test_should_user_receive_this_warning(self,
                                               get_subscriptions_mock,
                                               has_user_already_received_warning_mock,
@@ -87,7 +136,7 @@ class TestSubscriptions(TestCase):
         with self.subTest('User has a matching subscription for the warning'):
             has_user_already_received_warning_mock.return_value = False
             get_subscriptions_mock.return_value = demo_subscriptions
-            # get_warning_locations_mock.return_value = warning_locations
+            get_warning_locations_mock.return_value = warning_locations
             result = subscriptions._should_user_receive_this_warning(chat_id, warning, warn_type)
             self.assertTrue(result)
 
@@ -137,8 +186,7 @@ class TestSubscriptions(TestCase):
             result = subscriptions._is_warning_relevant_for_subscription(warning, demo_subscription, WarnType.DISASTER)
             self.assertFalse(result)
 
-
-
+    # TODO the implementation for this function will change so no test yet
     def test_subscription_location_matches_warning_location(self):
         with self.subTest('Subscription location matches warning location'):
             self.assertTrue(True)

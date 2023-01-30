@@ -1,9 +1,10 @@
+import time
+
+import controller
 import data_service
 import nina_service
-from nina_service import WarnType, WarningType, WarningSeverity, GeneralWarning, get_all_active_warnings
-import controller
-import time
 import place_converter
+from nina_service import WarnType, GeneralWarning
 
 
 def start_subscriptions(minutes_to_wait: int = 2):
@@ -19,17 +20,19 @@ def start_subscriptions(minutes_to_wait: int = 2):
     print("Subscriptions running...")
     while True:
         warn_users()
-        time.sleep(minutes_to_wait*60)
+        time.sleep(minutes_to_wait * 60)
 
 
-def warn_users():
+def warn_users() -> bool:
     """
 
     Warns every user following his warning subscriptions.
 
+    Returns: True if at least one user was warned
+
     """
     chat_ids_of_warned_users = data_service.get_chat_ids_of_warned_users()
-    active_warnings = get_all_active_warnings()
+    active_warnings = nina_service.get_all_active_warnings()
     warnings_sent_counter = 0
     for (warning, warn_type) in active_warnings:
         for chat_id in chat_ids_of_warned_users:
@@ -40,6 +43,8 @@ def warn_users():
 
     print(f'There are {str(len(active_warnings))} active warnings.')
     print(f'{warnings_sent_counter} users were warned.\n')
+
+    return warnings_sent_counter > 0
 
 
 def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, warn_type: WarnType) -> bool:
@@ -53,7 +58,7 @@ def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, war
     Returns: True if user should receive the specified warning
 
     """
-
+    print(data_service.has_user_already_received_warning(chat_id, warning.id))
     if data_service.has_user_already_received_warning(chat_id, warning.id):
         return False
     subscriptions = data_service.get_subscriptions(chat_id)
@@ -108,11 +113,3 @@ def _subscription_location_matches_warning_location(subscription_location_name: 
             if word.strip() == location:
                 return True
     return subscription_location_name in lower_case_locations_list
-
-
-
-
-
-
-
-
