@@ -52,6 +52,7 @@ def create_inline_button(text: str, callback_data: str) -> telebot.types.InlineK
         text: a string with the button text
         callback_data: a string (only string?) data to be sent in a callback query to the bot when button is pressed
     Returns:
+        object:
         Nothing
     """
     return telebot.types.InlineKeyboardButton(text, callback_data=callback_data)
