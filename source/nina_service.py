@@ -107,7 +107,7 @@ class WarningSeverity(Enum):
     MINOR = "Minor"
     MODERATE = "Moderate"
     SEVERE = "Severe"
-    UNKNOWN ="Unknown"
+    UNKNOWN = "Unknown"
 
 
 def _get_warning_severity(warn_severity: str) -> WarningSeverity:
@@ -286,7 +286,7 @@ def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
         return geocode
 
     for i in range(0, len(response_geocode)):
-        geocode.append(_get_safely(response_geocode[i],"value"))
+        geocode.append(_get_safely(response_geocode[i], "value"))
 
     return geocode
 
@@ -297,8 +297,8 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
         return area
 
     for i in range(0, len(response_area)):
-        area_description = _get_safely(response_area[i],"areaDesc")
-        geocode = _get_detailed_warning_infos_area_geocode(_get_safely(response_area[i],"geocode"))
+        area_description = _get_safely(response_area[i], "areaDesc")
+        geocode = _get_detailed_warning_infos_area_geocode(_get_safely(response_area[i], "geocode"))
         area.append(
             DetailedWarningInfoArea(area_description=area_description, geocode=geocode)
         )
@@ -314,11 +314,11 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
     for i in range(0, len(response_infos)):
         info = response_infos[i]
 
-        event = _get_safely(info,"event")
-        severity = _get_warning_severity(_get_safely(info,"severity"))
-        headline = _get_safely(info,"headline")
-        description = nina_string_helper.filter_html_tags(_get_safely(info,"description"))
-        area = _get_detailed_warning_infos_area(_get_safely(info,"area"))
+        event = _get_safely(info, "event")
+        severity = _get_warning_severity(_get_safely(info, "severity"))
+        headline = _get_safely(info, "headline")
+        description = nina_string_helper.filter_html_tags(_get_safely(info, "description"))
+        area = _get_detailed_warning_infos_area(_get_safely(info, "area"))
 
         date_expires = _get_safely(info, "expires")
         if (date_expires is not None):
@@ -350,9 +350,27 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     if date_sent is not None:
         date_sent = _translate_time(date_sent)
 
-    infos = _get_detailed_warning_infos(_get_safely(response, "info")) #_get_detailed_warning_infos already checks if the input is None
+    infos = _get_detailed_warning_infos(
+        _get_safely(response, "info"))  # _get_detailed_warning_infos already checks if the input is None
 
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
+
+
+def get_detailed_warning_geo(warning_id: str):
+    """
+    This method should be called after a warning with one of the poll_****_warning methods was received
+    Args:
+        warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
+
+    Returns:
+        the detailed Warning as a geojson
+    
+    Raises:
+         HTTPError:
+    """
+    response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".geojson")
+    response = response_raw.json()
+    return response
 
 
 def _poll_disaster_warnings() -> list[GeneralWarning]:
@@ -361,7 +379,7 @@ def _poll_disaster_warnings() -> list[GeneralWarning]:
 
 
 def _poll_general_warnings() -> list[GeneralWarning]:
-    result = [poll_police_warning(), poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning()]
+    result = [poll_police_warning(),  poll_katwarn_warning()]
     return _filter_disaster_warnings(result)
 
 
