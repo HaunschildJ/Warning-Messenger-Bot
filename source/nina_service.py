@@ -103,6 +103,7 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     return CovidInfo(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
 
 
+#TODO enum values should be UPPER_CASE
 class WarningSeverity(Enum):
     Minor = 0
     Moderate = 1
@@ -410,7 +411,7 @@ def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
     return warnings
 
 
-def get_warning_locations(warning: GeneralWarning):
+def get_warning_locations(warning: GeneralWarning) -> list[str]:
     """
 
     Args:
