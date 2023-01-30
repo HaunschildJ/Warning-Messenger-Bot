@@ -50,7 +50,7 @@ def _print_detailed_warning_infos(infos:  list[DetailedWarningInfo]):
     for info in infos:
         print("info:")
         print("\t"+ "event: "+ _none_or_value_to_str(info.event))
-        print("\t"+ "severity: "+ _none_or_value_to_str(info.severity.name))
+        print("\t"+ "severity: "+ _none_or_value_to_str(info.severity.value))
         print("\t"+ "date_expires: "+ _none_or_value_to_str(info.date_expires))
         print("\t"+ "headline: "+ _none_or_value_to_str(info.headline))
         print("\t"+ "description: "+ _none_or_value_to_str(info.description))

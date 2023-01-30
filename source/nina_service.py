@@ -104,10 +104,10 @@ def get_covid_infos(district_id: str) -> CovidInfo:
 
 
 class WarningSeverity(Enum):
-    Minor = 0
-    Moderate = 1
-    Severe = 2
-    Unknown = 3
+    MINOR = "Minor"
+    MODERATE = "Moderate"
+    SEVERE = "Severe"
+    UNKNOWN ="Unknown"
 
 
 def _get_warning_severity(warn_severity: str) -> WarningSeverity:
@@ -117,16 +117,16 @@ def _get_warning_severity(warn_severity: str) -> WarningSeverity:
     :return: if the string is a valid enum, the enum if not: WarningSeverity.Unknown
     """
     try:
-        return WarningSeverity[warn_severity]
+        return WarningSeverity(warn_severity)
     except KeyError:
-        return WarningSeverity.Unknown
+        return WarningSeverity.UNKNOWN
 
 
 class WarningType(Enum):
-    Update = 0
-    Alert = 1
-    Cancel = 2
-    Unknown = 3
+    UPDATE = "Update"
+    ALERT = "Alert"
+    CANCEL = "Cancel"
+    UNKNOWN = "Unknown"
 
 
 def _get_warning_type(warn_type: str) -> WarningType:
@@ -136,9 +136,9 @@ def _get_warning_type(warn_type: str) -> WarningType:
     :return: if the string is a valid enum, the enum if not: WarningType.Unknown
     """
     try:
-        return WarningType[warn_type]
+        return WarningType(warn_type)
     except KeyError:
-        return WarningType.Unknown
+        return WarningType.UNKNOWN
 
 
 @dataclass
