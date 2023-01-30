@@ -1,4 +1,5 @@
 import telebot.types
+from requests import HTTPError
 
 import sender
 import text_templates
@@ -75,6 +76,26 @@ def _get_help_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     privacy = sender.create_button(HELP_PRIVACY_TEXT)
     back = sender.create_button(BACK_TO_MAIN_TEXT)
     keyboard.add(bot_info, faq).add(imprint, privacy).add(back)
+    return keyboard
+
+
+def _get_emergency_pdfs_keyboard() -> telebot.types.ReplyKeyboardMarkup:
+    """
+    This is a helper method which returns the keyboard for the emergency PDFs menu
+
+    Returns:
+         telebot.types.ReplyKeyboardMarkup
+    """
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=False, one_time_keyboard=False)
+    # TODO get pdf names from nina
+    list_names = ["Richtig handeln im Notfall", "Besondere Gefahren", "Hochwasser", "Unwetter", "Stromausfall", "Feuer",
+                  "Gefahrenstoffe", "Persönliche Notfallvorsorge", "Stromspartipps für Smartphones", "Hitze"]
+    for name in list_names:
+        button = sender.create_button(name)
+        keyboard.add(button)
+
+    back = sender.create_button(BACK_TO_MAIN_TEXT)
+    keyboard.add(back)
     return keyboard
 
 
@@ -301,11 +322,12 @@ def main_button_pressed(chat_id: int, button_text: str):
         sender.send_message(chat_id, text_templates.get_answers(Answers.WARNINGS), keyboard)
     elif button_text == TIP_BUTTON_TEXT:
         data_service.set_user_state(chat_id, 3)
-        # TODO tips
-        data_service.set_user_state(chat_id, 0)  # remove when implemented
-        sender.send_message(chat_id, "TODO tips")
+        # the keyboard for the emergency tips
+        keyboard = _get_emergency_pdfs_keyboard()
+        sender.send_message(chat_id, text_templates.get_button_name(Button.EMERGENCY_TIPS), keyboard)
     elif button_text == HELP_BUTTON_TEXT:
         data_service.set_user_state(chat_id, 4)
+        # the keyboard for the help menu
         keyboard = _get_help_keyboard_buttons()
         sender.send_message(chat_id, text_templates.get_answers(Answers.HELP), keyboard)
     else:
@@ -746,10 +768,79 @@ def general_warning(chat_id: int, warning: WarnType, warnings: list[nina_service
             sender.send_message(chat_id, message, keyboard)
         except:
             counter += 1
-    if counter == (len(warnings)+1)/2 and counter != 0:
+    if counter == (len(warnings) + 1) / 2 and counter != 0:
         print("Something with pulling general warnings from the nina-API went wrong (" + str(counter) + " of " +
               str(len(warnings)) + " tries failed)")
         error_handler(chat_id, ErrorCodes.NINA_API)
+        return
+
+
+def detailed_general_warning(chat_id: int, warning: WarnType, place_id: str,
+                             warnings: list[nina_service.GeneralWarning] = None):
+    """
+    Sets the chat action of the bot to typing
+    Calls for the warnings (warning) from the Nina API via the nina_service
+    Or if warning is NONE then the given list warnings will be sent to the user
+    Sends this information back to the chat (chat_id)
+
+    Args:
+        chat_id:
+        warning:
+        place_id:
+        warnings:
+    """
+    keyboard = None
+    if warning != nina_service.WarnType.NONE:
+        sender.send_chat_action(chat_id, "typing")
+        keyboard = _get_warning_keyboard_buttons()
+        data_service.set_user_state(chat_id, 2)
+        try:
+            warnings = nina_service.call_general_warning(warning)
+        except HTTPError:
+            error_handler(chat_id, ErrorCodes.NINA_API)
+            return
+        if len(warnings) == 0:
+            sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
+                                keyboard)
+            return
+
+    counter = 0
+    for warning_from_nina in warnings:
+        message = text_templates.get_general_warning_message(str(warning_from_nina.id),
+                                                             str(warning_from_nina.version),
+                                                             warning_from_nina.start_date,
+                                                             str(warning_from_nina.severity.value),
+                                                             str(warning_from_nina.type.name),
+                                                             warning_from_nina.title)
+        try:
+            detail = nina_service.get_detailed_warning(warning_from_nina.id)
+            # TODO add detail
+            sender.send_message(chat_id, message, keyboard)
+        except:
+            counter += 1
+    # if the api throws too many exceptions let the user know
+    if counter == (len(warnings) + 1) / 2 and counter != 0:
+        print("Something with pulling general warnings from the nina-API went wrong (" + str(counter) + " of " +
+              str(len(warnings)) + " tries failed)")
+        error_handler(chat_id, ErrorCodes.NINA_API)
+        return
+
+    if warning != nina_service.WarnType.NONE:
+        subscriptions = data_service.get_subscriptions(chat_id)
+        # if the called warning is not in the users subscriptions yet, ask if they want to add it
+        if place_id not in subscriptions:
+            markup = InlineKeyboardMarkup()
+            command = Commands.ADD_SUBSCRIPTION.value + ";" + place_id + ";"
+
+            button = sender.create_inline_button(text_templates.get_answers(Answers.YES), command + str(warning.value))
+            markup.add(button)
+
+            cancel_button = sender.create_inline_button(CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
+            markup.add(cancel_button)
+            location_name = place_converter.get_name_for_id(place_id)
+            warning_name = _get_general_warning_name(warning)
+            answer = text_templates.get_quickly_add_to_subscriptions_message(location_name, warning_name)
+            sender.send_message(chat_id, answer, markup)
 
 
 def covid_info(chat_id: int, city_name: str, district_id: str, info: nina_service.CovidInfo = None):

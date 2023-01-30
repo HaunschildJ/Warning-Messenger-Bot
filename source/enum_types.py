@@ -86,6 +86,7 @@ class WarningSeverity(Enum):
     MINOR = "Minor"
     MODERATE = "Moderate"
     SEVERE = "Severe"
+    EXTREME = "Extreme"
     MANUAL = "Manual"
 
 
@@ -120,6 +121,7 @@ class ReplaceableAnswer(Enum):
     ADDING_SUBSCRIPTION_LEVEL = "adding_subscription_level"
     DELETE_SUBSCRIPTION = "delete_subscription"
     CHANGED_AUTO_COVID_UPDATES = "changed_auto_covid_updates"
+    QUICKLY_ADD_TO_SUBSCRIPTIONS = "quickly_add_to_subscriptions"
 
 
 class Button(Enum):
@@ -155,6 +157,7 @@ class Button(Enum):
     MINOR = "minor"  # name should be equal to name in nina_service.WarningSeverity
     MODERATE = "moderate"  # name should be equal to name in nina_service.WarningSeverity
     SEVERE = "severe"  # name should be equal to name in nina_service.WarningSeverity
+    EXTREME = "extreme"  # name should be equal to name in nina_service.WarningSeverity
     DELETE_DATA_SUBSCRIPTIONS = "delete_data_subscriptions"
     DELETE_DATA_FAVORITES = "delete_data_favorites"
     DELETE_DATA_EVERYTHING = "delete_data_everything"

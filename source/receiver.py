@@ -301,13 +301,13 @@ def other_warnings_button(call: typ.CallbackQuery):
     district_id = split_message[2]
     # TODO when glib is done in nina_service so i can call general warnings for a specific location
     if split_message[0] == Commands.WEATHER.value:
-        controller.general_warning(chat_id, WarnType.WEATHER)
+        controller.detailed_general_warning(chat_id, WarnType.WEATHER, place_id)
     elif split_message[0] == Commands.DISASTER.value:
-        controller.general_warning(chat_id, WarnType.DISASTER)
+        controller.detailed_general_warning(chat_id, WarnType.DISASTER, place_id)
     elif split_message[0] == Commands.FLOOD.value:
-        controller.general_warning(chat_id, WarnType.FLOOD)
+        controller.detailed_general_warning(chat_id, WarnType.FLOOD, place_id)
     elif split_message[0] == Commands.GENERAL.value:
-        controller.general_warning(chat_id, WarnType.GENERAL)
+        controller.detailed_general_warning(chat_id, WarnType.GENERAL, place_id)
     else:
         controller.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
     controller.delete_message(chat_id, call.message.id)

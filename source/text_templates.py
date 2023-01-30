@@ -385,6 +385,24 @@ def get_changed_auto_covid_updates_message(interval: str) -> str:
     return message
 
 
+def get_quickly_add_to_subscriptions_message(location_name: str, warning_name: str) -> str:
+    """
+    This method will return the message that is sent to the user when they get asked if they want to add a warning to
+    subscriptions
+
+    Arguments:
+        location_name: string with the location name
+        warning_name: string with the warning name
+
+    Returns:
+        string with the message asking the user if they want to add the warning to their subscriptions
+    """
+    message = get_replaceable_answer(ReplaceableAnswer.QUICKLY_ADD_TO_SUBSCRIPTIONS)
+    message = message.replace("%warning", warning_name)
+    message = message.replace("%location", location_name)
+    return message
+
+
 def get_show_recommendations_message(recommendations: list[str]) -> str:
     """
     This method will build the message containing the recommendations that the user has set

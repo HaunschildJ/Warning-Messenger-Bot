@@ -1,10 +1,17 @@
 {
     "5635169582": {
-        "current_state": 4,
+        "current_state": 0,
         "receive_warnings": true,
         "receive_covid_information": 0,
         "default_level": "Manual",
-        "locations": {},
+        "locations": {
+            "064110000000": {
+                "weather": "severe"
+            },
+            "110000000000": {
+                "disaster": "moderate"
+            }
+        },
         "recommendations": [
             {
                 "name": "Berlin, Stadt",

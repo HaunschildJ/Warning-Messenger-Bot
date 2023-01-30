@@ -138,6 +138,15 @@
             "text": "Sie werden nun %interval automatische Corona Informationen bekommen."
           }
         ]
+      },
+      {
+        "topic": "quickly_add_to_subscriptions",
+        "information": [
+          {
+            "description": "Schreibe %location an die Stelle, wo der Ortsname steht, für welchen die Warnung %warning entfernt wurde. ",
+            "text": "Möchtest du für %location die Warnung %warning direkt abonnieren?"
+          }
+        ]
       }
     ]
   },
@@ -177,6 +186,7 @@
       "moderate": "mittel",
       "severe": "ernst",
       "manual": "manuell",
+      "extreme": "extrem",
       "delete_data_subscriptions": "Alle Abonnements löschen",
       "delete_data_favorites": "Ortsfavoriten zurücksetzten",
       "delete_data_everything": "Alle Daten löschen",
