@@ -465,29 +465,26 @@ def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, sug
     return suggested_dicts_postal_code
 
 
-def get_non_covid_suggestion_dicts_from_coordinates(latitude: float, longitude: float, suggestion_limit=11) \
-        -> list[dict]:
+def get_non_covid_dict_from_coordinates(latitude: float, longitude: float) -> list[dict]:
     """
-    Returns a list of dicts {'postal_code', 'place_name', 'district_name', 'district_id'} that fit the given
+    Returns a dict {'postal_code', 'place_name', 'district_name', 'district_id'} that fits the given
     coordinates
 
     Arguments:
         latitude (float): latitude of coordinate
         longitude (float): longitude of coordinate
-        suggestion_limit (int): limits the number of suggestions to the top x, 11 by default
     Returns:
-        suggested_dicts (list[dict]): dicts that fit the infos
+        postal_dict (dict): dict that fits the infos
     """
     place_tuple = _get_exact_address_from_coordinates(latitude, longitude)
 
     postal_code = place_tuple[1]
     record = _postal_code_dictionary[postal_code]
 
-    dict_list = []
     postal_dict = {'postal_code': postal_code, 'place_name': record[0],
                    'district_name': _districts_dictionary[record[1]], 'district_id': record[1]}
-    dict_list.append(postal_dict)
-    return dict_list
+
+    return postal_dict
 
 
 def get_postal_code_dicts_in_polygon(coordinate_list: list) -> list[dict]:
