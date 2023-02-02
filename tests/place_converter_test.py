@@ -480,6 +480,9 @@ class MyTestCase(unittest.TestCase):
                                                 [11.8779226, 48.6537032]]]
         self.assertEqual(should_be, place_converter._postal_code_dictionary[input_value])
 
+    def test_fill_postal_place_dict(self):
+        pass
+
     def test_get_exact_address_from_coordinates(self):
         # if district is not mentioned in address
         input_lat = 49.866888380007595
