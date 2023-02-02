@@ -3,11 +3,10 @@ import telebot.types as typ
 import bot
 import controller
 import data_service
+import error
+import frontend_helper
 
-from enum_types import Commands
-from enum_types import ErrorCodes
-from enum_types import WarnType
-
+from enum_types import Commands, WarnType, ErrorCodes
 
 bot = bot.bot
 
@@ -110,11 +109,8 @@ def normal_message_handler(message: typ.Message):
     state = str(data_service.get_user_state(chat_id))
     state_first_number = int(state[0])
     text = message.text
-    if text == controller.BACK_TO_MAIN_TEXT:
-        controller.back_to_main_keyboard(chat_id)
-        return
-    elif text.lower() == "du bist doof":
-        controller.sender.send_message(chat_id, "🤨")
+    if text == frontend_helper.BACK_TO_MAIN_TEXT:
+        frontend_helper.back_to_main_keyboard(chat_id)
         return
     if state_first_number == 0:  # 0
         # Main Menu: there are no substates in the Main Menu
@@ -145,10 +141,10 @@ def normal_message_handler(message: typ.Message):
                     elif state_third_number == 2 or state_third_number == 3 or state_third_number == 4:  # 102? - 104?
                         # deleting a subscription or default warning level or silence subscriptions
                         # --> they don't expect an input
-                        controller.error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED)
+                        error.error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED, state=int(state), message=text)
                         return
                     else:  # 105? - 109?
-                        controller.state_error_handler(chat_id, int(state))
+                        error.illegal_state_handler(chat_id, int(state))
                         return
             elif state_second_number == 1:  # 11?
                 # add location favorites
@@ -159,7 +155,7 @@ def normal_message_handler(message: typ.Message):
                 controller.button_in_delete_data_pressed(chat_id, text)
                 return
             else:  # 13? - 19?
-                controller.state_error_handler(chat_id, int(state))
+                error.illegal_state_handler(chat_id, int(state))
                 return
     elif state_first_number == 2:  # 2?
         # manual warnings
@@ -185,7 +181,7 @@ def normal_message_handler(message: typ.Message):
                         controller.location_for_warning(chat_id, text, Commands.COVID_RULES)
                         return
                     else:  # 202? - 209?
-                        controller.state_error_handler(chat_id, int(state))
+                        error.illegal_state_handler(chat_id, int(state))
                         return
             elif state_second_number == 1:  # 21?
                 # Weather
@@ -204,15 +200,16 @@ def normal_message_handler(message: typ.Message):
                 controller.location_for_warning(message.chat.id, text, Commands.GENERAL)
                 return
             else:  # 25? - 29?
-                controller.state_error_handler(chat_id, int(state))
+                error.illegal_state_handler(chat_id, int(state))
                 return
     elif state_first_number == 3:  # 3?
+        controller.button_in_emergency_tips_pressed(chat_id, text)
         return
     elif state_first_number == 4:  # 4?
         controller.button_in_help_pressed(chat_id, text)
         return
     else:  # 5? - 9?
-        controller.state_error_handler(chat_id, int(state))
+        error.illegal_state_handler(chat_id, int(state))
 
 
 @bot.message_handler(func=filter_command_message)
@@ -223,9 +220,9 @@ def command_message_handler(message: typ.Message):
     if ("start" in text) or text == "begin":
         start(message)
     elif ("help" in text) or ("hilf" in text):
-        controller.help_handler(chat_id, state)
+        controller.help_handler(chat_id, str(state))
     else:
-        controller.error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
+        error.error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
 
 
 def start(message: typ.Message):
@@ -233,7 +230,7 @@ def start(message: typ.Message):
     This method is called when the user sends '/start' (mainly for the start of the conversation with the bot)
     and will then initiate the chat with the user by calling start in controller
 
-    Arguments:
+    Args:
         message: the message that the user sent in the chat
     """
     name = message.chat.username
@@ -255,7 +252,7 @@ def send_location_pressed(message: typ.Message):
     """
     This method is called whenever the user sends a location in the chat and will give the location to the controller
 
-    Arguments:
+    Args:
         message: the message that the user sent in the chat
     """
     long = message.location.longitude
@@ -273,7 +270,7 @@ def covid_button(call: typ.CallbackQuery):
     the desired output \n
     It will also delete the inline buttons
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     chat_id = call.message.chat.id
@@ -295,7 +292,7 @@ def other_warnings_button(call: typ.CallbackQuery):
     chat_id = call.message.chat.id
     split_message = call.data.split(';')
     if len(split_message) < 3:
-        controller.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
         return
     place_id = split_message[1]
     district_id = split_message[2]
@@ -309,7 +306,7 @@ def other_warnings_button(call: typ.CallbackQuery):
     elif split_message[0] == Commands.GENERAL.value:
         controller.detailed_general_warning(chat_id, WarnType.GENERAL, place_id)
     else:
-        controller.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
     controller.delete_message(chat_id, call.message.id)
 
 
@@ -320,7 +317,7 @@ def auto_warning_button(call: typ.CallbackQuery):
     the automatic warning boolean in the database to what the user wants\n
     It will also delete the inline buttons
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     chat_id = call.message.chat.id
@@ -338,13 +335,13 @@ def auto_covid_updates_button(call: typ.CallbackQuery):
     to set the automatic covid updates int in the database to what the user wants\n
     It will also delete the inline buttons
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     chat_id = call.message.chat.id
     split_data = call.data.split(' ')
     if len(split_data) != 2:
-        controller.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
 
     controller.change_auto_covid_updates_in_database(chat_id, int(split_data[1]))
     controller.delete_message(chat_id, call.message.id)
@@ -355,7 +352,7 @@ def add_subscription_callback(call: typ.CallbackQuery):
     """
     This method is a callback_handler for the inline buttons when adding a subscription
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     chat_id = call.message.chat.id
@@ -368,7 +365,7 @@ def delete_subscription_callback(call: typ.CallbackQuery):
     """
     This method is a callback_handler for the inline buttons when deleting a subscription
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     chat_id = call.message.chat.id
@@ -380,11 +377,11 @@ def cancel_button(call: typ.CallbackQuery):
     """
     This method is a callback_handler for cancel inline buttons and will delete the inline buttons
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     controller.delete_message(call.message.chat.id, call.message.id)
-    controller.back_to_main_keyboard(call.message.chat.id)
+    frontend_helper.back_to_main_keyboard(call.message.chat.id)
 
 
 @bot.callback_query_handler(func=filter_callback_add_recommendation)
@@ -392,12 +389,12 @@ def add_recommendation(call: typ.CallbackQuery):
     """
     This method is called whenever the user presses a button for adding a recommendation
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     split_message = call.data.split(';')
     if len(split_message) < 3:
-        controller.error_handler(call.message.chat.id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(call.message.chat.id, ErrorCodes.CALLBACK_MISTAKE)
         return
     place_id = split_message[1]
     district_id = split_message[2]
@@ -410,12 +407,12 @@ def set_default_level(call: typ.CallbackQuery):
     """
     This method gets called when the user selects a default level for all Warnings
 
-    Arguments:
+    Args:
         call: data that has been sent by the inline button
     """
     split_message = call.data.split(';')
     if len(split_message) != 2:
-        controller.error_handler(call.message.chat.id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(call.message.chat.id, ErrorCodes.CALLBACK_MISTAKE)
         return
     controller.set_default_level(call.message.chat.id, split_message[1])
     controller.delete_message(call.message.chat.id, call.message.id)
@@ -442,13 +439,13 @@ def covid_helper(chat_id: int, message_string: str):
     With the message/text the user/button sent (message_string) this method will then call the corresponding method in
     controller so that the desired output will be sent to the user
 
-    Arguments:
+    Args:
         chat_id: an integer for the chatID that the message is sent to
         message_string: a string of the message/text that is sent by the user/button
     """
     split_message = message_string.split(';')
     if len(split_message) < 3:
-        controller.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
         return
     place_id = split_message[1]
     district_id = split_message[2]
@@ -457,7 +454,7 @@ def covid_helper(chat_id: int, message_string: str):
     elif split_message[0] == Commands.COVID_RULES.value:
         controller.covid_rules(chat_id, None, district_id)
     else:
-        controller.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
+        error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
 
 
 def start_receiver():
