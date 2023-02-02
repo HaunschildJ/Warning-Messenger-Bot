@@ -58,7 +58,6 @@ def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, war
     Returns: True if user should receive the specified warning
 
     """
-    print(data_service.has_user_already_received_warning(chat_id, warning.id))
     if data_service.has_user_already_received_warning(chat_id, warning.id):
         return False
     subscriptions = data_service.get_subscriptions(chat_id)
