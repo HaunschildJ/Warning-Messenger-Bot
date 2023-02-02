@@ -7,7 +7,7 @@
         "information": [
           {
             "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
-            "text": "%location:"
+            "text": "Der abgefragte Ortsname lautet: %location:"
           },
           {
             "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
@@ -23,7 +23,7 @@
           },
           {
             "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
-            "text": "Allgemeine Hinweise sind: %allgemeine_hinweise."
+            "text": "Die allgemeinen Hinweise lauten: %allgemeine_hinweise."
           }
         ]
       },
@@ -32,7 +32,7 @@
         "information": [
           {
             "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
-            "text": "%location:"
+            "text": "Der abgefragte Ortsname lautet: %location:"
           },
           {
             "description": "Schreib unten im text %vaccine_info an die Stelle, wo Impf-Infos stehen sollen.",
@@ -44,19 +44,19 @@
           },
           {
             "description": "Schreib unten im text %school_kita_rules an die Stelle, wo Regeln für Kitas/Schulen stehen sollen.",
-            "text": "Regeln für Kitas/Schulen lauten: %school_kita_rules."
+            "text": "Die Regeln für Kitas/Schulen lauten: %school_kita_rules."
           },
           {
             "description": "Schreib unten im text %hospital_rules an die Stelle, wo Regeln für Kliniken stehen sollen.",
-            "text": "Regeln für Kliniken lauten: %hospital_rules."
+            "text": "Die Regeln für Kliniken lauten: %hospital_rules."
           },
           {
             "description": "Schreib unten im text %travelling_rules an die Stelle, wo Regeln für Reisen stehen sollen.",
-            "text": "Regeln für Reisen lauten: %travelling_rules."
+            "text": "Die Regeln für Reisen lauten: %travelling_rules."
           },
           {
             "description": "Schreib unten im text %fines an die Stelle, wo Infos über Bußgelder stehen sollen.",
-            "text": "Infos über Bußgelder: %fines."
+            "text": "Informationen über Bußgelder: %fines."
           }
         ]
       },
@@ -65,7 +65,7 @@
         "information": [
           {
             "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
-            "text": "Der Titel der Warnung ist: %title"
+            "text": "Der Titel der Warnung lautet: %title"
           },
           {
             "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
@@ -86,11 +86,7 @@
         "information": [
           {
             "description": "Schreibe %username an die Stelle, wo der Name der nutzenden Person stehen soll.",
-            "text": "Hallo %username, \nMöchten Sie beim Einstellen von Abonnements alle Warnungen erhalten, \nWarnungen von mittlerer Wichtigkeit oder nur sehr ernste Warnungen erhalten?"
-          },
-          {
-            "description": "",
-            "text": "Wenn Sie möchten können Sie auch manuell beim Erstellen der Abonnements für jede Warnung eine Wichtigkeit angeben."
+            "text": "Hallo, dies ist ein Warning Messenger Bot. Hier kannst du Warnungen abrufen oder automatisch erhalten.\n\nDie Warnungen stammen von der NINA Warnapp der Bundesregierung und sind zugänglich über https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/warn-app-nina_node.html"
           }
         ]
       },
@@ -98,8 +94,8 @@
         "topic": "add_subscription",
         "information": [
           {
-            "description": "Schreibe %location_button an die Stelle, wo der Name der nutzenden Person stehen soll.",
-            "text": "Geben Sie entweder den Ort ein oder klicken sie auf \"%location_button\""
+            "description": "Schreibe %location_button an die Stelle, wo der Ortsname stehen soll.",
+            "text": "Du bist dabei, ein Abonnement hinzuzufügen. Damit ich weiß, um welche Stadt es sich handelt, gibt es zwei Möglichkeiten:\n\n1. Gib den Namen der Stadt oder ihre PLZ ein.\n2. Klick auf \"%location_button.\""
           }
         ]
       },
@@ -108,7 +104,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht.",
-            "text": "Wählen sie eine Warnung für %location aus:"
+            "text": "Wähle eine Warnung für %location aus:"
           }
         ]
       },
@@ -117,7 +113,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht. Und %warning für die zugehörige Warnung.",
-            "text": "Wählen sie die Stufe der Warnung %warning für %location aus:"
+            "text": "Wähle die Stufe der %warning für %location aus:"
           }
         ]
       },
@@ -126,7 +122,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname steht, für welchen die Warnung %warning entfernt wurde. ",
-            "text": "Für den Ort: %location wurde die Warnung: %warning erfolgreich gelöscht"
+            "text": "%warning für %location wurden erfolgreich gelöscht"
           }
         ]
       },
@@ -134,8 +130,8 @@
         "topic": "changed_auto_covid_updates",
         "information": [
           {
-            "description": "Schreibe %interval an die Stelle, wo stehen soll wie oft die nutzende Person nun Corona Updates erhält.",
-            "text": "Sie werden nun %interval automatische Corona Informationen bekommen."
+            "description": "Schreibe %interval an die Stelle, wo stehen soll, wie oft die nutzende Person nun Corona Updates erhält.",
+            "text": "Du wirst nun %interval automatische Corona Informationen bekommen."
           }
         ]
       },
@@ -144,7 +140,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname steht, für welchen die Warnung %warning entfernt wurde. ",
-            "text": "Möchtest du für %location die Warnung %warning direkt abonnieren?"
+            "text": "Möchtest du %warning für %location abonnieren?"
           }
         ]
       }
@@ -153,14 +149,14 @@
   {
     "topic": "buttons",
     "names": {
-      "settings": "Einstellungen ⚙",
+      "settings": "Einstellungen",
       "warnings": "Warnungen",
       "emergency_tips": "Notfalltipps",
       "help": "Mehr",
       "covid": "Corona",
       "covid_information": "Corona Informationen",
       "covid_rules": "Corona Regeln",
-      "back_to_main_menu": "Zurück zur Startseite",
+      "back_to_main_menu": "Zurück ins Hauptmenü",
       "auto_warning": "Abonnements stummschalten",
       "default_level": "Standard Warnstufe einstellen",
       "suggestion_location": "Standort zu Favoriten hinzufügen",
@@ -172,7 +168,7 @@
       "send_location": "Standort senden",
       "flood": "Hochwasser Warnungen",
       "general": "Generelle Warnungen",
-      "disaster": "Katastrophenwarnung",
+      "disaster": "Katastrophen Warnungen",
       "weather": "Wetter Warnungen",
       "show_subscriptions": "Aktuelle Abos anzeigen",
       "delete_subscription": "Abo löschen",
@@ -188,9 +184,9 @@
       "manual": "manuell",
       "extreme": "extrem",
       "delete_data_subscriptions": "Alle Abonnements löschen",
-      "delete_data_favorites": "Ortsfavoriten zurücksetzten",
+      "delete_data_favorites": "Ortsfavoriten zurücksetzen",
       "delete_data_everything": "Alle Daten löschen",
-      "help_bot_usage": "Bot Bedienung",
+      "help_bot_usage": "Bedienung des Bots",
       "help_faq": "FAQ",
       "help_imprint": "Impressum",
       "help_privacy": "Datenschutz"
@@ -201,99 +197,103 @@
     "text": {
       "yes": "Ja",
       "no": "Nein",
-      "settings": "Sie sind jetzt in den Einstellungen.",
-      "warnings": "Sie sind jetzt in den Warnungen.",
-      "help": "Du kannst jetzt wählen für was du Informationen möchtest.",
+      "settings": "Du bist jetzt in den Einstellungen.",
+      "warnings": "Du bist jetzt in den Warnungen.",
+      "help": "Du kannst jetzt wählen, für was du Informationen erhalten möchtest.",
       "auto_warnings_text": "Möchtest du automatische Warnungen erhalten? (nur eingestellte)",
-      "auto_warnings_enable": "Sie erhalten ab jetzt automatische Warnungen.",
-      "auto_warnings_disable": "Sie erhalten keine automatischen Warnungen mehr.",
+      "auto_warnings_enable": "Du erhältst ab jetzt automatische Warnungen.",
+      "auto_warnings_disable": "Du erhältst keine automatischen Warnungen mehr.",
       "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
-      "back_to_main_menu": "Sie sind im Hauptmenü.",
-      "suggestion_helper_text": "Um eine Stadt den Vorschlägen hinzuzufügen, geben Sie \"[Stadtname oder PLZ]\" ein oder senden Sie ihren aktuellen Standort",
-      "manage_subscriptions": "Was möchten Sie tun?",
-      "manage_auto_covid_updates": "Wie oft möchten Sie automatische Corona Updates?",
-      "no_subscriptions": "Sie haben keine Abonnements.",
-      "click_suggestion": "Wählen Sie einen dieser Orte oder geben Sie einen Ort ein.",
+      "back_to_main_menu": "Du bist im Hauptmenü.",
+      "suggestion_helper_text": "Du hast zwei Möglichkeiten, um den Vorschlägen eine Stadt hinzuzufügen:\n\n1. Gib \"[Stadtname oder PLZ]\" ein.\n2. Sende deinen aktuellen Standort",
+      "manage_subscriptions": "Was möchtest du tun?",
+      "manage_auto_covid_updates": "Wie oft möchtest du automatische Corona Updates erhalten?",
+      "no_subscriptions": "Du hast keine Abonnements.",
+      "click_suggestion": "Wähle einen dieser Orte oder gib einen anderen Ort ein.",
       "no_location_found": "Es konnten keine Städte gefunden werden.",
       "delete_data_subscriptions": "Möchtest du wirklich alle deine Abonnements löschen?",
-      "delete_data_favorites": "Möchtest du wirklich deine Favoriten zurücksetzten?",
+      "delete_data_favorites": "Möchtest du wirklich deine Favoriten zurücksetzen?",
       "delete_data_everything": "Möchtest du wirklich alle deine Daten löschen?",
-      "deleted_subscriptions": "Deine Abonnements wurden nun gelöscht.",
+      "deleted_subscriptions": "Deine Abonnements wurden gelöscht.",
       "deleted_favorites": "Deine Favoriten wurden zurückgesetzt.",
-      "deleted_everything": "Alle deine Daten wurden nun gelöscht. Du bist zurück im Hauptmenü.",
-      "manual_warning_covid_choice": "Möchtest du Corona Informationen oder Corona Regeln abfragen?",
-      "default_level": "Möchtest du beim Einstellen von Abonnements von nun an automatisch alle Warnungen erhalten, \nWarnungen von mittlerer Wichtigkeit oder nur sehr ernste Warnungen erhalten? \nOder möchtest du es bei jedem Abonnement manuell einstellen?",
-      "delete_data": "Du kannst jetzt auswählen welche Daten du löschen möchtest:",
+      "deleted_everything": "Alle deine Daten wurden gelöscht.",
+      "manual_warning_covid_choice": "Was möchtest du abfragen?",
+      "default_level": "Du bist dabei, die Standard Dringlichkeitsstufe einzustellen. Du hast folgende Möglichkeiten.\n\n• Eine Stufe auswählen, die dann automatisch für alle zukünftigen Abonnements gilt. Du wirst nicht mehr danach gefragt, welche Stufe eine Warnung haben soll. Es wird immer automatisch das eingestellt, was du auswählst: alle, mittlere oder nur ernste Warnungen.\n• Manuell. Das heißt, du wirst bei jedem Abonnement gefragt, welche Stufe die Warnung haben soll.",
+      "delete_data": "Welche Daten möchtest du löschen?",
       "imprint": "TODO Impressumstext",
-      "privacy": "TODO Datenschutztext"
+      "privacy": "Wir speichern deine Chat ID, um dir antworten zu können und die Daten, die du eingibst, um dich informieren zu können, aber niemals deinen Namen oder andere personenspezifische Informationen. Mit der Chat ID können wir keine Rückschlüsse auf deine Person ziehen. Wir speichern nur die Ortsdaten, die du eingibst. Du kannst deine Daten jederzeit löschen."
     }
   },
   {
     "topic": "complex_answers",
     "all_answers": {
       "show_subscriptions": {
-        "description": "Es wird zwischen jedem der Folgenden Zeilen ein Zeilenumbruch gemacht und sie werden zusammengeführt um die Abonnements der nutzenden Person anzuzeigen.",
-        "description2": "headline wird einmal am Anfang stehen, danach werden für je eine location immer die Warnungen mit den jeweiligen Warnstufen aufgelistet.",
+        "description": "Es wird zwischen jedem der folgenden Zeilen ein Zeilenumbruch gemacht und sie werden zusammengeführt, um die Abonnements der nutzenden Person anzuzeigen.",
+        "description2": "headline steht entweder ganz am Anfang oder nach headline_after_insertion (hai), falls hai genutzt wird. Danach werden für je location die Warnungen mit den jeweiligen Warnstufen aufgelistet.",
         "description3": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe.",
-        "headline": "Ihre Abonnements:",
+        "description4": "headline_after_insertion steht ganz am Anfang, wenn man eine Warnung zu den Abonnements hinzufügt. --- als optische Trennung zur vorherigen Nachricht.",
+        "description5": "end_after_insertion steht ganz am Ende, NACH der Abo-Übersicht. Wird immer genutzt, außer wenn man sich die Abos nur anzeigen lässt (d.h. kein neues Abo hinzugefügt hat)." ,
+        "headline": "Aktuell hast du folgende Abonnements eingerichtet:",
         "location": "\n%location:",
-        "warning": "\t%warning von Stufe %level"
+        "warning": "• %warning, Stufe %level",
+        "headline_after_insertion": "---Du hast erfolgreich ein neues Abonnement eingerichtet---",
+        "end_after_insertion": "---\nWenn du willst, kannst du weitere Abonnements einrichten---"
       },
       "recommendations": {
         "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
-        "description2": "%r in recommendation gibt an wo der Vorschlag stehen soll.",
-        "headline": "Ihnen werden nun folgende Orte vorgeschlagen:",
-        "recommendation": "%r",
-        "end": "\nSie können jetzt den nächsten Vorschlag eingeben."
+        "description2": "%r gibt an, wo der Vorschlag stehen soll.",
+        "headline": "Du hast deinen Favoriten einen neuen Ort hinzugefügt. Dir werden ab jetzt folgende Orte vorgeschlagen:\n",
+        "recommendation": "• %r",
+        "end": "----------------------\nDu hast jetzt mehrere Möglichkeiten:\n\n1. Einen weiteren Ort hinzufügen. Gib dafür einen Städtenamen oder eine PLZ ein.\n2. Deinen aktuellen Standort hinzufügen. Klicke dafür auf \"Standort senden\".\n3. Ins Hauptmenü zurückkehren."
       },
       "delete_subscription": {
-        "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
+        "description": "headline wird einmal am Anfang stehen. Danach gibt es in der Datenbank für jeden Vorschlag eine neue Zeile recommendation. Am Ende wird noch end hinzugefügt. (außer end ist ein leerer String)",
         "description2": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe. %button_name für den Name des dazugehörigen Buttons.",
-        "headline": "Klicken Sie auf das Abonnement,\nwelches Sie entfernen wollen:",
+        "headline": "Welches Abonnement möchtest du löschen?",
         "location": "\n%location:",
-        "warning": "\t[%button_name] %warning von Stufe %level",
+        "warning": "\t[%button_name] %warning, Stufe %level",
         "end": ""
       },
       "select_location": {
         "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
         "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
-        "headline": "Wählen Sie aus was Sie meinten:",
+        "headline": "Wähle aus, was du gemeint hast:\n",
         "text": "[%button_name] %place_name ; %district_name",
         "end": ""
       },
       "set_default_level": {
         "description": "Die nutzende Person wird als Text manual sehen, wenn Sie die Standardstufe für Abonnements auf manuell gestellt hat. ",
         "description2": "Ansonsten other (in other %level schreiben um anzugeben was jetzt für eine Standardstufe gesetzt ist.",
-        "manual": "Sie müssen von jetzt an bei jeder Erstellung von Abonnements manuell die gewünschte Stufe einstellen. Die Stufe gibt an welche Warnungen ihnen geschickt werden.",
-        "other": "Es wird bei der Erstellung eines Abonnements von nun an automatisch \"%level\" als Stufe eingestellt. Die Stufe gibt an welche Warnungen ihnen geschickt werden."
+        "manual": "Du kannst ab jetzt bei der Erstellung von Abonnements manuell die gewünschte Stufe einstellen.",
+        "other": "Von nun an werden neue Abonnements automatisch die Dringlichkeits-Stufe \"%level\" haben.\n\nDie Stufe gibt an, welche Warnungen dir geschickt werden.\n\nDu kannst hier jederzeit wieder die Stufe ändern oder zu manueller Nachfrage wechseln."
       },
       "faq": {
         "description": "Es wird beim FAQ zuerst die headline zu sehen sein und dann für jede Frage einmal question_format und am ende nochmal end.",
         "description2": "In question_format %question für die Frage und %answer für die Antwort.",
-        "headline": "Hier sind ein paar Fragen für dich:",
+        "headline": "Hier finden sich Antworten auf häufig gestellte Fragen",
         "question_format": "\nFrage: %question \nAntwort: %answer",
         "end": "\nFür weitere Informationen gehe auf die offizielle Seite der Bundesregierung: https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/warn-app-nina_node.html"
       },
       "bot_usage": {
         "description": "Hierbei wird entweder nur eine Nachricht genommen oder potentiell alle. (general wird immer angefügt)",
         "headline": "Hilfe:",
-        "main_menu_navigation": "Hauptmenü\nUm in das Hauptmenü zu gelangen kannst du immer den Zurück Knopf drücken.",
-        "main_menu": "Vom Hauptmenü kannst du zu allen Funktionen dieses Bots gelangen.",
-        "manual_warnings_navigation": "Manuel Warnungen abrufen\nUm manuel Warnungen abfragen zu können musst du im Hauptmenü den Warnungen Knopf drücken.",
-        "manual_warnings": "Um manuel Warnungen abzufragen musst du eine Warnung auswählen und dann den Ort eingeben/ auswählen für den du diese Warnung sehen willst.",
-        "help_menu_navigation": "Hilfe Menü\nUm mehr über den Bot und rechtliches zu erfahren musst du im Hauptmenü den Mehr Knopf drücken.",
-        "help_menu": "Im Hilfe-/ Mehr-Menü kannst du eine Anleitung für den Bot oder andere rechtliche/ wichtige Informationen erhalten.",
-        "emergency_tips_menu_navigation": "Notfalltipps\nUm die NotfallPDFs zu erhalten musst du im Hauptmenü den Notfalltipps Knopf drücken.",
-        "emergency_tips_menu": "Im Notfalltipps Menü kannst du dir das Thema aussuchen, über das du für eine Notfallsituation bescheid wissen willst.",
-        "settings_menu_navigation": "Einstellungen\nUm in die Einstellungen zu gelangen muss du im Hauptmenü den Einstellungen Knopf drücken.",
-        "settings_menu": "In den Einstellungen kannst du Abonnements verwalten, Daten die dieser Bot über dich speichert löschen und Favoriten für die manuelle Abfrage von Warnungen einstellen.",
-        "delete_data_menu_navigation": "Meine Daten löschen\nUm Daten, die dieser Bot über dich speichert, löschen zu können musst du in den Einstellungen den Meine Daten löschen Knopf drücken.",
+        "main_menu_navigation": "• Hauptmenü\nUm in das Hauptmenü zu gelangen, kannst du immer den Zurück Knopf drücken.",
+        "main_menu": "Vom Hauptmenü kannst du zu allen Funktionen des Bots gelangen.",
+        "manual_warnings_navigation": "• Manuell Warnungen abrufen\nUm manuell Warnungen abfragen zu können, musst du im Hauptmenü den Warnungen Knopf drücken.",
+        "manual_warnings": "Um manuell Warnungen abzufragen musst du eine Warnung auswählen und dann den Ort eingeben/ auswählen für den du diese Warnung sehen willst.",
+        "help_menu_navigation": "• Hilfe Menü\nUm mehr über den Bot und Rechtliches zu erfahren, musst du im Hauptmenü den Knopf \"Mehr\" drücken.",
+        "help_menu": "Im Hilfe-/ Mehr-Menü kannst du eine Anleitung für den Bot und andere rechtliche/ wichtige Informationen erhalten.",
+        "emergency_tips_menu_navigation": "• Notfalltipps\nUm die NotfallPDFs zu erhalten musst du im Hauptmenü den Notfalltipps Knopf drücken.",
+        "emergency_tips_menu": "Im Notfalltipps Menü kannst du dir das Thema aussuchen, über das du in einer Notsituation Bescheid wissen willst.",
+        "settings_menu_navigation": "• Einstellungen\nUm in die Einstellungen zu gelangen, musst du im Hauptmenü den Einstellungen Knopf drücken.",
+        "settings_menu": "In den Einstellungen kannst du Abonnements verwalten, über dich gespeicherte Daten löschen und Favoriten für die manuelle Abfrage von Warnungen einstellen.",
+        "delete_data_menu_navigation": "• Meine Daten löschen\nUm Daten, die dieser Bot über dich speichert, löschen zu können musst du in den Einstellungen den Meine Daten löschen Knopf drücken.",
         "delete_data_menu": "In dem Daten löschen Menü kannst du auswählen ob du nur deine bereits erstellten Abonnements, deine eingestellten Favoriten zurücksetzen oder gar alle Daten zu dir löschen willst.",
-        "favorites_navigation": "Favoriten hinzufügen\nUm deine Ortsfavoriten für die Abfrage von manuellen Warnungen einstellen zu können musst du in den Einstellungen den Ortsfavoriten hinzufügen Knopf drücken.",
+        "favorites_navigation": "• Favoriten hinzufügen\nUm deine Ortsfavoriten für die Abfrage von manuellen Warnungen einstellen zu können musst du in den Einstellungen den Ortsfavoriten hinzufügen Knopf drücken.",
         "favorites": "In Favoriten kannst du einen Ort eingeben oder deinen Aktuellen Standort schicken um einen Ort für die manuelle Abfrage von Warnungen vorgeschlagen zu bekommen.",
-        "subscriptions_menu_navigation": "Abonnements verwalten\nUm deine Abonnements verwalten zu können musst du ein den Einstellungen Abonnements verwalten drücken.",
-        "subscriptions_menu": "Im Abonnements verwalten Menü kannst du die deine aktuellen Abonnements anzeigen lassen und stumm schalten, Abonnements hinzufügen und löschen und eine standard Warnstufe für das Hinzufügen von Abonnements einstellen.",
-        "general": "Solltest du nicht in der Lage sein das Menü zu sehen musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
+        "subscriptions_menu_navigation": "• Abonnements verwalten\nUm deine Abonnements verwalten zu können musst du in den Einstellungen \"Abonnements verwalten\" drücken.",
+        "subscriptions_menu": "Im Abonnements verwalten Menü kannst du dir deine aktuellen Abonnements anzeigen lassen und stumm schalten, Abonnements hinzufügen und löschen und eine Standard Warnstufe für das Hinzufügen von Abonnements einstellen.",
+        "general": "\nSolltest du das nicht Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
       }
     }
   }
