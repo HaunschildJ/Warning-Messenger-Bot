@@ -236,8 +236,8 @@
         "headline": "Aktuell hast du folgende Abonnements eingerichtet:",
         "location": "\n%location:",
         "warning": "• %warning, Stufe %level",
-        "headline_after_insertion": "---Du hast erfolgreich ein neues Abonnement eingerichtet---",
-        "end_after_insertion": "---\nWenn du willst, kannst du weitere Abonnements einrichten---"
+        "headline_after_insertion": "---\nDu hast erfolgreich ein neues Abonnement eingerichtet\n---",
+        "end_after_insertion": "---\nWenn du willst, kannst du weitere Abonnements einrichten\n---"
       },
       "recommendations": {
         "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",

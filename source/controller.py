@@ -737,7 +737,7 @@ def show_subscriptions(chat_id: int):
         subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
                                                                                                   warnings,
                                                                                                   levels))
-    message = text_templates.get_show_subscriptions_message(subscriptions_text)
+    message = text_templates.get_show_subscriptions_message(subscriptions_text, True)
     sender.send_message(chat_id, message)
 
 
