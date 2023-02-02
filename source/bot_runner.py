@@ -3,7 +3,9 @@ import threading
 import receiver
 import subscriptions
 
+
 # Call this script to start the bot
+
 def start_bot():
     """
     Starts the chat receiver and the subscription handling mechanism in two different threads
