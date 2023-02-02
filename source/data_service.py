@@ -1,14 +1,21 @@
 import json
-from enum import Enum
+import os
+
+from enum_types import Attributes
+from enum_types import Language
+from enum_types import ReceiveInformation
+from enum_types import WarningSeverity
 
 # See the MVP document for all possible options
 
-file_path = "../source/data/data.json"
+_USER_DATA_PATH = "../source/data/data.json"
+_WARNINGS_ALREADY_RECEIVED_PATH = "../source/data/warnings_already_received.json"
 
 DEFAULT_DATA = {
     "current_state": 0,
     "receive_warnings": True,
     "receive_covid_information": 0,
+    "default_level": "Manual",
     "locations": {
     },
     "recommendations": [
@@ -32,27 +39,6 @@ DEFAULT_DATA = {
 }
 
 
-class ReceiveInformation(Enum):
-    NEVER = 0
-    DAILY = 1
-    WEEKLY = 2
-    MONTHLY = 3
-
-
-class Language(Enum):
-    GERMAN = "german"
-
-
-class Attributes(Enum):
-    CHAT_ID = "chat_id"
-    CURRENT_STATE = "current_state"
-    RECEIVE_WARNINGS = "receive_warnings"
-    COVID_AUTO_INFO = "receive_covid_information"
-    LOCATIONS = "locations"
-    RECOMMENDATIONS = "recommendations"
-    LANGUAGE = "language"
-
-
 def _read_file(path: str) -> dict:
     with open(path, "r") as file_object:
         json_content = file_object.read()
@@ -60,8 +46,20 @@ def _read_file(path: str) -> dict:
 
 
 def _write_file(path: str, data: dict):
-    with open(path, 'w') as writefile:
+    """
+    Writes given data into given path if file exists. If file does not exist, it creates the
+    file and writes into it.
+
+    Arguments:
+        path: where to write to
+        data: what to write to path
+    """
+    with open(path, 'w+') as writefile:
         json.dump(data, writefile, indent=4)
+
+
+if not os.path.exists(_USER_DATA_PATH):
+    _write_file(path=_USER_DATA_PATH, data={})
 
 
 def remove_user(chat_id: int):
@@ -71,11 +69,11 @@ def remove_user(chat_id: int):
     Attributes:
         chat_id: Integer used to identify the user to be removed
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
         del all_user[str(chat_id)]
-        _write_file(file_path, all_user)
+        _write_file(_USER_DATA_PATH, all_user)
 
 
 def set_receive_warnings(chat_id: int, new_value: bool):
@@ -86,7 +84,7 @@ def set_receive_warnings(chat_id: int, new_value: bool):
         chat_id: Integer to identify the user
         new_value: Boolean of the new value
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -94,7 +92,7 @@ def set_receive_warnings(chat_id: int, new_value: bool):
 
     all_user[cid][Attributes.RECEIVE_WARNINGS.value] = new_value
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
 
 
 def get_receive_warnings(chat_id: int) -> bool:
@@ -107,7 +105,7 @@ def get_receive_warnings(chat_id: int) -> bool:
     Returns:
         Boolean representing if the user currently wants to receive warnings
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
         return all_user[str(chat_id)][Attributes.RECEIVE_WARNINGS.value]
@@ -124,7 +122,7 @@ def get_user_state(chat_id: int) -> int:
     Returns:
         Integer value of the state the user is currently in or 0 if the user is not in the database yet
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
         return all_user[str(chat_id)][Attributes.CURRENT_STATE.value]
@@ -139,7 +137,7 @@ def set_user_state(chat_id: int, new_state: int):
         chat_id: Integer to identify the user
         new_state: Integer of the new state
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -147,7 +145,7 @@ def set_user_state(chat_id: int, new_state: int):
 
     all_user[cid][Attributes.CURRENT_STATE.value] = new_state
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
 
 
 def set_auto_covid_information(chat_id: int, how_often: ReceiveInformation):
@@ -158,7 +156,7 @@ def set_auto_covid_information(chat_id: int, how_often: ReceiveInformation):
         chat_id: Integer to identify the user
         how_often: ReceiveInformation representing how often the user wants to receive covid information
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -166,7 +164,7 @@ def set_auto_covid_information(chat_id: int, how_often: ReceiveInformation):
 
     all_user[cid][Attributes.COVID_AUTO_INFO.value] = how_often.value
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
 
 
 def get_auto_covid_information(chat_id: int) -> ReceiveInformation:
@@ -179,7 +177,7 @@ def get_auto_covid_information(chat_id: int) -> ReceiveInformation:
     Returns:
         ReceiveInformation representing how often the user currently wants to receive covid updates
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if cid in all_user:
@@ -197,7 +195,7 @@ def get_subscriptions(chat_id: int) -> dict:
     Returns:
         a dictionary of subscriptions of the user
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
         return all_user[str(chat_id)][Attributes.LOCATIONS.value]
@@ -214,7 +212,7 @@ def add_subscription(chat_id: int, location: str, warning: str, warning_level: s
         warning: String with the warning for the subscription (int of nina_service WarnType)
         warning_level: String representing the Level a warning is relevant to the user
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -227,7 +225,7 @@ def add_subscription(chat_id: int, location: str, warning: str, warning_level: s
     else:
         user[Attributes.LOCATIONS.value][location][warning] = warning_level
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
 
 
 def delete_subscription(chat_id: int, location: str, warning: str):
@@ -239,7 +237,7 @@ def delete_subscription(chat_id: int, location: str, warning: str):
         location: String with the location of the subscription
         warning: String with the warning of WarnType (e.g. WEATHER)
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -254,7 +252,7 @@ def delete_subscription(chat_id: int, location: str, warning: str):
     if len(user[Attributes.LOCATIONS.value][location]) == 0:
         del user[Attributes.LOCATIONS.value][location]
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
 
 
 def get_suggestions(chat_id: int) -> list[dict]:
@@ -267,7 +265,7 @@ def get_suggestions(chat_id: int) -> list[dict]:
     Returns:
         list of dictionaries with the recommendations (locations the user set or default locations)
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
         return all_user[str(chat_id)][Attributes.RECOMMENDATIONS.value]
@@ -288,7 +286,7 @@ def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id:
     Returns:
         list of dictionaries representing the recommendations after the new one has been added
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -310,7 +308,7 @@ def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id:
         if prev_recommendation == location:
             break
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
     return current_recommendations
 
 
@@ -363,7 +361,7 @@ def get_language(chat_id: int) -> Language:
     Returns:
         Language the user has currently active or the default language
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
         return Language(all_user[str(chat_id)][Attributes.LANGUAGE.value])
@@ -378,7 +376,7 @@ def set_language(chat_id: int, new_language: Language):
         chat_id: Integer to identify the user
         new_language: Language represents the new language the user wants
     """
-    all_user = _read_file(file_path)
+    all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
     if not (cid in all_user):
@@ -386,4 +384,165 @@ def set_language(chat_id: int, new_language: Language):
 
     all_user[cid][Attributes.LANGUAGE.value] = new_language.value
 
-    _write_file(file_path, all_user)
+    _write_file(_USER_DATA_PATH, all_user)
+
+
+def set_default_level(chat_id: int, new_level: WarningSeverity):
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        all_user[cid] = DEFAULT_DATA.copy()
+
+    all_user[cid][Attributes.DEFAULT_LEVEL.value] = new_level.value
+
+    _write_file(_USER_DATA_PATH, all_user)
+
+
+def get_default_level(chat_id: int) -> WarningSeverity:
+    """
+    Returns the language the user (chat_id) has currently active or the default language
+
+    Arguments:
+        chat_id: Integer to identify the user
+
+    Returns:
+        WarningSeverity the user has currently as the default level
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+
+    if str(chat_id) in all_user:
+        return WarningSeverity(all_user[str(chat_id)][Attributes.DEFAULT_LEVEL.value])
+    return WarningSeverity(DEFAULT_DATA[Attributes.DEFAULT_LEVEL.value])
+
+
+def get_all_chat_ids() -> list[int]:
+    """
+
+    Returns: list of all chat_ids that are saved in the database
+
+    """
+    chat_ids = []
+    all_users = _read_file(_USER_DATA_PATH)
+    for key, value in all_users.items():
+        chat_ids.append(int(key))
+    return chat_ids
+
+
+def get_chat_ids_of_warned_users() -> list[int]:
+    """
+
+    Returns: list of all chat_ids that have receiveWarnings set to True
+
+    """
+    return list(filter(lambda chat_id: get_receive_warnings(chat_id), get_all_chat_ids()))
+
+
+def add_warning_id_to_users_warnings_received_list(chat_id: int, general_warning_id: str):
+    """
+
+    Args:
+        chat_id: of the user
+        general_warning_id: of the warning that should be added to users warnings_already_received list
+
+
+    """
+    user_data = _read_file(_WARNINGS_ALREADY_RECEIVED_PATH)
+    chat_id_string = str(chat_id)
+
+    if chat_id_string not in user_data:
+        user_data[chat_id_string] = []
+
+    list_of_received_warnings = user_data[chat_id_string]
+    list_of_received_warnings.append(general_warning_id)
+
+    _write_file(_WARNINGS_ALREADY_RECEIVED_PATH, user_data)
+
+
+def get_users_already_received_warning_ids(chat_id: int) -> list[str]:
+    """
+
+    Args:
+        chat_id: of the user
+
+    Returns: a list of the warning_ids of warnings the user has already received
+
+    """
+    user_data = _read_file(_WARNINGS_ALREADY_RECEIVED_PATH)
+    chat_id_string = str(chat_id)
+
+    if chat_id_string not in user_data:
+        return []
+
+    return user_data[chat_id_string]
+
+
+def has_user_already_received_warning(chat_id: int, general_warning_id: str) -> bool:
+    """
+
+    Args:
+        chat_id: of the user
+        general_warning_id: of the warning that should be checked
+
+    Returns: True if the user has already received the warning
+
+    """
+    list_of_received_warnings = get_users_already_received_warning_ids(chat_id)
+    if general_warning_id in list_of_received_warnings:
+        return True
+    else:
+        return False
+
+
+def delete_all_subscriptions(chat_id: int):
+    """
+    This method deletes all subscriptions for the given user
+
+    Args:
+        chat_id: to identify the user
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return
+
+    all_user[cid][Attributes.LOCATIONS.value] = DEFAULT_DATA[Attributes.LOCATIONS.value]
+
+    _write_file(_USER_DATA_PATH, all_user)
+
+
+def reset_favorites(chat_id: int):
+    """
+    This method resets the favorites for the given user
+
+    Args:
+        chat_id: to identify the user
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return
+
+    all_user[cid][Attributes.RECOMMENDATIONS.value] = DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
+
+    _write_file(_USER_DATA_PATH, all_user)
+
+
+def delete_user(chat_id: int):
+    """
+    This method removes a user from the database
+
+    Args:
+        chat_id: to identify the user
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return
+
+    del all_user[cid]
+
+    _write_file(_USER_DATA_PATH, all_user)
