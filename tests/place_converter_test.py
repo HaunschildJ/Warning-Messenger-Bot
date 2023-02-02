@@ -481,7 +481,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(should_be, place_converter._postal_code_dictionary[input_value])
 
     def test_fill_postal_place_dict(self):
-        pass
+        # method does not return anything
+        self.assertEqual(None, place_converter._fill_postal_place_dict())
+
+        # dictionary test
+        input_value = "84076"
+        should_be = "Pfeffenhausen"
+        self.assertEqual(should_be, place_converter._postal_place_dictionary[input_value])
 
     def test_get_exact_address_from_coordinates(self):
         # if district is not mentioned in address
@@ -502,6 +508,9 @@ class MyTestCase(unittest.TestCase):
         result_list = place_converter._get_suggestions_for_place_name(input_name, input_limit)
         should_be = "Oberursel (Taunus), Stadt"
         self.assertEqual(should_be, result_list[0]['place_name'])
+
+    def test__get_suggestion_dicts_for_non_covid_place_name(self):
+        pass  # TODO
 
     def test_get_place_dict_suggestions(self):
         input_name = "Oberursel"
@@ -643,6 +652,9 @@ class MyTestCase(unittest.TestCase):
         should_be = "06434"
         self.assertEqual(should_be, result_list[0]['district_id'])
 
+    def test_get_non_covid_dict_suggestions(self):
+        pass  # TODO
+
     def test_get_place_name_from_dict(self):
         # place name is not None
         input_value = {'district_name': 'district', 'district_id': '12345', 'place_name': 'place',
@@ -654,6 +666,9 @@ class MyTestCase(unittest.TestCase):
         input_value = {'district_name': 'district', 'district_id': '12345', 'place_name': None,
                        'place_id': '123450000000'}
         self.assertEqual(None, place_converter.get_place_name_from_dict(input_value))
+
+    def test_get_postal_code_from_dict(self):
+        pass  # TODO
 
     def test_get_place_id_from_dict(self):
         input_value = {'district_name': 'district', 'district_id': '12345', 'place_name': 'place',
@@ -680,6 +695,9 @@ class MyTestCase(unittest.TestCase):
         result_list = place_converter.get_suggestion_dicts_from_coordinates(input_lat, input_lon, input_limit)
         should_be = "Darmstadt, Wissenschaftsstadt"
         self.assertEqual(should_be, result_list[0]['place_name'])
+
+    def test_get_non_covid_suggestion_dicts_from_coordinates(self):
+        pass
 
     def test_get_postal_code_dicts_in_polygon(self):
         input_value = [[11.8903733, 48.6650338], [11.8901642, 48.6670204], [11.8913454, 48.6670568]]

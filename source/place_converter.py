@@ -84,7 +84,7 @@ def _fill_postal_code_dict() -> None:
 _fill_postal_code_dict()
 
 
-def _fill_postal_place_dictionary() -> None:
+def _fill_postal_place_dict() -> None:
     """
     Fills the _postal_name_dictionary dictionary with selected infos from _postal_code_dictionary
     Format: postal_code : str -> place_name : str
@@ -93,7 +93,7 @@ def _fill_postal_place_dictionary() -> None:
         _postal_place_dictionary[record] = _postal_code_dictionary[record][0]
 
 
-_fill_postal_place_dictionary()
+_fill_postal_place_dict()
 
 
 def _get_exact_address_from_coordinates(latitude: float, longitude: float) -> Tuple[str, str]:
@@ -463,6 +463,31 @@ def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, sug
     suggested_dicts_postal_code = _get_dicts_for_postal_code(postal_code, suggestion_limit)
 
     return suggested_dicts_postal_code
+
+
+def get_non_covid_suggestion_dicts_from_coordinates(latitude: float, longitude: float, suggestion_limit=11) \
+        -> list[dict]:
+    """
+    Returns a list of dicts {'postal_code', 'place_name', 'district_name', 'district_id'} that fit the given
+    coordinates
+
+    Arguments:
+        latitude (float): latitude of coordinate
+        longitude (float): longitude of coordinate
+        suggestion_limit (int): limits the number of suggestions to the top x, 11 by default
+    Returns:
+        suggested_dicts (list[dict]): dicts that fit the infos
+    """
+    place_tuple = _get_exact_address_from_coordinates(latitude, longitude)
+
+    postal_code = place_tuple[1]
+    record = _postal_code_dictionary[postal_code]
+
+    dict_list = []
+    postal_dict = {'postal_code': postal_code, 'place_name': record[0],
+                   'district_name': _districts_dictionary[record[1]], 'district_id': record[1]}
+    dict_list.append(postal_dict)
+    return dict_list
 
 
 def get_postal_code_dicts_in_polygon(coordinate_list: list) -> list[dict]:
