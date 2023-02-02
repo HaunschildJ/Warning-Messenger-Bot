@@ -252,7 +252,7 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
         button_text: a string which is the text of the button that was pressed (constant of this class)
     """
     if button_text == frontend_helper.SHOW_SUBSCRIPTION_TEXT:
-        show_subscriptions(chat_id)
+        show_subscriptions(chat_id, True)
         data_service.set_user_state(chat_id, 10)
     elif button_text == frontend_helper.ADD_SUBSCRIPTION_TEXT:
         data_service.set_user_state(chat_id, 101)
@@ -714,12 +714,13 @@ def covid_rules(chat_id: int, city_name: str, district_id: str, rules: nina_serv
     sender.send_message(chat_id, message, frontend_helper.get_covid_keyboard())
 
 
-def show_subscriptions(chat_id: int):
+def show_subscriptions(chat_id: int, only_show: bool = False):
     """
     This method will send the current subscriptions to the user (chat_id)
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
+        only_show: a boolean when True then the user only want to see subscriptions and has not recently added one
     """
     subscriptions = data_service.get_subscriptions(chat_id)
     if len(subscriptions.keys()) == 0:
@@ -737,7 +738,7 @@ def show_subscriptions(chat_id: int):
         subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
                                                                                                   warnings,
                                                                                                   levels))
-    message = text_templates.get_show_subscriptions_message(subscriptions_text, True)
+    message = text_templates.get_show_subscriptions_message(subscriptions_text, only_show)
     sender.send_message(chat_id, message)
 
 
