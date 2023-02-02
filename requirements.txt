@@ -5,3 +5,4 @@ fuzzywuzzy~=0.18.0
 dataclasses~=0.6
 python-Levenshtein==0.20.9
 geopy~=2.3.0
+shapely==2.0.1
