@@ -50,7 +50,7 @@ def filter_callback_add_subscription(call: typ.CallbackQuery) -> bool:
 
 
 def filter_callback_delete_subscription(call: typ.CallbackQuery) -> bool:
-    split_data = call.data.split(' ')
+    split_data = call.data.split(';')
     if split_data[0] == Commands.DELETE_SUBSCRIPTION.value:
         return True
     return False
@@ -276,7 +276,6 @@ def covid_button(call: typ.CallbackQuery):
     chat_id = call.message.chat.id
     covid_helper(chat_id, call.data)
     controller.delete_message(chat_id, call.message.id)
-    data_service.set_user_state(chat_id, 20)
 
 
 @bot.callback_query_handler(func=filter_callback_manual_warning_other)
@@ -294,17 +293,16 @@ def other_warnings_button(call: typ.CallbackQuery):
     if len(split_message) < 3:
         error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
         return
-    place_id = split_message[1]
+    postal_code = split_message[1]
     district_id = split_message[2]
-    # TODO when glib is done in nina_service so i can call general warnings for a specific location
     if split_message[0] == Commands.WEATHER.value:
-        controller.detailed_general_warning(chat_id, WarnType.WEATHER, place_id)
+        controller.detailed_general_warning(chat_id, WarnType.WEATHER, postal_code, district_id)
     elif split_message[0] == Commands.DISASTER.value:
-        controller.detailed_general_warning(chat_id, WarnType.DISASTER, place_id)
+        controller.detailed_general_warning(chat_id, WarnType.DISASTER, postal_code, district_id)
     elif split_message[0] == Commands.FLOOD.value:
-        controller.detailed_general_warning(chat_id, WarnType.FLOOD, place_id)
+        controller.detailed_general_warning(chat_id, WarnType.FLOOD, postal_code, district_id)
     elif split_message[0] == Commands.GENERAL.value:
-        controller.detailed_general_warning(chat_id, WarnType.GENERAL, place_id)
+        controller.detailed_general_warning(chat_id, WarnType.GENERAL, postal_code, district_id)
     else:
         error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
     controller.delete_message(chat_id, call.message.id)
@@ -396,9 +394,9 @@ def add_recommendation(call: typ.CallbackQuery):
     if len(split_message) < 3:
         error.error_handler(call.message.chat.id, ErrorCodes.CALLBACK_MISTAKE)
         return
-    place_id = split_message[1]
+    postal_code = split_message[1]
     district_id = split_message[2]
-    controller.add_recommendation_in_database(call.message.chat.id, place_id, district_id)
+    controller.add_recommendation_in_database(call.message.chat.id, postal_code, district_id)
     controller.delete_message(call.message.chat.id, call.message.id)
 
 
@@ -447,12 +445,12 @@ def covid_helper(chat_id: int, message_string: str):
     if len(split_message) < 3:
         error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
         return
-    place_id = split_message[1]
+    postal_code = split_message[1]
     district_id = split_message[2]
     if split_message[0] == Commands.COVID_INFO.value:
-        controller.covid_info(chat_id, None, district_id)
+        controller.covid_info(chat_id, postal_code, district_id)
     elif split_message[0] == Commands.COVID_RULES.value:
-        controller.covid_rules(chat_id, None, district_id)
+        controller.covid_rules(chat_id, postal_code, district_id)
     else:
         error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
 

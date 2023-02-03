@@ -256,9 +256,9 @@
       },
       "select_location": {
         "description": "headline wird einmal am Anfang stehen, danach werden für jeden Ortsvorschlag eine neue Zeile (text) hinzugefügt. Am Ende wird noch end hinzugefügt. (wenn end ein leerer String ist wird end nicht angefügt)",
-        "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons.",
+        "description2": "%place_name um den Ortsname anzugeben. %district_name um den Kreisname anzugeben. %button_name für den Name des dazugehörigen Buttons. %postal_code für die PLZ",
         "headline": "Wähle aus, was du gemeint hast:\n",
-        "text": "[%button_name] %place_name ; %district_name",
+        "text": "[%button_name] %place_name ; %district_name (%postal_code)",
         "end": ""
       },
       "set_default_level": {

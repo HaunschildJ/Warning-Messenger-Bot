@@ -330,7 +330,7 @@ def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
     return message
 
 
-def get_select_location_for_one_location_messsage(district_name: str, place_name: str,
+def get_select_location_for_one_location_messsage(district_name: str, place_name: str, postal_code: str,
                                                   corresponding_button_name: str) -> str:
     """
     This method will return the text for one location suggestion from place_converter.
@@ -339,6 +339,7 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
     Arguments:
         district_name: string with the name of the suggested district
         place_name: string with the name of the suggested place (can be None)
+        postal_code: string with the postal code of the suggested location
         corresponding_button_name: string with the name of the button that will represent this suggestion
 
     Returns:
@@ -351,6 +352,7 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
     message = message.replace("%place_name", place_name)
     message = message.replace("%district_name", district_name)
     message = message.replace("%button_name", corresponding_button_name)
+    message = message.replace("%postal_code", postal_code)
     return message
 
 
@@ -493,3 +495,18 @@ def get_help_message(help_for: BotUsageHelp) -> str:
         message = dic[help_for.value]
     message = message + "\n" + dic["general"]
     return message
+
+
+def get_display_name_for_location(district_name: str, place_name: str, postal_code: str) -> str:
+    """
+    This method is for getting the display name of a location
+
+    Args:
+        district_name: district name
+        place_name: place name
+        postal_code: postal code
+
+    Returns:
+        the name that should be displayed for the user
+    """
+    return place_name + " in " + district_name + " (" + postal_code + ")"

@@ -20,18 +20,15 @@ DEFAULT_DATA = {
     },
     "recommendations": [
         {
-            "name": "Berlin, Stadt",
-            "place_id": "110000000000",
+            "postal_code": "10827",
             "district_id": "11000"
         },
         {
-            "name": "Berlin-Mitte",
-            "place_id": "110010000000",
-            "district_id": "11001"
+            "postal_code": "60308",
+            "district_id": "06412"
         },
         {
-            "name": "Darmstadt, Wissenschaftsstadt",
-            "place_id": "064110000000",
+            "postal_code": "64291",
             "district_id": "06411"
         }
     ],
@@ -202,13 +199,14 @@ def get_subscriptions(chat_id: int) -> dict:
     return DEFAULT_DATA[Attributes.LOCATIONS.value]
 
 
-def add_subscription(chat_id: int, location: str, warning: str, warning_level: str):
+def add_subscription(chat_id: int, postal_code: str, district_id: str, warning: str, warning_level: str):
     """
     Adds/Sets the subscription for the user (chat_id) for the location and the warning given
 
     Arguments:
         chat_id: Integer to identify the user
-        location: String with the location of the subscription
+        postal_code: postal code of the subscription (key)
+        district_id: district id of the subscription
         warning: String with the warning for the subscription (int of nina_service WarnType)
         warning_level: String representing the Level a warning is relevant to the user
     """
@@ -220,21 +218,24 @@ def add_subscription(chat_id: int, location: str, warning: str, warning_level: s
 
     user = all_user[cid]
 
-    if not (location in user[Attributes.LOCATIONS.value]):
-        user[Attributes.LOCATIONS.value][location] = {warning: warning_level}
+    if not (postal_code in user[Attributes.LOCATIONS.value]):
+        user[Attributes.LOCATIONS.value][postal_code] = {
+            "district_id": district_id,
+            warning: warning_level
+        }
     else:
-        user[Attributes.LOCATIONS.value][location][warning] = warning_level
+        user[Attributes.LOCATIONS.value][postal_code][warning] = warning_level
 
     _write_file(_USER_DATA_PATH, all_user)
 
 
-def delete_subscription(chat_id: int, location: str, warning: str):
+def delete_subscription(chat_id: int, postal_code: str, warning: str):
     """
     Removes the subscription of user (chat_id) for the location and the warning given
 
     Arguments:
         chat_id: Integer to identify the user
-        location: String with the location of the subscription
+        postal_code: postal code of the subscription (key)
         warning: String with the warning of WarnType (e.g. WEATHER)
     """
     all_user = _read_file(_USER_DATA_PATH)
@@ -244,13 +245,13 @@ def delete_subscription(chat_id: int, location: str, warning: str):
         return
 
     user = all_user[cid]
-    if not (location in user[Attributes.LOCATIONS.value]):
+    if not (postal_code in user[Attributes.LOCATIONS.value]):
         return
 
-    del user[Attributes.LOCATIONS.value][location][warning]
+    del user[Attributes.LOCATIONS.value][postal_code][warning]
 
-    if len(user[Attributes.LOCATIONS.value][location]) == 0:
-        del user[Attributes.LOCATIONS.value][location]
+    if len(user[Attributes.LOCATIONS.value][postal_code]) <= 1:
+        del user[Attributes.LOCATIONS.value][postal_code]
 
     _write_file(_USER_DATA_PATH, all_user)
 
@@ -272,17 +273,16 @@ def get_suggestions(chat_id: int) -> list[dict]:
     return DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
 
 
-def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id: str) -> list[dict]:
+def add_suggestion(chat_id: int, postal_code: str, district_id: str) -> list[dict]:
     """
     This method adds a location to the recommended location list of a user. \n
     The list is sorted: The most recently added location is the first element and the oldest added location
     is the last element (FIFO)
 
     Arguments:
-        chat_id: Integer to identify the user
-        location_name: string with the location name of the recommendation
-        place_id: string with the place id
-        district_id: string with district id
+        chat_id: an integer for the chatID that the message is sent to
+        postal_code: string with the postal code of the favorite
+        district_id: string with district id of the favorite
     Returns:
         list of dictionaries representing the recommendations after the new one has been added
     """
@@ -295,10 +295,9 @@ def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id:
     current_recommendations = all_user[cid][Attributes.RECOMMENDATIONS.value]
     i = 0
     location = {
-        "name": location_name,
-        "place_id": place_id,
-        "district_id": district_id
-        }
+            "postal_code": postal_code,
+            "district_id": district_id
+    }
     prev_recommendation = location
     for recommendation in current_recommendations:
         tmp = recommendation
@@ -312,30 +311,17 @@ def add_suggestion(chat_id: int, location_name: str, place_id: str, district_id:
     return current_recommendations
 
 
-def get_recommendation_name(recommendation: dict) -> str:
+def get_recommendation_postal_code(recommendation: dict) -> str:
     """
-    Returns the name of the dict given by add_suggestion or get_suggestions
+    Returns the postal_code of the dict given by add_suggestion or get_suggestions
 
     Arguments:
         recommendation: dict given by add_suggestion or get_suggestions
 
     Returns:
-        name of the recommendation
+        postal_code of the recommendation
     """
-    return recommendation["name"]
-
-
-def get_recommendation_place_id(recommendation: dict) -> str:
-    """
-    Returns the place id of the dict given by add_suggestion or get_suggestions
-
-    Arguments:
-        recommendation: dict given by add_suggestion or get_suggestions
-
-    Returns:
-        place id of the recommendation
-    """
-    return recommendation["place_id"]
+    return recommendation["postal_code"]
 
 
 def get_recommendation_district_id(recommendation: dict) -> str:
@@ -349,6 +335,19 @@ def get_recommendation_district_id(recommendation: dict) -> str:
         district id of the recommendation
     """
     return recommendation["district_id"]
+
+
+def get_subscription_district_id(subscription: dict) -> str:
+    """
+    Returns the district id of the given dict
+
+    Args:
+        subscription: dict given by get subscriptions
+
+    Returns:
+        district id of the subscription
+    """
+    return subscription["district_id"]
 
 
 def get_language(chat_id: int) -> Language:

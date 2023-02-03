@@ -1,4 +1,3 @@
-import telebot.types
 from requests import HTTPError
 
 import sender
@@ -13,9 +12,14 @@ from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from error import error_handler, illegal_state_handler, help_handler
 
+"""
+get_non_covid_dict_from_coordinates try statement drum
+get_postal_code_dicts_in_polygon nach plz suchen
+get_non_covid_dict_suggestions
+"""
 
-def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str,
-                               district_id_bool: bool = True, place_id_bool: bool = True):
+
+def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str):
     """
     When place_id_bool and district_id_bool are True then both will be in command (place_id first)
 
@@ -23,8 +27,6 @@ def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: s
         chat_id: an Integer for the chat id of the user
         dicts: list with the dicts from place_converter
         command_begin: a string with the beginning of the callback command (has to end with ;)
-        district_id_bool: boolean when True the district_id will be in the command
-        place_id_bool: boolean when True the place_id will be in command
     """
     markup = InlineKeyboardMarkup()
 
@@ -38,24 +40,13 @@ def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: s
     for dic in dicts:
         place_name = place_converter.get_place_name_from_dict(dic)
         district_name = place_converter.get_district_name_from_dict(dic)
-        place_id = place_converter.get_place_id_from_dict(dic)
         district_id = place_converter.get_district_id_from_dict(dic)
+        postal_code = place_converter.get_postal_code_from_dict(dic)
         button_name = str(i)
         if place_name is None:
             place_name = "---"
 
-        command = command_begin
-
-        if not place_id_bool and not district_id_bool:
-            error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
-            return
-        if place_id_bool:
-            command = command + place_id
-            if district_id_bool:
-                command = command + ";" + district_id
-        else:
-            if district_id_bool:
-                command = command + district_id
+        command = command_begin + postal_code + ";" + district_id
 
         button = sender.create_inline_button(button_name, command)
         buttons.append(button)
@@ -63,6 +54,7 @@ def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: s
             markup.add(buttons[0], buttons[1], buttons[2])
             buttons = []
         locations_text.append(text_templates.get_select_location_for_one_location_messsage(district_name, place_name,
+                                                                                           postal_code,
                                                                                            button_name))
         i = i + 1
 
@@ -269,25 +261,27 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
         buttons = []
         subscriptions_text = []
         i = 0
-        for location in subscriptions.keys():
-            command = Commands.DELETE_SUBSCRIPTION.value + " " + location + " "
-            location_name = place_converter.get_name_for_id(location)
+        for postal_code in subscriptions.keys():
+            district_id = data_service.get_subscription_district_id(subscriptions[postal_code])
+            command = Commands.DELETE_SUBSCRIPTION.value + ";" + postal_code + ";" + district_id + ";"
+            location_name = get_location_name(district_id, postal_code)
             warnings = []
             levels = []
             corresponding_buttons = []
-            for warning in subscriptions[location]:
-                warning_name = _get_general_warning_name(nina_service.WarnType(warning))
-                button_name = str(i)
-                button = sender.create_inline_button(button_name, command + warning)
-                warnings.append(warning_name)
-                level = str(subscriptions[location][warning])
-                levels.append(text_templates.get_button_name(Button(level)))
-                corresponding_buttons.append(button_name)
-                buttons.append(button)
-                if len(buttons) == 3:
-                    markup.add(buttons[0], buttons[1], buttons[2])
-                    buttons = []
-                i = i + 1
+            for warning in subscriptions[postal_code]:
+                if warning != "district_id":
+                    warning_name = _get_general_warning_name(nina_service.WarnType(warning))
+                    button_name = str(i)
+                    button = sender.create_inline_button(button_name, command + warning)
+                    warnings.append(warning_name)
+                    level = str(subscriptions[postal_code][warning])
+                    levels.append(text_templates.get_button_name(Button(level)))
+                    corresponding_buttons.append(button_name)
+                    buttons.append(button)
+                    if len(buttons) == 3:
+                        markup.add(buttons[0], buttons[1], buttons[2])
+                        buttons = []
+                    i = i + 1
             subscriptions_text.append(
                 text_templates.get_delete_subscriptions_for_one_location_messsage(location_name, warnings, levels,
                                                                                   corresponding_buttons))
@@ -403,27 +397,27 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         callback_command: a string which contains the command that the inline buttons will send
     """
     split_command = callback_command.split(';')
-    if len(split_command) < 2:
+    if len(split_command) < 3:
         return
-    location = split_command[1]
-    location_name = place_converter.get_name_for_id(location)
-    if len(split_command) == 2:
+    district_id = split_command[2]
+    postal_code = split_command[1]
+    location_name = get_location_name(district_id, postal_code)
+    if len(split_command) == 3:
         markup = InlineKeyboardMarkup()
-        command = Commands.ADD_SUBSCRIPTION.value + ";" + location + ";"
 
         for warning in list(nina_service.WarnType):
             if warning == nina_service.WarnType.NONE:
                 break
             warn_name = _get_general_warning_name(warning)
-            button = sender.create_inline_button(warn_name, command + str(warning.value))
+            button = sender.create_inline_button(warn_name, callback_command + ";" + str(warning.value))
             markup.add(button)
 
         cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
         markup.add(cancel_button)
         sender.send_message(chat_id, text_templates.get_adding_subscription_warning_message(location_name), markup)
         return
-    warning = split_command[2]
-    if len(split_command) == 3:
+    warning = split_command[3]
+    if len(split_command) == 4:
         # first see if user has set a default level
         default_level = data_service.get_default_level(chat_id)
         if default_level != WarningSeverity.MANUAL:
@@ -445,13 +439,14 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         sender.send_message(chat_id, message, markup)
     else:
         # done with process of adding subscription, and it can now be added
-        warning_level = split_command[3]
+        warning_level = split_command[4]
         warning_type = nina_service.WarnType(warning)
 
-        data_service.add_subscription(chat_id, location, str(warning_type.value), str(warning_level))
+        data_service.add_subscription(chat_id, postal_code, district_id, str(warning_type.value), str(warning_level))
 
         show_subscriptions(chat_id)
-        inline_button_for_adding_subscriptions(chat_id, split_command[0] + ";" + split_command[1])
+        new_callback_command = split_command[0] + ";" + split_command[1] + ";" + split_command[2]
+        inline_button_for_adding_subscriptions(chat_id, new_callback_command)
 
 
 def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str):
@@ -463,14 +458,16 @@ def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str
         chat_id: an integer for the chatID that the message is sent to
         callback_command: a string which contains the command that the inline buttons will send
     """
-    split_command = callback_command.split(' ')
-    if len(split_command) < 3:
+    split_command = callback_command.split(';')
+    if len(split_command) < 4:
         return
-    location = split_command[1]
-    warning = split_command[2]
-    data_service.delete_subscription(chat_id, location, warning)
+    postal_code = split_command[1]
+    district_id = split_command[2]
+    warning = split_command[3]
+    data_service.delete_subscription(chat_id, postal_code, warning)
+
     warning_name = _get_general_warning_name(nina_service.WarnType(warning))
-    location_name = place_converter.get_name_for_id(location)
+    location_name = get_location_name(district_id, postal_code)
     sender.send_message(chat_id, text_templates.get_delete_subscription_message(location_name, warning_name))
 
 
@@ -484,7 +481,7 @@ def location_for_favorites(chat_id: int, text: str):
     """
     try:
         command_begin = Commands.ADD_RECOMMENDATION.value + ";"
-        suggestion_dicts = place_converter.get_dict_suggestions(text)
+        suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
         _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
     except KeyError:
         error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
@@ -500,13 +497,13 @@ def location_for_adding_subscription(chat_id: int, text: str):
     """
     try:
         command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
-        suggestion_dicts = place_converter.get_dict_suggestions(text)
-        _make_location_suggestions(chat_id, suggestion_dicts, command_begin, place_id_bool=True, district_id_bool=False)
+        suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
+        _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
     except KeyError:
         error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
 
 
-def location_for_warning(chat_id, text: str, command: Commands):
+def location_for_warning(chat_id: int, text: str, command: Commands):
     """
     This method will be called when the user is in the state for calling a warning
     and then sends a message
@@ -518,7 +515,7 @@ def location_for_warning(chat_id, text: str, command: Commands):
     """
     try:
         command_begin = command.value + ";"
-        suggestion_dicts = place_converter.get_dict_suggestions(text)
+        suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
         _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
     except KeyError:
         error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
@@ -531,140 +528,107 @@ def show_suggestions(chat_id: int, command_begin: str):
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
-        command_begin: a string with the beginning of the command of each favorite (has to end with ;)
+        command_begin: a string with the beginning of the command of each favorite (has to end with ';')
     """
     markup = InlineKeyboardMarkup()
     recommendations = data_service.get_suggestions(chat_id)
     for recommendation in recommendations:
-        name = data_service.get_recommendation_name(recommendation)
-        place_id = data_service.get_recommendation_place_id(recommendation)
+        postal_code = data_service.get_recommendation_postal_code(recommendation)
         district_id = data_service.get_recommendation_district_id(recommendation)
-        button = sender.create_inline_button(name, command_begin + place_id + ";" + district_id)
+        location_name = get_location_name(district_id, postal_code)
+        button = sender.create_inline_button(location_name, command_begin + postal_code + ";" + district_id)
         markup.add(button)
     cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
     markup.add(cancel_button)
     sender.send_message(chat_id, text_templates.get_answers(Answers.CLICK_SUGGESTION), markup)
 
 
-def general_warning(chat_id: int, warning: WarnType, warnings: list[nina_service.GeneralWarning] = None):
+def detailed_general_warning(chat_id: int, warning: WarnType, postal_code: str, district_id: str):
     """
     Sets the chat action of the bot to typing
     Calls for the warnings (warning) from the Nina API via the nina_service
-    Or if warning is NONE then the given list warnings will be sent to the user
     Sends this information back to the chat (chat_id)
-
-    TODO remove this method when detailed general warnings is working
-    """
-    keyboard = None
-    if warning != nina_service.WarnType.NONE:
-        sender.send_chat_action(chat_id, "typing")
-        keyboard = frontend_helper.get_warning_keyboard_buttons()
-        data_service.set_user_state(chat_id, 2)
-        try:
-            warnings = nina_service.call_general_warning(warning)
-        except:
-            error_handler(chat_id, ErrorCodes.NINA_API)
-            return
-        if len(warnings) == 0:
-            sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
-                                keyboard)
-            return
-
-    counter = 0
-    for warning in warnings:
-        message = text_templates.get_general_warning_message(str(warning.id), str(warning.version), warning.start_date,
-                                                             str(warning.severity.value), str(warning.type.name),
-                                                             warning.title)
-        try:
-            detail = nina_service.get_detailed_warning(warning.id)
-            sender.send_message(chat_id, message, keyboard)
-        except:
-            counter += 1
-    if counter == (len(warnings) + 1) / 2 and counter != 0:
-        print("Something with pulling general warnings from the nina-API went wrong (" + str(counter) + " of " +
-              str(len(warnings)) + " tries failed)")
-        error_handler(chat_id, ErrorCodes.NINA_API)
-        return
-
-
-def detailed_general_warning(chat_id: int, warning: WarnType, place_id: str,
-                             warnings: list[nina_service.GeneralWarning] = None):
-    """
-    Sets the chat action of the bot to typing
-    Calls for the warnings (warning) from the Nina API via the nina_service
-    Or if warning is NONE then the given list warnings will be sent to the user
-    Sends this information back to the chat (chat_id)
+    And if the user has no subscription for the given postal_code this method will ask the user if they want to add this
+    warning as a subscription
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
         warning: WarnType enum for the general warning that should be sent to the user
-        place_id: string with the place_id
-        warnings: optional list of GeneralWarning enums when the warning was already requested from nina_service
+        postal_code: string with the postal code
+        district_id: string with the district id
     """
-    keyboard = None
-    if warning != nina_service.WarnType.NONE:
-        sender.send_chat_action(chat_id, "typing")
-        keyboard = frontend_helper.get_warning_keyboard_buttons()
-        data_service.set_user_state(chat_id, 2)
-        try:
-            warnings = nina_service.call_general_warning(warning)
-        except HTTPError:
-            error_handler(chat_id, ErrorCodes.NINA_API)
-            return
-        if len(warnings) == 0:
-            sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
-                                keyboard)
-            return
-
-    counter = 0
-    for warning_from_nina in warnings:
-        message = text_templates.get_general_warning_message(str(warning_from_nina.id),
-                                                             str(warning_from_nina.version),
-                                                             warning_from_nina.start_date,
-                                                             str(warning_from_nina.severity.value),
-                                                             str(warning_from_nina.type.name),
-                                                             warning_from_nina.title)
-        try:
-            detail = nina_service.get_detailed_warning(warning_from_nina.id)
-            # TODO add detail
-            sender.send_message(chat_id, message, keyboard)
-        except:
-            counter += 1
-    # if the api throws too many exceptions let the user know
-    if counter == (len(warnings) + 1) / 2 and counter != 0:
-        print("Something with pulling general warnings from the nina-API went wrong (" + str(counter) + " of " +
-              str(len(warnings)) + " tries failed)")
+    if warning == nina_service.WarnType.NONE:
+        return
+    sender.send_chat_action(chat_id, "typing")
+    keyboard = frontend_helper.get_warning_keyboard_buttons()
+    data_service.set_user_state(chat_id, 2)
+    try:
+        warnings = nina_service.call_general_warning(warning)
+    except HTTPError:
         error_handler(chat_id, ErrorCodes.NINA_API)
         return
+    if len(warnings) == 0:
+        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
+                            keyboard)
+        return
 
-    if warning != nina_service.WarnType.NONE:
-        subscriptions = data_service.get_subscriptions(chat_id)
-        # if the called warning is not in the users subscriptions yet, ask if they want to add it
-        if place_id not in subscriptions:
-            markup = InlineKeyboardMarkup()
-            command = Commands.ADD_SUBSCRIPTION.value + ";" + place_id + ";"
+    num_sent = send_detailed_general_warnings(chat_id, warnings, [postal_code])
+    if num_sent == 0:
+        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS), keyboard)
 
-            button = sender.create_inline_button(text_templates.get_answers(Answers.YES), command + str(warning.value))
-            markup.add(button)
+    subscriptions = data_service.get_subscriptions(chat_id)
+    # if the called warning is not in the users subscriptions yet, ask if they want to add it
+    if postal_code not in subscriptions:
+        markup = InlineKeyboardMarkup()
+        command = Commands.ADD_SUBSCRIPTION.value + ";" + postal_code + ";" + district_id + ";"
 
-            cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
-            markup.add(cancel_button)
-            location_name = place_converter.get_name_for_id(place_id)
-            warning_name = _get_general_warning_name(warning)
-            answer = text_templates.get_quickly_add_to_subscriptions_message(location_name, warning_name)
-            sender.send_message(chat_id, answer, markup)
+        button = sender.create_inline_button(text_templates.get_answers(Answers.YES), command + str(warning.value))
+        markup.add(button)
+
+        cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
+        markup.add(cancel_button)
+
+        location_name = get_location_name(district_id, postal_code)
+        warning_name = _get_general_warning_name(warning)
+        answer = text_templates.get_quickly_add_to_subscriptions_message(location_name, warning_name)
+        sender.send_message(chat_id, answer, markup)
 
 
-def covid_info(chat_id: int, city_name: str, district_id: str, info: nina_service.CovidInfo = None):
+def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_service.GeneralWarning],
+                                   relevant_postal_codes: list[str]) -> int:
+    """
+    This method will send a detailed warning for each warning in general_warnings when the warning is relevant for
+    at least one of the given postal codes (relevant_postal_codes)
+
+    Args:
+        chat_id: integer for the users chat id
+        general_warnings: list of GeneralWarning enum for all general_warnings which could be relevant for sending
+        relevant_postal_codes: list of strings for all relevant postal codes
+
+    Returns:
+        integer with the number of relevant warnings that were sent
+    """
+    relevant_warning_ids = _get_all_relevant_warning_ids(general_warnings, relevant_postal_codes)
+    for warning_id in relevant_warning_ids:
+        try:
+            detail = nina_service.get_detailed_warning(warning_id)
+            # TODO make a real message
+            sender.send_message(chat_id, detail.id)
+        except HTTPError:
+            pass
+    return len(relevant_warning_ids)
+
+
+def covid_info(chat_id: int, postal_code: str, district_id: str, info: nina_service.CovidInfo = None):
     """
     Sets the chat action of the bot to typing
-    Calls for covid information of a city (city_name) from the Nina API via the nina_service
+    Calls for covid information of a city from the Nina API via the nina_service
     Or if the parameter info is set it will take this information instead
     Sends this information back to the chat (chat_id)
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
-        city_name: a string with the name of the city
+        postal_code: a string with the postal code of the city
         district_id: a string with the district id for the rules of this city
         info: an Enum CovidInfo from nina_service if this parameter is set the info will not be pulled from nina_service
     """
@@ -675,25 +639,24 @@ def covid_info(chat_id: int, city_name: str, district_id: str, info: nina_servic
         except:
             error_handler(chat_id, ErrorCodes.NINA_API)
             return
-    if city_name is None:
-        city_name = place_converter.get_name_for_id(district_id)
-    message = text_templates.get_covid_info_message(city_name, info.infektionsgefahr_stufe,
+    location_name = get_location_name(district_id, postal_code)
+    message = text_templates.get_covid_info_message(location_name, info.infektionsgefahr_stufe,
                                                     info.sieben_tage_inzidenz_bundesland,
                                                     info.sieben_tage_inzidenz_kreis, info.allgemeine_hinweise)
     data_service.set_user_state(chat_id, 20)
     sender.send_message(chat_id, message, frontend_helper.get_covid_keyboard())
 
 
-def covid_rules(chat_id: int, city_name: str, district_id: str, rules: nina_service.CovidRules = None):
+def covid_rules(chat_id: int, postal_code: str, district_id: str, rules: nina_service.CovidRules = None):
     """
     Sets the chat action of the bot to typing\n
-    Calls for covid rules of a city (city_name) from the Nina API via the nina_service\n
+    Calls for covid rules of a city from the Nina API via the nina_service\n
     Or if the parameter info is set it will take this information instead\n
     Sends this information back to the chat (chat_id)
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
-        city_name: a string with the name of the city
+        postal_code: a string with the postal code of the city
         district_id: a string with the district id for the rules of this city
         rules: an Enum of CovidRules from nina_service if this parameter is set the info will not be pulled from
             nina_service
@@ -705,9 +668,8 @@ def covid_rules(chat_id: int, city_name: str, district_id: str, rules: nina_serv
         except:
             error_handler(chat_id, ErrorCodes.NINA_API)
             return
-    if city_name is None:
-        city_name = place_converter.get_name_for_id(district_id)
-    message = text_templates.get_covid_rules_message(city_name, rules.vaccine_info, rules.contact_terms,
+    location_name = get_location_name(district_id, postal_code)
+    message = text_templates.get_covid_rules_message(location_name, rules.vaccine_info, rules.contact_terms,
                                                      rules.school_kita_rules,
                                                      rules.hospital_rules, rules.travelling_rules, rules.fines)
     data_service.set_user_state(chat_id, 20)
@@ -727,14 +689,18 @@ def show_subscriptions(chat_id: int, only_show: bool = False):
         sender.send_message(chat_id, text_templates.get_answers(Answers.NO_SUBSCRIPTIONS))
         return
     subscriptions_text = []
-    for location in subscriptions.keys():
+    for postal_code in subscriptions.keys():
+        district_id = data_service.get_subscription_district_id(subscriptions[postal_code])
         warnings = []
         levels = []
-        for warning in subscriptions[location].keys():
-            warnings.append(_get_general_warning_name(nina_service.WarnType(warning)))
-            level = str(subscriptions[location][warning])
-            levels.append(text_templates.get_button_name(Button(level)))
-        location_name = place_converter.get_name_for_id(location)
+        for warning in subscriptions[postal_code].keys():
+            if warning != "district_id":
+                warnings.append(_get_general_warning_name(nina_service.WarnType(warning)))
+                level = str(subscriptions[postal_code][warning])
+                levels.append(text_templates.get_button_name(Button(level)))
+        district_name = place_converter.get_district_name_for_district_id(district_id)
+        place_name = place_converter.get_place_name_for_postal_code(postal_code)
+        location_name = text_templates.get_display_name_for_location(district_name, place_name, postal_code)
         subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
                                                                                                   warnings,
                                                                                                   levels))
@@ -752,14 +718,21 @@ def location_was_sent(chat_id: int, latitude: float, longitude: float):
         latitude: float with latitude
         longitude: float with longitude
     """
-    suggestion_dicts = place_converter.get_suggestion_dicts_from_coordinates(latitude=latitude, longitude=longitude)
+    try:
+        suggestion_dict = place_converter.get_non_covid_dict_from_coordinates(latitude=latitude, longitude=longitude)
+    except:
+        error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
+        return
     state = data_service.get_user_state(chat_id)
+    district_id = place_converter.get_district_id_from_dict(suggestion_dict)
+    postal_code = place_converter.get_postal_code_from_dict(suggestion_dict)
     if state == 11:
-        command_begin = Commands.ADD_RECOMMENDATION.value + ";"
-        _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        # add recommendation
+        add_recommendation_in_database(chat_id, postal_code, district_id)
     elif state == 101:
-        command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
-        _make_location_suggestions(chat_id, suggestion_dicts, command_begin, district_id_bool=False, place_id_bool=True)
+        # add subscription
+        callback_data = Commands.ADD_SUBSCRIPTION.value + ";" + postal_code + ";" + district_id
+        inline_button_for_adding_subscriptions(chat_id, callback_data)
     else:
         error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED)
         return
@@ -798,26 +771,26 @@ def change_auto_covid_updates_in_database(chat_id: int, updates: int):
     sender.send_message(chat_id, text_templates.get_changed_auto_covid_updates_message(how_often_text))
 
 
-def add_recommendation_in_database(chat_id: int, place_id: str, district_id: str, location_name: str = None):
+def add_recommendation_in_database(chat_id: int, postal_code: str, district_id: str):
     """
     This method changes the recommended locations in the database and informs the user about the recommended locations
     that are stored now
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
-        location_name: string with the location name of the recommendation
-        place_id: string with the place id
-        district_id: string with district id
+        postal_code: string with the postal code of the favorite
+        district_id: string with district id of the favorite
     """
-    if location_name is None:
-        location_name = place_converter.get_name_for_id(place_id)
     # update the database
-    recommendations = data_service.add_suggestion(chat_id, location_name, place_id, district_id)
+    recommendations = data_service.add_suggestion(chat_id, postal_code, district_id)
 
     # inform the user
     names = []
     for recommendation in recommendations:
-        names.append(data_service.get_recommendation_name(recommendation))
+        local_district_id = data_service.get_recommendation_district_id(recommendation)
+        local_postal_code = data_service.get_recommendation_postal_code(recommendation)
+        location_name = get_location_name(local_district_id, local_postal_code)
+        names.append(location_name)
     message = text_templates.get_show_recommendations_message(names)
     sender.send_message(chat_id, message, frontend_helper.get_send_location_keyboard())
 
@@ -860,3 +833,93 @@ def _get_general_warning_name(warn_type: nina_service.WarnType) -> str:
     Helper Method to convert a nina_service.WarnType to a string from text_templates
     """
     return text_templates.get_button_name(Button[warn_type.name])
+
+
+def get_location_name(district_id: str, postal_code: str) -> str:
+    district_name = place_converter.get_district_name_for_district_id(district_id)
+    place_name = place_converter.get_place_name_for_postal_code(postal_code)
+    return text_templates.get_display_name_for_location(district_name, place_name, postal_code)
+
+
+def _get_all_relevant_warning_ids(general_warnings: list[nina_service.GeneralWarning], relevant_postal_codes: list[str]):
+    result_ids = []
+    for warning in general_warnings:
+        try:
+            # TODO get geocodes for warning.id from nina_service
+            coordinates = [[
+                    12.8592,
+                    50.4562
+                ],
+                [
+                    12.8638,
+                    50.461
+                ],
+                [
+                    12.8877,
+                    50.4635
+                ],
+                [
+                    12.8967,
+                    50.4569
+                ],
+                [
+                    12.9176,
+                    50.4586
+                ],
+                [
+                    12.9311,
+                    50.4458
+                ],
+                [
+                    12.9936,
+                    50.4669
+                ],
+                [
+                    13.0124,
+                    50.4671
+                ],
+                [
+                    13.024,
+                    50.4533
+                ],
+                [
+                    12.9851,
+                    50.42
+                ],
+                [
+                    12.9437,
+                    50.4121
+                ],
+                [
+                    12.9477,
+                    50.4045
+                ],
+                [
+                    12.8942,
+                    50.4302
+                ],
+                [
+                    12.898,
+                    50.4368
+                ],
+                [
+                    12.8592,
+                    50.4562
+                ]]
+            # get all postal_codes inside the polygon coordinates from the warning
+            dicts_in_polygon = place_converter.get_postal_code_dicts_in_polygon(coordinates)
+            # see if at least one of the given postal codes are in the polygon
+            continue_bool = True
+            for postal_code in relevant_postal_codes:
+                for dict_in_polygon in dicts_in_polygon:
+                    postal_code_dict = place_converter.get_postal_code_from_dict(dict_in_polygon)
+                    if postal_code_dict == postal_code:
+                        if warning.id not in result_ids:
+                            result_ids.append(warning.id)
+                            continue_bool = False
+                            break
+                if not continue_bool:
+                    break
+        except:
+            pass
+    return result_ids
