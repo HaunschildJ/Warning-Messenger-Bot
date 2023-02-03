@@ -1,71 +1,13 @@
 import json
 import string
-from enum import Enum
+import os
 
-file_path = "data/textTemplates.json"
+from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity, BotUsageHelp
 
+file_path = "data/text_templates.json"
 
-class ReplaceableAnswer(Enum):
-    COVID_INFO = "covid_info"
-    COVID_RULES = "covid_rules"
-    GENERAL_WARNING = "general_warning"
-    GREETING = "greeting"
-    ADD_SUBSCRIPTION = "add_subscription"
-    ADDING_SUBSCRIPTION_WARNING = "adding_subscription_warning"
-    ADDING_SUBSCRIPTION_LEVEL = "adding_subscription_level"
-    DELETE_SUBSCRIPTION = "delete_subscription"
-    CHANGED_AUTO_COVID_UPDATES = "changed_auto_covid_updates"
-
-
-class Button(Enum):
-    SETTINGS = "settings"
-    WARNINGS = "warnings"
-    EMERGENCY_TIPS = "emergency_tips"
-    COVID_INFORMATION = "covid_information"
-    COVID_RULES = "covid_rules"
-    HELP = "help"
-    BACK_TO_MAIN_MENU = "back_to_main_menu"
-    AUTO_WARNING = "auto_warning"
-    SUGGESTION_LOCATION = "suggestion_location"
-    SUBSCRIPTION = "subscription"
-    AUTO_COVID_INFO = "auto_covid_info"
-    LANGUAGE = "language"
-    CANCEL = "cancel"
-    SEND_LOCATION = "send_location"
-    WEATHER = "weather"  # name needs to be equal to name in nina_service.WarnType
-    GENERAL = "general"  # name needs to be equal to name in nina_service.WarnType
-    DISASTER = "disaster"  # name needs to be equal to name in nina_service.WarnType
-    FLOOD = "flood"  # name needs to be equal to name in nina_service.WarnType
-    SHOW_SUBSCRIPTION = "show_subscriptions"
-    DELETE_SUBSCRIPTION = "delete_subscription"
-    ADD_SUBSCRIPTION = "add_subscription"
-    DELETE = "delete"
-    NEVER = "never"  # name needs to be equal to name in data_service.ReceiveInformation
-    DAILY = "daily"  # name needs to be equal to name in data_service.ReceiveInformation
-    WEEKLY = "weekly"  # name needs to be equal to name in data_service.ReceiveInformation
-    MONTHLY = "monthly"  # name needs to be equal to name in data_service.ReceiveInformation
-    MINOR = "minor"
-    MODERATE = "moderate"
-    SEVERE = "severe"
-
-
-class Answers(Enum):
-    YES = "yes"
-    NO = "no"
-    SETTINGS = "settings"
-    WARNINGS = "warnings"
-    HELP = "help"
-    AUTO_WARNINGS_TEXT = "auto_warnings_text"
-    AUTO_WARNINGS_ENABLE = "auto_warnings_enable"
-    AUTO_WARNINGS_DISABLE = "auto_warnings_disable"
-    NO_CURRENT_WARNINGS = "no_current_warnings"
-    BACK_TO_MAIN_MENU = "back_to_main_menu"
-    SUGGESTION_HELPER_TEXT = "suggestion_helper_text"
-    MANAGE_SUBSCRIPTIONS = "manage_subscriptions"
-    MANAGE_AUTO_COVID_UPDATES = "manage_auto_covid_updates"
-    NO_SUBSCRIPTIONS = "no_subscriptions"
-    CLICK_SUGGESTION = "click_suggestion"
-    NO_LOCATION_FOUND = "no_location_found"
+if not os.path.exists(file_path):
+    raise FileNotFoundError("text templates file not found in given path")
 
 
 def _read_file(path: str):
@@ -135,64 +77,21 @@ def get_replaceable_answer(r_answer: ReplaceableAnswer) -> string:
     return result
 
 
-def _get_show_subscriptions() -> dict:
+def _get_complex_answer_dict(name: str) -> dict:
     """
-    Returns a dictionary with the format for showing subscriptions
+    Returns a dictionary with the format for the given parameter
+
+    Arguments:
+        name: string with the name to search for in the json
 
     Returns:
-        a dictionary with the format for showing subscriptions
+        a dictionary with the format requested with name
     """
-
     data = _read_file(file_path)
 
     for topic in data:
-        if topic['topic'] == "show_subscriptions":
-            return topic
-
-
-def _get_delete_subscriptions() -> dict:
-    """
-    Returns a dictionary with the format for deleting subscriptions
-
-    Returns:
-        a dictionary with the format for deleting subscriptions
-    """
-
-    data = _read_file(file_path)
-
-    for topic in data:
-        if topic['topic'] == "delete_subscription":
-            return topic
-
-
-def _get_select_location() -> dict:
-    """
-    Returns a dictionary with the format for selecting a location
-
-    Returns:
-        a dictionary with the format for selecting a location
-    """
-
-    data = _read_file(file_path)
-
-    for topic in data:
-        if topic['topic'] == "select_location":
-            return topic
-
-
-def _get_show_recommendations() -> dict:
-    """
-    Returns a dictionary with the format for showing recommendations
-
-    Returns:
-        a dictionary with the format for showing recommendations
-    """
-
-    data = _read_file(file_path)
-
-    for topic in data:
-        if topic['topic'] == "recommendations":
-            return topic
+        if topic['topic'] == "complex_answers":
+            return topic["all_answers"][name]
 
 
 # fill in the replaceable answer ---------------------------------------------------------------------------------------
@@ -247,8 +146,8 @@ def get_covid_info_message(location: str, infektionsgefahr_stufe: str, sieben_ta
     return message
 
 
-def get_covid_rules_message(location: str, vaccine_info: str, contact_terms: str, school_kita_rules: str, hospital_rules: str,
-                            travelling_rules: str, fines: str) -> str:
+def get_covid_rules_message(location: str, vaccine_info: str, contact_terms: str, school_kita_rules: str,
+                            hospital_rules: str, travelling_rules: str, fines: str) -> str:
     """
     This method will replace the placeholder (%name) with the given parameters from the message for covid rules in
     the json
@@ -347,7 +246,7 @@ def get_show_subscriptions_for_one_location_messsage(location: str, warnings: li
     Returns:
         string with text for all subscriptions of one location
     """
-    dic = _get_show_subscriptions()
+    dic = _get_complex_answer_dict("show_subscriptions")
     message = dic["location"]
     message = message.replace("%location", location)
     for (warning, level) in zip(warnings, levels):
@@ -358,20 +257,25 @@ def get_show_subscriptions_for_one_location_messsage(location: str, warnings: li
     return message
 
 
-def get_show_subscriptions_message(subscriptions: list[str]) -> str:
+def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = False) -> str:
     """
     This method will build the show subscription message.
 
     Arguments:
         subscriptions: list of strings given from multiple calls of get_show_subscriptions_for_one_location_messsage
+        only_show: a boolean when True then the user only want to see subscriptions and has not recently added one
 
     Returns:
         The subscriptions combined with the headline for showing subscriptions
     """
-    dic = _get_show_subscriptions()
+    dic = _get_complex_answer_dict("show_subscriptions")
     message = dic["headline"]
+    if not only_show:
+        message = dic["headline_after_insertion"] + "\n" + message
     for subscription in subscriptions:
         message = message + "\n" + subscription
+    if not only_show:
+        message = message + "\n" + dic["end_after_insertion"]
     return message
 
 
@@ -394,7 +298,7 @@ def get_delete_subscriptions_for_one_location_messsage(location: str, warnings: 
     Returns:
         string with text for all subscriptions of one location and an information to the corresponding button name
     """
-    dic = _get_delete_subscriptions()
+    dic = _get_complex_answer_dict("delete_subscription")
     message = dic["location"]
     message = message.replace("%location", location)
     for (warning, level, button) in zip(warnings, levels, corresponding_button_names):
@@ -416,7 +320,7 @@ def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
     Returns:
         string with the subscriptions combined with the headline for deleting subscriptions
     """
-    dic = _get_delete_subscriptions()
+    dic = _get_complex_answer_dict("delete_subscription")
     message = dic["headline"]
     for subscription in subscriptions:
         message = message + "\n" + subscription
@@ -440,7 +344,7 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
     Returns:
         string with the text for one suggestion
     """
-    dic = _get_select_location()
+    dic = _get_complex_answer_dict("select_location")
     if place_name is None:
         place_name = "---"
     message = dic["text"]
@@ -461,7 +365,7 @@ def get_select_location_message(locations: list[str]) -> str:
     Returns:
         string with the combined suggestions and a headline (and ending)
     """
-    dic = _get_select_location()
+    dic = _get_complex_answer_dict("select_location")
     message = dic["headline"]
     for location in locations:
         message = message + "\n" + location
@@ -486,6 +390,24 @@ def get_changed_auto_covid_updates_message(interval: str) -> str:
     return message
 
 
+def get_quickly_add_to_subscriptions_message(location_name: str, warning_name: str) -> str:
+    """
+    This method will return the message that is sent to the user when they get asked if they want to add a warning to
+    subscriptions
+
+    Arguments:
+        location_name: string with the location name
+        warning_name: string with the warning name
+
+    Returns:
+        string with the message asking the user if they want to add the warning to their subscriptions
+    """
+    message = get_replaceable_answer(ReplaceableAnswer.QUICKLY_ADD_TO_SUBSCRIPTIONS)
+    message = message.replace("%warning", warning_name)
+    message = message.replace("%location", location_name)
+    return message
+
+
 def get_show_recommendations_message(recommendations: list[str]) -> str:
     """
     This method will build the message containing the recommendations that the user has set
@@ -496,9 +418,78 @@ def get_show_recommendations_message(recommendations: list[str]) -> str:
     Returns:
         string with the message showing the user all recommendations
     """
-    dic = _get_show_recommendations()
+    dic = _get_complex_answer_dict("recommendations")
     message = dic["headline"]
     for suggestion in recommendations:
         message = message + "\n" + dic["recommendation"].replace("%r", suggestion)
     message = message + "\n" + dic["end"]
+    return message
+
+
+def get_set_default_level_message(level: WarningSeverity) -> str:
+    """
+    This method will build the message to inform the user what default level they have now
+
+    Arguments:
+        level: WarningSeverity representing the new default level
+
+    Returns:
+        string with the message showing the default level the user has now
+    """
+    dic = _get_complex_answer_dict("set_default_level")
+    if level == WarningSeverity.MANUAL:
+        message = dic["manual"]
+    else:
+        message = dic["other"]
+        message = message.replace("%level", get_button_name(Button[level.name]))
+    return message
+
+
+def get_faq_message(questions: list[str], answers: list[str]) -> str:
+    """
+    This method will create the faq answer with the given questions and answers
+    IMPORTANT: question[0] gets answered by answer[0] and so on
+
+    Args:
+        questions: list with the questions as string
+        answers: list with the answers as strings
+
+    Returns:
+        string with the faq
+    """
+    dic = _get_complex_answer_dict("faq")
+
+    message = dic["headline"]
+    for (question, answer) in zip(questions, answers):
+        one_faq = dic["question_format"]
+        one_faq = one_faq.replace("%question", question)
+        one_faq = one_faq.replace("%answer", answer)
+        message = message + "\n" + one_faq
+    message = message + "\n" + dic["end"]
+    return message
+
+
+def get_help_message(help_for: BotUsageHelp) -> str:
+    """
+    This method will create the requested help answer
+
+    Args:
+        help_for: BotUsageHelp enum which tells this method what help to return
+
+    Returns:
+        string with the requested help message
+    """
+    dic = _get_complex_answer_dict("bot_usage")
+
+    if help_for == BotUsageHelp.EVERYTHING:
+        message = dic["headline"]
+        list_help = list(BotUsageHelp)
+        list_help.remove(BotUsageHelp.EVERYTHING)
+        for help_in in list_help:
+            one_help = "\n\n" + dic[help_in.value + "_navigation"]
+            one_help = one_help + "\n" + dic[help_in.value]
+            message = message + one_help
+    else:
+        message = dic[help_for.value]
+    message = message + "\n" + dic["general"]
     return message

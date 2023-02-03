@@ -1,23 +1,15 @@
 from dataclasses import dataclass
-from enum import Enum
 from datetime import datetime
 from typing import List
+
+from enum_types import WarningSeverity
+from enum_types import WarnType
+from enum_types import WarningType
 
 import requests
 import nina_string_helper
 
-_base_url = "https://warnung.bund.de/api31"
-
-
-class WarnType(Enum):
-    """
-    this enum is used to differ between the different general warnings from the nina api
-    """
-    WEATHER = 0
-    GENERAL = 1
-    DISASTER = 2
-    FLOOD = 3
-    NONE = 4
+_API_URL = "https://warnung.bund.de/api31"
 
 
 @dataclass
@@ -56,7 +48,7 @@ def get_covid_rules(district_id: str) -> CovidRules:
 
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
-    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
+    response_raw = requests.get(_API_URL + covid_info_api + district_id + ".json")
 
     response = response_raw.json()
 
@@ -91,7 +83,7 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     # aktuelle Coronameldungen abrufen nach Gebietscode
     covid_info_api = "/appdata/covid/covidrules/DE/"
 
-    response_raw = requests.get(_base_url + covid_info_api + district_id + ".json")
+    response_raw = requests.get(_API_URL + covid_info_api + district_id + ".json")
     response = response_raw.json()
     infektion_danger_level = response["level"]["headline"]
 
@@ -104,39 +96,38 @@ def get_covid_infos(district_id: str) -> CovidInfo:
 
 
 class WarningSeverity(Enum):
-    MINOR = "Minor"
-    MODERATE = "Moderate"
-    SEVERE = "Severe"
-    UNKNOWN = "Unknown"
+    Minor = 0
+    Moderate = 1
+    Severe = 2
+    Unknown = 3
 
 
 def _get_warning_severity(warn_severity: str) -> WarningSeverity:
     """
     translates a string into an enum of WarningSeverity
-    :param warn_severity: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningSeverity.Unknown
-    :return: if the string is a valid enum, the enum if not: WarningSeverity.Unknown
+    :param warn_severity: the exact Enum as a String, for example: "Minor" <- valid
+    :return: if the string is a valid enum, the enum if not: WarningSeverity.MINOR
     """
     try:
         return WarningSeverity(warn_severity)
     except KeyError:
-        return WarningSeverity.UNKNOWN
+        return WarningSeverity.Unknown
 
 
 class WarningType(Enum):
-    UPDATE = "Update"
-    ALERT = "Alert"
-    CANCEL = "Cancel"
-    UNKNOWN = "Unknown"
+    Update = 0
+    Alert = 1
+    Cancel = 2
+    Unknown = 3
 
-
-def _get_warning_type(warn_type: str) -> WarningType:
+def _get_warning_type(warning_type: str) -> WarningType:
     """
     translates a string into an enum of WarningType
-    :param warn_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
+    :param warning_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
     :return: if the string is a valid enum, the enum if not: WarningType.Unknown
     """
     try:
-        return WarningType(warn_type)
+        return WarningType[warn_type]
     except KeyError:
         return WarningType.UNKNOWN
 
@@ -172,7 +163,7 @@ def _poll_general_warning(api_string: str) -> list[GeneralWarning]:
     :return: a list of all warnings that are actual. An empty list is returned if there are none
     :raises HTTPError:
     """
-    response_raw = requests.get(_base_url + api_string)
+    response_raw = requests.get(_API_URL + api_string)
     response = response_raw.json()
 
     warning_list = []
@@ -321,7 +312,7 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
         area = _get_detailed_warning_infos_area(_get_safely(info, "area"))
 
         date_expires = _get_safely(info, "expires")
-        if (date_expires is not None):
+        if date_expires is not None:
             date_expires = _translate_time(date_expires)
 
         infos.append(
@@ -339,7 +330,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     :return: the detailed Warning as a DetailedWarning class
     :raises HTTPError:
     """
-    response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".json")
+    response_raw = requests.get(_API_URL + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
 
     id_response = _get_safely(response, "identifier")
@@ -350,8 +341,7 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     if date_sent is not None:
         date_sent = _translate_time(date_sent)
 
-    infos = _get_detailed_warning_infos(
-        _get_safely(response, "info"))  # _get_detailed_warning_infos already checks if the input is None
+    infos = _get_detailed_warning_infos(_get_safely(response, "info")) #_get_detailed_warning_infos already checks if the input is None
 
     return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
 
@@ -364,7 +354,7 @@ def get_detailed_warning_geo(warning_id: str):
 
     Returns:
         the detailed Warning as a geojson
-    
+
     Raises:
          HTTPError:
     """
@@ -412,3 +402,36 @@ def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
     if warning == WarnType.NONE:
         return []
     return _call_general_warning_map[warning]()
+
+
+def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
+    """
+
+    Returns: a list of tuples where each tuple contains an active warning and its WarnType
+
+    """
+    warnings = []
+    for warn_type in WarnType:
+        for warning in call_general_warning(warn_type):
+            warnings.append((warning, warn_type))
+
+    return warnings
+
+
+def get_warning_locations(warning: GeneralWarning) -> list[str]:
+    """
+
+    Args:
+        warning: warning the locations should be retrieved of
+
+    Returns: a list of locations the warning is relevant for
+
+    """
+    detailed_warning = get_detailed_warning(warning.id)
+    locations = []
+    for info in detailed_warning.infos:
+        for area in info.area:
+            for location in area.area_description.split(", "):
+                locations.append(location)
+
+    return locations
