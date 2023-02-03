@@ -729,6 +729,16 @@ class MyTestCase(unittest.TestCase):
                       'district_name': 'Landshut'}]
         self.assertEqual(should_be, place_converter.get_postal_code_dicts_in_polygon(input_value))
 
+    def test_get_place_name_for_postal_code(self):
+        input_value = "61440"
+        should_be = "Oberursel (Taunus)"
+        self.assertEqual(should_be, place_converter.get_place_name_for_postal_code(input_value))
+
+    def test_get_district_name_for_district_id(self):
+        input_value = "09274"
+        should_be = "Landshut"
+        self.assertEqual(should_be, place_converter.get_district_name_for_district_id(input_value))
+
 
 if __name__ == '__main__':
     unittest.main()

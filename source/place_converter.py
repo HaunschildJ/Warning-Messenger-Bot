@@ -465,7 +465,7 @@ def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, sug
     return suggested_dicts_postal_code
 
 
-def get_non_covid_dict_from_coordinates(latitude: float, longitude: float) -> list[dict]:
+def get_non_covid_dict_from_coordinates(latitude: float, longitude: float) -> dict:
     """
     Returns a dict {'postal_code', 'place_name', 'district_name', 'district_id'} that fits the given
     coordinates
@@ -513,3 +513,27 @@ def get_postal_code_dicts_in_polygon(coordinate_list: list) -> list[dict]:
                                  'district_id': district_id, 'district_name': district_name}
                 list_of_matches.append(matching_dict)
     return list_of_matches
+
+
+def get_place_name_for_postal_code(postal_code: str) -> str:
+    """
+    Returns the place name matching the postal code.
+
+    Arguments:
+        postal_code (str): the given postal code
+    Returns:
+        place_name (str): the place name matching the postal code
+    """
+    return _postal_place_dictionary[postal_code]
+
+
+def get_district_name_for_district_id(district_id: str) -> str:
+    """
+    Returns the district name matching the district id.
+
+    Arguments:
+        district_id (str): the given district id
+    Returns:
+        district_name (str): the district name matching the district id
+    """
+    return _districts_dictionary[district_id]
