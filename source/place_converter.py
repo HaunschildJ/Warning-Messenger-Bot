@@ -1,9 +1,11 @@
 from typing import List, Union, Any, Tuple
 
 import requests
+import shapely
 from fuzzywuzzy import process
 import geopy
 from geopy.geocoders import Nominatim
+from shapely.geometry import Polygon
 
 # District => Kreis
 # Place => Ort
@@ -19,7 +21,7 @@ _places_dictionary = {}
 """dictionary place_id : str -> place_name : str"""
 
 _postal_code_dictionary = {}
-"""dictionary postal_code : str -> [place_name : str, district_id : str]"""
+"""dictionary postal_code: str -> [place_name : str, district_id : str, polygon_area : list[[float, float]]]"""
 
 
 def _fill_districts_dict() -> None:
@@ -66,13 +68,14 @@ def _fill_postal_code_dict() -> None:
     """
     Fills the _postal_code_dictionary dictionary with selected infos from
     https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1
-    Format: postal_code : str -> [place_name : str, district_id : str]
+    Format: postal_code : str -> [place_name : str, district_id : str, polygon_area : list[[float, float]]]
     """
     postal_code_table = requests.get(
         'https://public.opendatasoft.com/api/records/1.0/search/?dataset=georef-germany-postleitzahl&q=&rows=-1').json()
     for record in postal_code_table['records']:
         _postal_code_dictionary[record['fields']['plz_code']] = [record['fields']['plz_name'],
-                                                                 record['fields']['krs_code']]
+                                                                 record['fields']['krs_code'],
+                                                                 record['fields']['geometry']['coordinates'][0]]
 
 
 _fill_postal_code_dict()
@@ -384,3 +387,34 @@ def get_suggestion_dicts_from_coordinates(latitude: float, longitude: float, sug
     suggested_dicts_postal_code = _get_dicts_for_postal_code(postal_code, suggestion_limit)
 
     return suggested_dicts_postal_code
+
+
+def get_postal_code_dicts_in_polygon(coordinate_list: list) -> list[dict]:
+    """
+        Returns a list of dicts {'postal_code', 'place_name', 'district_id', 'district_name'} of places that overlap
+        with the given polygon coordinates.
+
+        Arguments:
+            coordinate_list (list): a list containing coordinates, making up a valid polygon
+        Returns:
+            list_of_matches (list[dict]): list of dicts that fit the infos, can be empty if no match is found
+        """
+
+    list_of_matches = []
+    polygon = shapely.Polygon(coordinate_list)
+    for place in _postal_code_dictionary:
+        place_coordinates = _postal_code_dictionary[place][2]
+        place_poly = shapely.Polygon(place_coordinates)
+
+        if polygon.intersects(place_poly):
+            intersections = polygon.intersection(place_poly)
+            if not isinstance(intersections, shapely.geometry.multilinestring.MultiLineString):
+                district_id = _postal_code_dictionary[place][1]
+                district_name = _districts_dictionary[district_id]
+                matching_dict = {'postal_code': place, 'place_name': _postal_code_dictionary[place][0],
+                                 'district_id': district_id, 'district_name': district_name}
+                list_of_matches.append(matching_dict)
+    return list_of_matches
+
+
+print(get_postal_code_dicts_in_polygon([[11.8903733, 48.6650338], [11.8901642, 48.6670204], [11.8913454, 48.6670568]]))
