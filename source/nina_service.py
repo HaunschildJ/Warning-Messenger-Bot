@@ -287,7 +287,7 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
     return area
 
 
-def _get_detailed_warning_infos(response_infos, language: str) -> DetailedWarningInfo:
+def _get_detailed_warning_infos(response_infos, language: str) -> DetailedWarningInfo or None:
     if response_infos is None:
         return None
 
