@@ -15,6 +15,8 @@ from nina_service import DetailedWarningInfo
 from nina_service import DetailedWarningInfoArea
 from nina_service import get_detailed_warning
 from nina_service import get_detailed_warning_geo
+from nina_service import DetailedWarningGeo
+from nina_service import GeoCoordinates
 
 
 def _none_or_value_to_str(value) -> str:
@@ -42,17 +44,17 @@ def _print_detailed_warning_info_areas(areas: list[DetailedWarningInfoArea]):
                 print("\t\t\tgeocode " + geo)
 
 
-def _print_detailed_warning_infos(infos: list[DetailedWarningInfo]):
-    for info in infos:
-        print("info:")
-        print("\t" + "event: " + _none_or_value_to_str(info.event))
-        print("\t" + "severity: " + _none_or_value_to_str(info.severity.value))
-        print("\t" + "date_expires: " + _none_or_value_to_str(info.date_expires))
-        print("\t" + "headline: " + _none_or_value_to_str(info.headline))
-        print("\t" + "description: " + _none_or_value_to_str(info.description))
+def _print_detailed_warning_infos(info: DetailedWarningInfo):
+    print("info:")
+    print("\t" + "event: " + _none_or_value_to_str(info.event))
+    print("\t" + "severity: " + _none_or_value_to_str(info.severity.value))
+    print("\t" + "date_expires: " + _none_or_value_to_str(info.date_expires))
+    print("\t" + "headline: " + _none_or_value_to_str(info.headline))
+    print("\t" + "description: " + _none_or_value_to_str(info.description))
+    print("\t" + "language: " + _none_or_value_to_str(info.language))
 
-        if info.area is not None:
-            _print_detailed_warning_info_areas(info.area)
+    if info.area is not None:
+        _print_detailed_warning_info_areas(info.area)
 
 
 def _print_detailed_warning(warning: DetailedWarning):
@@ -61,10 +63,15 @@ def _print_detailed_warning(warning: DetailedWarning):
     print("date_sent: " + _none_or_value_to_str(warning.date_sent))
     print("status: " + _none_or_value_to_str(warning.status))
 
-    if warning.infos is not None:
-        _print_detailed_warning_infos(warning.infos)
+    if warning.info is not None:
+        _print_detailed_warning_infos(warning.info)
 
     print(" ")
+
+
+def _print_detailed_warning_geo(warning: DetailedWarningGeo):
+    for area in warning.affected_areas:
+        print(area.coordinates)
 
 
 # Manuelle Tests
@@ -84,7 +91,7 @@ def manual_test():
             _print_detailed_warning(detailed_warning)
             print("Detailed Warning GEO:")
             detailed_warning_geo = get_detailed_warning_geo(warning.id)
-            print(detailed_warning_geo)
+            _print_detailed_warning_geo(detailed_warning_geo)
             print("\n")
 
 

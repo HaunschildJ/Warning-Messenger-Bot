@@ -95,13 +95,6 @@ def get_covid_infos(district_id: str) -> CovidInfo:
     return CovidInfo(infektion_danger_level, sieben_tage_inzidenz_kreis, sieben_tage_inzidenz_bundesland, general_tips)
 
 
-class WarningSeverity(Enum):
-    Minor = 0
-    Moderate = 1
-    Severe = 2
-    Unknown = 3
-
-
 def _get_warning_severity(warn_severity: str) -> WarningSeverity:
     """
     translates a string into an enum of WarningSeverity
@@ -111,14 +104,9 @@ def _get_warning_severity(warn_severity: str) -> WarningSeverity:
     try:
         return WarningSeverity(warn_severity)
     except KeyError:
-        return WarningSeverity.Unknown
+        print("New warning_severity_type: " + warn_severity)
+        return WarningSeverity.UNKNOWN
 
-
-class WarningType(Enum):
-    Update = 0
-    Alert = 1
-    Cancel = 2
-    Unknown = 3
 
 def _get_warning_type(warning_type: str) -> WarningType:
     """
@@ -127,8 +115,9 @@ def _get_warning_type(warning_type: str) -> WarningType:
     :return: if the string is a valid enum, the enum if not: WarningType.Unknown
     """
     try:
-        return WarningType[warn_type]
+        return WarningType(warning_type)
     except KeyError:
+        print("New warning_type: " + warning_type)
         return WarningType.UNKNOWN
 
 
@@ -259,6 +248,7 @@ class DetailedWarningInfo:
     date_expires: str
     headline: str
     description: str
+    language: str
     area: list[DetailedWarningInfoArea]
 
 
@@ -268,7 +258,7 @@ class DetailedWarning:
     sender: str
     date_sent: str
     status: str
-    infos: list[DetailedWarningInfo]
+    info: DetailedWarningInfo
 
 
 def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
@@ -297,13 +287,17 @@ def _get_detailed_warning_infos_area(response_area) -> list[DetailedWarningInfoA
     return area
 
 
-def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
-    infos = []
+def _get_detailed_warning_infos(response_infos, language: str) -> DetailedWarningInfo:
     if response_infos is None:
-        return infos
+        return None
 
     for i in range(0, len(response_infos)):
+
         info = response_infos[i]
+        info_language = _get_safely(info, "language")
+
+        if (info_language is not None and not info_language.lower().__contains__(language)):
+            continue
 
         event = _get_safely(info, "event")
         severity = _get_warning_severity(_get_safely(info, "severity"))
@@ -315,19 +309,20 @@ def _get_detailed_warning_infos(response_infos) -> list[DetailedWarningInfo]:
         if date_expires is not None:
             date_expires = _translate_time(date_expires)
 
-        infos.append(
-            DetailedWarningInfo(event=event, severity=severity, date_expires=date_expires, headline=headline,
-                                description=description, area=area)
-        )
+        return DetailedWarningInfo(event=event, severity=severity, date_expires=date_expires, headline=headline,
+                                   description=description, area=area, language=info_language)
 
-    return infos
+    return None
 
 
-def get_detailed_warning(warning_id: str) -> DetailedWarning:
+def get_detailed_warning(warning_id: str, language: str = "de") -> DetailedWarning:
     """
     This method should be called after a warning with one of the poll_****_warning methods was received
-    :param warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
-    :return: the detailed Warning as a DetailedWarning class
+    Args:
+        warning_id: warning id is extracted from the poll_****_warning method return type: GeneralWarning.id
+        language: what language will be returned
+    Returns:
+         the detailed Warning as a DetailedWarning class
     :raises HTTPError:
     """
     response_raw = requests.get(_API_URL + "/warnings/" + warning_id + ".json")
@@ -341,12 +336,23 @@ def get_detailed_warning(warning_id: str) -> DetailedWarning:
     if date_sent is not None:
         date_sent = _translate_time(date_sent)
 
-    infos = _get_detailed_warning_infos(_get_safely(response, "info")) #_get_detailed_warning_infos already checks if the input is None
+    info = _get_detailed_warning_infos(_get_safely(response, "info"),
+                                       language)  # _get_detailed_warning_infos already checks if the input is None
 
-    return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, infos=infos)
+    return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, info=info)
 
 
-def get_detailed_warning_geo(warning_id: str):
+@dataclass
+class GeoCoordinates:
+    coordinates: list[list[list[str]]]
+
+
+@dataclass
+class DetailedWarningGeo:
+    affected_areas: list[GeoCoordinates]
+
+
+def get_detailed_warning_geo(warning_id: str) -> DetailedWarningGeo:
     """
     This method should be called after a warning with one of the poll_****_warning methods was received
     Args:
@@ -358,9 +364,28 @@ def get_detailed_warning_geo(warning_id: str):
     Raises:
          HTTPError:
     """
-    response_raw = requests.get(_base_url + "/warnings/" + warning_id + ".geojson")
+    response_raw = requests.get(_API_URL + "/warnings/" + warning_id + ".geojson")
     response = response_raw.json()
-    return response
+
+    features = _get_safely(response, "features")
+    affected_areas = []
+
+    if (features is None):
+        return DetailedWarningGeo(affected_areas = affected_areas)
+
+    for feature in features:
+        geometry = _get_safely(feature, "geometry")
+        if geometry is None:
+            continue
+
+        coordinates = _get_safely(geometry, "coordinates")
+        if coordinates is None:
+            continue
+
+        affected_areas.append(GeoCoordinates(coordinates=coordinates))
+
+
+    return DetailedWarningGeo(affected_areas=affected_areas)
 
 
 def _poll_disaster_warnings() -> list[GeneralWarning]:
@@ -369,7 +394,7 @@ def _poll_disaster_warnings() -> list[GeneralWarning]:
 
 
 def _poll_general_warnings() -> list[GeneralWarning]:
-    result = [poll_police_warning(),  poll_katwarn_warning()]
+    result = [poll_police_warning(), poll_katwarn_warning()]
     return _filter_disaster_warnings(result)
 
 
