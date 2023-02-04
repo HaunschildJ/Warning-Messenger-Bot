@@ -109,8 +109,8 @@ def get_greeting_message(username: str) -> str:
     return message
 
 
-def get_general_warning_message(warning_id: str, version: str, start_date: str, severity: str,
-                                warning_type: str, title: str) -> str:
+def get_general_warning_message(event: str, headline: str, description: str, severity: str,
+                                warning_type: str, start_date: str, date_expires: str, status: str) -> str:
     """
     This method will replace the placeholder (%name) with the given parameters from the message for general warnings in
     the json
@@ -119,12 +119,14 @@ def get_general_warning_message(warning_id: str, version: str, start_date: str, 
         Message that can be sent to the user with the parameter in the message
     """
     message = get_replaceable_answer(ReplaceableAnswer.GENERAL_WARNING)
-    message = message.replace("%id", warning_id)
-    message = message.replace("%version", version)
+    message = message.replace("%event", event)
+    message = message.replace("%headline", headline)
+    message = message.replace("%description", description)
     message = message.replace("%severity", severity)
     message = message.replace("%type", warning_type)
-    message = message.replace("%title", title)
     message = message.replace("%start_date", start_date)
+    message = message.replace("%date_expires", date_expires)
+    message = message.replace("%status", status)
     return message
 
 

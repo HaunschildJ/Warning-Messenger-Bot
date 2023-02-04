@@ -6,6 +6,7 @@ import nina_service
 import data_service
 import place_converter
 import frontend_helper
+import warning_handler
 
 from text_templates import Button, Answers
 from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarnType, BotUsageHelp
@@ -608,12 +609,28 @@ def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_ser
     Returns:
         integer with the number of relevant warnings that were sent
     """
-    relevant_warning_ids = _get_all_relevant_warning_ids(general_warnings, relevant_postal_codes)
+    relevant_warning_ids = warning_handler.get_all_relevant_warning_ids(general_warnings, relevant_postal_codes)
     for warning_id in relevant_warning_ids:
         try:
             detail = nina_service.get_detailed_warning(warning_id)
             # TODO make a real message
-            sender.send_message(chat_id, detail.id)
+            event = detail.info.event
+            headline = detail.info.headline
+            description = detail.info.description
+            severity_value = detail.info.severity
+            severity = text_templates.get_button_name(Button[severity_value.name])
+            warning_type = ""
+            start_date = ""
+            for warning in general_warnings:
+                if warning.id == warning_id:
+                    warning_type = warning.type.value
+                    start_date = warning.start_date
+                    break
+            date_expires = detail.info.date_expires
+            status = detail.status
+            answer = text_templates.get_general_warning_message(event, headline, description, severity, warning_type,
+                                                                start_date, date_expires, status)
+            sender.send_message(chat_id, answer)
         except HTTPError:
             pass
     return len(relevant_warning_ids)
@@ -841,85 +858,4 @@ def get_location_name(district_id: str, postal_code: str) -> str:
     return text_templates.get_display_name_for_location(district_name, place_name, postal_code)
 
 
-def _get_all_relevant_warning_ids(general_warnings: list[nina_service.GeneralWarning], relevant_postal_codes: list[str]):
-    result_ids = []
-    for warning in general_warnings:
-        try:
-            # TODO get geocodes for warning.id from nina_service
-            coordinates = [[
-                    12.8592,
-                    50.4562
-                ],
-                [
-                    12.8638,
-                    50.461
-                ],
-                [
-                    12.8877,
-                    50.4635
-                ],
-                [
-                    12.8967,
-                    50.4569
-                ],
-                [
-                    12.9176,
-                    50.4586
-                ],
-                [
-                    12.9311,
-                    50.4458
-                ],
-                [
-                    12.9936,
-                    50.4669
-                ],
-                [
-                    13.0124,
-                    50.4671
-                ],
-                [
-                    13.024,
-                    50.4533
-                ],
-                [
-                    12.9851,
-                    50.42
-                ],
-                [
-                    12.9437,
-                    50.4121
-                ],
-                [
-                    12.9477,
-                    50.4045
-                ],
-                [
-                    12.8942,
-                    50.4302
-                ],
-                [
-                    12.898,
-                    50.4368
-                ],
-                [
-                    12.8592,
-                    50.4562
-                ]]
-            # get all postal_codes inside the polygon coordinates from the warning
-            dicts_in_polygon = place_converter.get_postal_code_dicts_in_polygon(coordinates)
-            # see if at least one of the given postal codes are in the polygon
-            continue_bool = True
-            for postal_code in relevant_postal_codes:
-                for dict_in_polygon in dicts_in_polygon:
-                    postal_code_dict = place_converter.get_postal_code_from_dict(dict_in_polygon)
-                    if postal_code_dict == postal_code:
-                        if warning.id not in result_ids:
-                            result_ids.append(warning.id)
-                            continue_bool = False
-                            break
-                if not continue_bool:
-                    break
-        except:
-            pass
-    return result_ids
+

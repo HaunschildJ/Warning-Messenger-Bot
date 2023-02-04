@@ -5,6 +5,7 @@ import controller
 import data_service
 import error
 import frontend_helper
+import warning_handler
 
 from enum_types import Commands, WarnType, ErrorCodes
 
@@ -457,4 +458,5 @@ def covid_helper(chat_id: int, message_string: str):
 
 def start_receiver():
     print("Receiver running...")
+    warning_handler.init_warning_handler()
     bot.polling()

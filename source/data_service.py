@@ -10,6 +10,7 @@ from enum_types import WarningSeverity
 
 _USER_DATA_PATH = "../source/data/data.json"
 _WARNINGS_ALREADY_RECEIVED_PATH = "../source/data/warnings_already_received.json"
+_ACTIVE_WARNINGS_PATH = "../source/data/active_warnings.json"
 
 DEFAULT_DATA = {
     "current_state": 0,
@@ -545,3 +546,11 @@ def delete_user(chat_id: int):
     del all_user[cid]
 
     _write_file(_USER_DATA_PATH, all_user)
+
+
+def get_active_warnings_dict() -> dict:
+    return _read_file(_ACTIVE_WARNINGS_PATH)
+
+
+def set_active_warnings_dict(new_data: dict):
+    _write_file(_ACTIVE_WARNINGS_PATH, new_data)

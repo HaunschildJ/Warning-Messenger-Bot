@@ -65,19 +65,19 @@
         "information": [
           {
             "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
-            "text": "Der Titel der Warnung lautet: %title"
+            "text": "---\n%headline"
           },
           {
             "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
-            "text": "Die Warnung gilt seit: %start_date"
+            "text": "---\nBeschreibung:\n%description"
           },
           {
             "description": "Schreibe %severity an die Stelle, wo die Dringlichkeit der Warnung stehen soll.",
-            "text": "Die Dringlichkeit der Warnung ist: %severity"
+            "text": "---\nWarnstufe: %severity"
           },
           {
             "description": "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
-            "text": "Der Typ der Warnung ist: %type"
+            "text": "---\nWarntyp: %type\nAktiv seit: %start_date\nRelevant bis: %date_expires\nStatus: %status"
           }
         ]
       },

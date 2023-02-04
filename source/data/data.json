@@ -1,10 +1,15 @@
 {
     "5635169582": {
-        "current_state": 0,
-        "receive_warnings": true,
+        "current_state": 2,
+        "receive_warnings": false,
         "receive_covid_information": 0,
         "default_level": "Manual",
-        "locations": {},
+        "locations": {
+            "21255": {
+                "district_id": "03353",
+                "disaster": "minor"
+            }
+        },
         "recommendations": [
             {
                 "postal_code": "10827",
