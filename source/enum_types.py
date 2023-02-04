@@ -99,10 +99,10 @@ class WarnType(Enum):
 
 
 class WarningType(Enum):
-    Update = 0
-    Alert = 1
-    Cancel = 2
-    Unknown = 3
+    UPDATE = "Update"
+    ALERT = "Alert"
+    CANCEL = "Cancel"
+    UNKNOWN = "Unknown"
 
 
 # text_templates -------------------------------------------------------------------------------------------------------
