@@ -134,3 +134,4 @@ dmypy.json
 Test Results - .html
 .idea/Warning-Messenger-Bot.iml
 .idea/misc.xml
+.gitignore
