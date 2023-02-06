@@ -11,19 +11,19 @@
           },
           {
             "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
-            "text": "Die Infektionsgefahr Stufe beträgt: %infektionsgefahr_stufe."
+            "text": "Die Infektionsgefahr Stufe beträgt: %infektionsgefahr_stufe"
           },
           {
             "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
-            "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis."
+            "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis"
           },
           {
             "description": "Schreib unten im text %sieben_tage_inzidenz_bundesland an die Stelle, wo die 7-Tage-Inzidenz im Bundesland stehen soll.",
-            "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland."
+            "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland"
           },
           {
             "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
-            "text": "Die allgemeinen Hinweise lauten: %allgemeine_hinweise."
+            "text": "Die allgemeinen Hinweise lauten: %allgemeine_hinweise"
           }
         ]
       },
@@ -36,27 +36,27 @@
           },
           {
             "description": "Schreib unten im text %vaccine_info an die Stelle, wo Impf-Infos stehen sollen.",
-            "text": "Infos über die Impfung: %vaccine_info."
+            "text": "Infos über die Impfung: %vaccine_info"
           },
           {
             "description": "Schreib unten im text %contact_terms an die Stelle, wo Abstandsregeln stehen sollen.",
-            "text": "Die Abstandsregeln lauten: %contact_terms."
+            "text": "Die Abstandsregeln lauten: %contact_terms"
           },
           {
             "description": "Schreib unten im text %school_kita_rules an die Stelle, wo Regeln für Kitas/Schulen stehen sollen.",
-            "text": "Die Regeln für Kitas/Schulen lauten: %school_kita_rules."
+            "text": "Die Regeln für Kitas/Schulen lauten: %school_kita_rules"
           },
           {
             "description": "Schreib unten im text %hospital_rules an die Stelle, wo Regeln für Kliniken stehen sollen.",
-            "text": "Die Regeln für Kliniken lauten: %hospital_rules."
+            "text": "Die Regeln für Kliniken lauten: %hospital_rules"
           },
           {
             "description": "Schreib unten im text %travelling_rules an die Stelle, wo Regeln für Reisen stehen sollen.",
-            "text": "Die Regeln für Reisen lauten: %travelling_rules."
+            "text": "Die Regeln für Reisen lauten: %travelling_rules"
           },
           {
             "description": "Schreib unten im text %fines an die Stelle, wo Infos über Bußgelder stehen sollen.",
-            "text": "Informationen über Bußgelder: %fines."
+            "text": "Informationen über Bußgelder: %fines"
           }
         ]
       },
@@ -225,7 +225,8 @@
       "default_level": "Du bist dabei, die Standard Dringlichkeitsstufe einzustellen. Du hast folgende Möglichkeiten.\n\n• Eine Stufe auswählen, die dann automatisch für alle zukünftigen Abonnements gilt. Du wirst nicht mehr danach gefragt, welche Stufe eine Warnung haben soll. Es wird immer automatisch das eingestellt, was du auswählst: alle, mittlere oder nur ernste Warnungen.\n• Manuell. Das heißt, du wirst bei jedem Abonnement gefragt, welche Stufe die Warnung haben soll.",
       "delete_data": "Welche Daten möchtest du löschen?",
       "imprint": "TODO Impressumstext",
-      "privacy": "Wir speichern deine Chat ID, um dir antworten zu können und die Daten, die du eingibst, um dich informieren zu können, aber niemals deinen Namen oder andere personenspezifische Informationen. Mit der Chat ID können wir keine Rückschlüsse auf deine Person ziehen. Wir speichern nur die Ortsdaten, die du eingibst. Du kannst deine Daten jederzeit löschen."
+      "privacy": "Wir speichern deine Chat ID, um dir antworten zu können und die Daten, die du eingibst, um dich informieren zu können, aber niemals deinen Namen oder andere personenspezifische Informationen. Mit der Chat ID können wir keine Rückschlüsse auf deine Person ziehen. Wir speichern nur die Ortsdaten, die du eingibst. Du kannst deine Daten jederzeit löschen.",
+      "unknown": "-"
     }
   },
   {

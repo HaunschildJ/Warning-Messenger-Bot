@@ -1,5 +1,4 @@
 import json
-import string
 import os
 
 from enum_types import Button, ReplaceableAnswer, Answers, WarningSeverity, BotUsageHelp
@@ -15,7 +14,7 @@ def _read_file(path: str):
         return json.load(file)
 
 
-def get_button_name(button: Button) -> string:
+def get_button_name(button: Button) -> str:
     """
     Returns a string containing the button name of the desired button.
 
@@ -33,7 +32,7 @@ def get_button_name(button: Button) -> string:
             return topic['names'][button.value]
 
 
-def get_answers(answer: Answers) -> string:
+def get_answers(answer: Answers) -> str:
     """
     Returns a string containing the desired answer text.
 
@@ -51,7 +50,7 @@ def get_answers(answer: Answers) -> string:
             return topic['text'][answer.value]
 
 
-def get_replaceable_answer(r_answer: ReplaceableAnswer) -> string:
+def get_replaceable_answer(r_answer: ReplaceableAnswer) -> str:
     """
     Only applicable for text with replaceable elements. Returned string will
     contain the following form: %to_be_replaced.
@@ -157,6 +156,21 @@ def get_covid_rules_message(location: str, vaccine_info: str, contact_terms: str
     Returns:
         Message that can be sent to the user with the parameter in the message
     """
+    replacer = get_answers(Answers.UNKNOWN)
+    if location is None:
+        location = replacer
+    if vaccine_info is None:
+        vaccine_info = replacer
+    if contact_terms is None:
+        contact_terms = replacer
+    if school_kita_rules is None:
+        school_kita_rules = replacer
+    if hospital_rules is None:
+        hospital_rules = replacer
+    if travelling_rules is None:
+        travelling_rules = replacer
+    if fines is None:
+        fines = replacer
     message = get_replaceable_answer(ReplaceableAnswer.COVID_RULES)
     message = message.replace("%location", location)
     message = message.replace("%vaccine_info", vaccine_info)
