@@ -193,6 +193,7 @@ class Answers(Enum):
     DEFAULT_LEVEL = "default_level"
     IMPRINT_TEXT = "imprint"
     PRIVACY_TEXT = "privacy"
+    UNKNOWN = "unknown"
 
 
 class BotUsageHelp(Enum):
