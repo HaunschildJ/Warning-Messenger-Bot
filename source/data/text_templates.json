@@ -237,7 +237,7 @@
         "location": "\n%location:",
         "warning": "• %warning, Stufe %level",
         "headline_after_insertion": "---\nDu hast erfolgreich ein neues Abonnement eingerichtet\n---",
-        "end_after_insertion": "---\nWenn du willst, kannst du weitere Abonnements einrichten\n---"
+        "end_after_insertion": "---\nWenn du willst, kannst du weitere Abonnements einrichten.\n\nWillst du das nicht, klicke auf \"Abbrechen\".\n---"
       },
       "recommendations": {
         "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
@@ -293,7 +293,7 @@
         "favorites": "In Favoriten kannst du einen Ort eingeben oder deinen Aktuellen Standort schicken um einen Ort für die manuelle Abfrage von Warnungen vorgeschlagen zu bekommen.",
         "subscriptions_menu_navigation": "• Abonnements verwalten\nUm deine Abonnements verwalten zu können musst du in den Einstellungen \"Abonnements verwalten\" drücken.",
         "subscriptions_menu": "Im Abonnements verwalten Menü kannst du dir deine aktuellen Abonnements anzeigen lassen und stumm schalten, Abonnements hinzufügen und löschen und eine Standard Warnstufe für das Hinzufügen von Abonnements einstellen.",
-        "general": "\nSolltest du das nicht Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
+        "general": "\nSolltest du das Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
       }
     }
   }
