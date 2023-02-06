@@ -87,6 +87,10 @@
           {
             "description": "Schreibe %username an die Stelle, wo der Name der nutzenden Person stehen soll.",
             "text": "Hallo, dies ist ein Warning Messenger Bot. Hier kannst du Warnungen abrufen oder automatisch erhalten.\n\nDie Warnungen stammen von der NINA Warnapp der Bundesregierung und sind zugänglich über https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/warn-app-nina_node.html"
+          },
+          {
+            "description": "Was man mit dem Bot machen kann. Erste Schritte.",
+            "text": "\nDer Bot wird hauptsächlich über die Buttons gesteuert. Texteingaben sind nur dann nötig, wenn du eine Stadt eingeben willst oder mit \/help Hilfe erhalten möchtest. Der Bot wird dich immer informieren, wann du eine Texteingabe machen sollst. Ansonsten bitte nur Buttons nutzen.\n\nFür den Anfang kannst du dich ein bisschen umsehen. Mit dem Button \"Zurück zur Startseite\" kommst du immer wieder zurück zum Hauptmenü.\n\nMöchtest du direkt loslegen, kannst du entweder unter \"Warnungen\" deine erste Warnung abfragen oder unter \"Einstellungen\" > \"Abonnements verwalten\" dein erstes Abonnement einrichten."
           }
         ]
       },
@@ -113,7 +117,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht. Und %warning für die zugehörige Warnung.",
-            "text": "Wähle die Stufe der %warning für %location aus:"
+            "text": "Du bist dabei, ein neues Abonnement einzurichten.\n\nWähle die Stufe der %warning für %location aus:"
           }
         ]
       },
@@ -140,7 +144,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname steht, für welchen die Warnung %warning entfernt wurde. ",
-            "text": "Möchtest du %warning für %location abonnieren?"
+            "text": "---\nMöchtest du ein Abonnement einrichten, sodass du in Zukunft automatisch über neue %warning für %location informiert wirst?"
           }
         ]
       }
@@ -209,7 +213,7 @@
       "manage_subscriptions": "Was möchtest du tun?",
       "manage_auto_covid_updates": "Wie oft möchtest du automatische Corona Updates erhalten?",
       "no_subscriptions": "Du hast keine Abonnements.",
-      "click_suggestion": "Wähle einen dieser Orte oder gib einen anderen Ort ein.",
+      "click_suggestion": "Wähle einen dieser Orte aus oder gib über die Texteingabe einen anderen Ort ein [Stadtname oder PLZ].",
       "no_location_found": "Es konnten keine Städte gefunden werden.",
       "delete_data_subscriptions": "Möchtest du wirklich alle deine Abonnements löschen?",
       "delete_data_favorites": "Möchtest du wirklich deine Favoriten zurücksetzen?",
@@ -237,7 +241,7 @@
         "location": "\n%location:",
         "warning": "• %warning, Stufe %level",
         "headline_after_insertion": "---\nDu hast erfolgreich ein neues Abonnement eingerichtet\n---",
-        "end_after_insertion": "---\nWenn du willst, kannst du weitere Abonnements einrichten\n---"
+        "end_after_insertion": "\n\n\nWenn du willst, kannst du weitere Abonnements für %location einrichten. Klick dafür auf die Art von Warnung, die du abonnieren willst.\n\nWenn du das nicht willst, klicke auf \"Abbrechen\".\n---"
       },
       "recommendations": {
         "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt. Am Ende wird noch end hinzugefügt.",
@@ -293,7 +297,7 @@
         "favorites": "In Favoriten kannst du einen Ort eingeben oder deinen Aktuellen Standort schicken um einen Ort für die manuelle Abfrage von Warnungen vorgeschlagen zu bekommen.",
         "subscriptions_menu_navigation": "• Abonnements verwalten\nUm deine Abonnements verwalten zu können musst du in den Einstellungen \"Abonnements verwalten\" drücken.",
         "subscriptions_menu": "Im Abonnements verwalten Menü kannst du dir deine aktuellen Abonnements anzeigen lassen und stumm schalten, Abonnements hinzufügen und löschen und eine Standard Warnstufe für das Hinzufügen von Abonnements einstellen.",
-        "general": "\nSolltest du das nicht Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
+        "general": "\nSolltest du das Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
       }
     }
   }
