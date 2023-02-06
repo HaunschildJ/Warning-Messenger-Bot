@@ -1,6 +1,6 @@
 {
     "5635169582": {
-        "current_state": 2,
+        "current_state": 0,
         "receive_warnings": false,
         "receive_covid_information": 0,
         "default_level": "Manual",
@@ -8,6 +8,14 @@
             "21255": {
                 "district_id": "03353",
                 "disaster": "minor"
+            },
+            "64291": {
+                "district_id": "06411",
+                "weather": "minor"
+            },
+            "60308": {
+                "district_id": "06412",
+                "weather": "minor"
             }
         },
         "recommendations": [

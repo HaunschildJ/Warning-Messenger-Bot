@@ -168,26 +168,26 @@ def button_in_manual_warnings_pressed(chat_id: int, button_text: str):
         chat_id: an integer for the chatID that the message is sent to
         button_text: a string which is the text of the button that was pressed (constant of this class)
     """
-    if button_text == frontend_helper.WARNING_COVID_TEXT:
+    if button_text == str(frontend_helper.WARNING_COVID_TEXT):
         data_service.set_user_state(chat_id, 20)
         sender.send_message(chat_id, text_templates.get_answers(Answers.MANUAL_WARNING_COVID_CHOICE),
                             frontend_helper.get_covid_keyboard())
-    elif button_text == frontend_helper.WARNING_COVID_INFO_TEXT:
+    elif button_text == str(frontend_helper.WARNING_COVID_INFO_TEXT):
         data_service.set_user_state(chat_id, 200)
         show_suggestions(chat_id, Commands.COVID_INFO.value + ";")
-    elif button_text == frontend_helper.WARNING_COVID_RULES_TEXT:
+    elif button_text == str(frontend_helper.WARNING_COVID_RULES_TEXT):
         data_service.set_user_state(chat_id, 201)
         show_suggestions(chat_id, Commands.COVID_RULES.value + ";")
-    elif button_text == frontend_helper.WARNING_WEATHER_TEXT:
+    elif button_text == str(frontend_helper.WARNING_WEATHER_TEXT):
         data_service.set_user_state(chat_id, 21)
         show_suggestions(chat_id, Commands.WEATHER.value + ";")
-    elif button_text == frontend_helper.WARNING_DISASTER_TEXT:
+    elif button_text == str(frontend_helper.WARNING_DISASTER_TEXT):
         data_service.set_user_state(chat_id, 22)
         show_suggestions(chat_id, Commands.DISASTER.value + ";")
-    elif button_text == frontend_helper.WARNING_FLOOD_TEXT:
+    elif button_text == str(frontend_helper.WARNING_FLOOD_TEXT):
         data_service.set_user_state(chat_id, 23)
         show_suggestions(chat_id, Commands.FLOOD.value + ";")
-    elif button_text == frontend_helper.WARNING_GENERAL_TEXT:
+    elif button_text == str(frontend_helper.WARNING_GENERAL_TEXT):
         data_service.set_user_state(chat_id, 24)
         show_suggestions(chat_id, Commands.GENERAL.value + ";")
     else:
@@ -445,7 +445,7 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
 
         data_service.add_subscription(chat_id, postal_code, district_id, str(warning_type.value), str(warning_level))
 
-        show_subscriptions(chat_id)
+        show_subscriptions(chat_id, location=location_name)
         new_callback_command = split_command[0] + ";" + split_command[1] + ";" + split_command[2]
         inline_button_for_adding_subscriptions(chat_id, new_callback_command)
 
@@ -682,7 +682,7 @@ def covid_rules(chat_id: int, postal_code: str, district_id: str, rules: nina_se
         sender.send_chat_action(chat_id, "typing")
         try:
             rules = nina_service.get_covid_rules(district_id)
-        except:
+        except HTTPError:
             error_handler(chat_id, ErrorCodes.NINA_API)
             return
     location_name = get_location_name(district_id, postal_code)
@@ -693,13 +693,14 @@ def covid_rules(chat_id: int, postal_code: str, district_id: str, rules: nina_se
     sender.send_message(chat_id, message, frontend_helper.get_covid_keyboard())
 
 
-def show_subscriptions(chat_id: int, only_show: bool = False):
+def show_subscriptions(chat_id: int, only_show: bool = False, location: str = ""):
     """
     This method will send the current subscriptions to the user (chat_id)
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
         only_show: a boolean when True then the user only want to see subscriptions and has not recently added one
+        location: a string with the location that is shown when the user want to add further warnings
     """
     subscriptions = data_service.get_subscriptions(chat_id)
     if len(subscriptions.keys()) == 0:
@@ -721,7 +722,7 @@ def show_subscriptions(chat_id: int, only_show: bool = False):
         subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
                                                                                                   warnings,
                                                                                                   levels))
-    message = text_templates.get_show_subscriptions_message(subscriptions_text, only_show)
+    message = text_templates.get_show_subscriptions_message(subscriptions_text, only_show, location)
     sender.send_message(chat_id, message)
 
 

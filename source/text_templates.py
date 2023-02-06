@@ -259,13 +259,14 @@ def get_show_subscriptions_for_one_location_messsage(location: str, warnings: li
     return message
 
 
-def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = False) -> str:
+def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = False, location: str = "") -> str:
     """
     This method will build the show subscription message.
 
     Arguments:
         subscriptions: list of strings given from multiple calls of get_show_subscriptions_for_one_location_messsage
         only_show: a boolean when True then the user only want to see subscriptions and has not recently added one
+        location: a string with the location that is shown when the user want to add further warnings
 
     Returns:
         The subscriptions combined with the headline for showing subscriptions
@@ -278,6 +279,7 @@ def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = F
         message = message + "\n" + subscription
     if not only_show:
         message = message + "\n" + dic["end_after_insertion"]
+        message = message.replace("%location", location)
     return message
 
 
