@@ -124,7 +124,7 @@ def _get_warning_severity(warn_severity: str) -> WarningSeverity:
         return WarningSeverity(warn_severity)
     except KeyError:
         print("New warning_severity_type: " + warn_severity)
-        return WarningSeverity.UNKNOWN
+        return WarningSeverity.MINOR
 
 
 def _get_warning_type(warning_type: str) -> WarningType:

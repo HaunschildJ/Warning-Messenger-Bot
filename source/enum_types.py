@@ -12,26 +12,26 @@ class Commands(Enum):
 
     just for the bot not the user:\n
     CANCEL_INLINE\n
-    DELETE_SUBSCRIPTION + "location" + "warn_type"\n
-    ADD_SUBSCRIPTION ; "location_id" ; "warn_type" ; "warn_level"\n
+    DELETE_SUBSCRIPTION ; "postal_code" ; "district_id" ; "warn_type"\n
+    ADD_SUBSCRIPTION ; "postal_code" ; "district_id" ; "warn_type" ; "warn_level"\n
     COVID_UPDATES + "ReceiveInformation from data_service as int"\n
-    ADD_RECOMMENDATION ; "place_id" ; "district_id"\n
+    ADD_RECOMMENDATION ; "postal_code" ; "district_id"\n
     SET_DEFAULT_LEVEL ; "value"\n
     (DELETE_DATA_SUBSCRIPTION || DELETE_DATA_FAVORITES || DELETE_DATA_EVERYTHING)
-    (COVID_INFO || COVID_RULES || WEATHER || DISASTER || FLOOD || COVID_INFO) ; "place_id" ; "district_id"\n
+    (COVID_INFO || COVID_RULES || WEATHER || DISASTER || FLOOD || COVID_INFO) ; "postal_code" ; "district_id"\n
     """
-    AUTO_WARNING = "/autowarning"
+    AUTO_WARNING = "/aw"
     CANCEL_INLINE = "/cancel"
-    ADD_RECOMMENDATION = "/add"
-    DELETE_SUBSCRIPTION = "/deleteSubscription"
-    ADD_SUBSCRIPTION = "/addSubscription"
-    COVID_UPDATES = "/covidupdates"
+    ADD_RECOMMENDATION = "/addR"
+    DELETE_SUBSCRIPTION = "/delS"
+    ADD_SUBSCRIPTION = "/addS"
+    COVID_UPDATES = "/cu"
     SET_DEFAULT_LEVEL = "/setValue"
     DELETE_DATA_SUBSCRIPTIONS = "/delAllSubs"
     DELETE_DATA_FAVORITES = "/delAllFav"
     DELETE_DATA_EVERYTHING = "/delAllAll"
-    COVID_INFO = "/covidInfo"
-    COVID_RULES = "/covidRule"
+    COVID_INFO = "/cI"
+    COVID_RULES = "/cR"
     WEATHER = "/weather"
     DISASTER = "/disaster"
     FLOOD = "/flood"

@@ -109,8 +109,8 @@ def get_greeting_message(username: str) -> str:
     return message
 
 
-def get_general_warning_message(warning_id: str, version: str, start_date: str, severity: str,
-                                warning_type: str, title: str) -> str:
+def get_general_warning_message(event: str, headline: str, description: str, severity: str,
+                                warning_type: str, start_date: str, date_expires: str, status: str) -> str:
     """
     This method will replace the placeholder (%name) with the given parameters from the message for general warnings in
     the json
@@ -119,12 +119,14 @@ def get_general_warning_message(warning_id: str, version: str, start_date: str, 
         Message that can be sent to the user with the parameter in the message
     """
     message = get_replaceable_answer(ReplaceableAnswer.GENERAL_WARNING)
-    message = message.replace("%id", warning_id)
-    message = message.replace("%version", version)
+    message = message.replace("%event", event)
+    message = message.replace("%headline", headline)
+    message = message.replace("%description", description)
     message = message.replace("%severity", severity)
     message = message.replace("%type", warning_type)
-    message = message.replace("%title", title)
     message = message.replace("%start_date", start_date)
+    message = message.replace("%date_expires", date_expires)
+    message = message.replace("%status", status)
     return message
 
 
@@ -257,13 +259,14 @@ def get_show_subscriptions_for_one_location_messsage(location: str, warnings: li
     return message
 
 
-def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = False) -> str:
+def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = False, location: str = "") -> str:
     """
     This method will build the show subscription message.
 
     Arguments:
         subscriptions: list of strings given from multiple calls of get_show_subscriptions_for_one_location_messsage
         only_show: a boolean when True then the user only want to see subscriptions and has not recently added one
+        location: a string with the location that is shown when the user want to add further warnings
 
     Returns:
         The subscriptions combined with the headline for showing subscriptions
@@ -276,6 +279,7 @@ def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = F
         message = message + "\n" + subscription
     if not only_show:
         message = message + "\n" + dic["end_after_insertion"]
+        message = message.replace("%location", location)
     return message
 
 
@@ -330,7 +334,7 @@ def get_delete_subscriptions_message(subscriptions: list[str]) -> str:
     return message
 
 
-def get_select_location_for_one_location_messsage(district_name: str, place_name: str,
+def get_select_location_for_one_location_messsage(district_name: str, place_name: str, postal_code: str,
                                                   corresponding_button_name: str) -> str:
     """
     This method will return the text for one location suggestion from place_converter.
@@ -339,6 +343,7 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
     Arguments:
         district_name: string with the name of the suggested district
         place_name: string with the name of the suggested place (can be None)
+        postal_code: string with the postal code of the suggested location
         corresponding_button_name: string with the name of the button that will represent this suggestion
 
     Returns:
@@ -351,6 +356,7 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
     message = message.replace("%place_name", place_name)
     message = message.replace("%district_name", district_name)
     message = message.replace("%button_name", corresponding_button_name)
+    message = message.replace("%postal_code", postal_code)
     return message
 
 
@@ -493,3 +499,18 @@ def get_help_message(help_for: BotUsageHelp) -> str:
         message = dic[help_for.value]
     message = message + "\n" + dic["general"]
     return message
+
+
+def get_display_name_for_location(district_name: str, place_name: str, postal_code: str) -> str:
+    """
+    This method is for getting the display name of a location
+
+    Args:
+        district_name: district name
+        place_name: place name
+        postal_code: postal code
+
+    Returns:
+        the name that should be displayed for the user
+    """
+    return place_name + " in " + district_name + " (" + postal_code + ")"

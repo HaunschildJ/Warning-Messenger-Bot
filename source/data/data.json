@@ -1,24 +1,34 @@
 {
-    "5675094723": {
+    "5635169582": {
         "current_state": 0,
-        "receive_warnings": true,
+        "receive_warnings": false,
         "receive_covid_information": 0,
         "default_level": "Manual",
-        "locations": {},
+        "locations": {
+            "21255": {
+                "district_id": "03353",
+                "disaster": "minor"
+            },
+            "64291": {
+                "district_id": "06411",
+                "weather": "minor"
+            },
+            "60308": {
+                "district_id": "06412",
+                "weather": "minor"
+            }
+        },
         "recommendations": [
             {
-                "name": "Berlin, Stadt",
-                "place_id": "110000000000",
+                "postal_code": "10827",
                 "district_id": "11000"
             },
             {
-                "name": "Berlin-Mitte",
-                "place_id": "110010000000",
-                "district_id": "11001"
+                "postal_code": "60308",
+                "district_id": "06412"
             },
             {
-                "name": "Darmstadt, Wissenschaftsstadt",
-                "place_id": "064110000000",
+                "postal_code": "64291",
                 "district_id": "06411"
             }
         ],
