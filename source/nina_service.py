@@ -25,7 +25,8 @@ class CovidRules:
 def _get_safely(dict, key: str):
     """
     Because some JSONs we get from the NINA API do not always contain all the fields that are defined by the NINA API
-    we need to check if the field exists first. If it does, we get the Value from the field. If it does not we return None
+    we need to check if the field exists first. If it does, we get the Value from the field.
+    If it does not we return None
     :param dict: The dictionary to check the key in
     :param key:  The kay of the field   for example: "fines" for CovidRules { "fines": "bla bla", }
     :return: None if the key is not in the dictionary, Value of the key if it is
@@ -36,12 +37,12 @@ def _get_safely(dict, key: str):
         return None
 
 
-def get_covid_rules(district_id: str) -> CovidRules:
+def get_covid_rules(district_id: str) -> CovidRules or None:
     """
     Gets current covid rules from the NinaApi for a city and returns them as a CovidRules class
     If the city_name is not valid, an indirect ValueError is thrown (forwarded from place_converter)
     :param district_id: Each district may have different covid_rules
-    :return: CovidRules class
+    :return: CovidRules class, None if we did not get a valid response from the Nina API
     :raises HTTPError:
     """
     district_id = nina_string_helper.expand_location_id_with_zeros(district_id)
@@ -52,12 +53,30 @@ def get_covid_rules(district_id: str) -> CovidRules:
 
     response = response_raw.json()
 
-    vaccine_info = nina_string_helper.filter_html_tags(response["rules"][0]["text"])
-    contact_terms = nina_string_helper.filter_html_tags(response["rules"][1]["text"])
-    school_kita_rules = nina_string_helper.filter_html_tags(response["rules"][2]["text"])
-    hospital_rules = nina_string_helper.filter_html_tags(response["rules"][3]["text"])
-    travelling_rules = nina_string_helper.filter_html_tags(response["rules"][4]["text"])
-    fines = nina_string_helper.filter_html_tags(response["rules"][5]["text"])
+    rules_list = _get_safely(response, "rules")
+
+    if rules_list is None:
+        return None
+
+    vaccine_info = None
+    contact_terms = None
+    school_kita_rules = None
+    hospital_rules = None
+    travelling_rules = None
+    fines = None
+
+    if len(rules_list) > 0:
+        vaccine_info = nina_string_helper.filter_html_tags(rules_list[0]["text"])
+    if len(rules_list) > 1:
+        contact_terms = nina_string_helper.filter_html_tags(rules_list[1]["text"])
+    if len(rules_list) > 2:
+        school_kita_rules = nina_string_helper.filter_html_tags(rules_list[2]["text"])
+    if len(rules_list) > 3:
+        hospital_rules = nina_string_helper.filter_html_tags(rules_list[3]["text"])
+    if len(rules_list) > 4:
+        travelling_rules = nina_string_helper.filter_html_tags(rules_list[4]["text"])
+    if len(rules_list) > 5:
+        fines = nina_string_helper.filter_html_tags(rules_list[5]["text"])
 
     return CovidRules(vaccine_info, contact_terms, school_kita_rules, hospital_rules, travelling_rules, fines)
 
@@ -111,7 +130,8 @@ def _get_warning_severity(warn_severity: str) -> WarningSeverity:
 def _get_warning_type(warning_type: str) -> WarningType:
     """
     translates a string into an enum of WarningType
-    :param warning_type: the exact Enum as a String, for example: "Minor" <- valid  " Minor" <- returns WarningType.Unknown
+    :param warning_type: the exact Enum as a String, for example:
+     "Minor" <- valid  " Minor" <- returns WarningType.Unknown
     :return: if the string is a valid enum, the enum if not: WarningType.Unknown
     """
     try:
@@ -296,7 +316,7 @@ def _get_detailed_warning_infos(response_infos, language: str) -> DetailedWarnin
         info = response_infos[i]
         info_language = _get_safely(info, "language")
 
-        if (info_language is not None and not info_language.lower().__contains__(language)):
+        if info_language is not None and not info_language.lower().__contains__(language):
             continue
 
         event = _get_safely(info, "event")
@@ -323,7 +343,7 @@ def get_detailed_warning(warning_id: str, language: str = "de") -> DetailedWarni
         language: what language will be returned
     Returns:
          the detailed Warning as a DetailedWarning class
-    :raises HTTPError:
+    Raises: HTTPError
     """
     response_raw = requests.get(_API_URL + "/warnings/" + warning_id + ".json")
     response = response_raw.json()
@@ -370,8 +390,8 @@ def get_detailed_warning_geo(warning_id: str) -> DetailedWarningGeo:
     features = _get_safely(response, "features")
     affected_areas = []
 
-    if (features is None):
-        return DetailedWarningGeo(affected_areas = affected_areas)
+    if features is None:
+        return DetailedWarningGeo(affected_areas=affected_areas)
 
     for feature in features:
         geometry = _get_safely(feature, "geometry")
@@ -383,7 +403,6 @@ def get_detailed_warning_geo(warning_id: str) -> DetailedWarningGeo:
             continue
 
         affected_areas.append(GeoCoordinates(coordinates=coordinates))
-
 
     return DetailedWarningGeo(affected_areas=affected_areas)
 
