@@ -407,17 +407,12 @@ def get_detailed_warning_geo(warning_id: str) -> DetailedWarningGeo:
     return DetailedWarningGeo(affected_areas=affected_areas)
 
 
-def _poll_disaster_warnings() -> list[GeneralWarning]:
-    result = [poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning()]
+def _poll_civil_protection_warnings() -> list[GeneralWarning]:
+    result = [poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning(), poll_police_warning()]
     return _filter_disaster_warnings(result)
 
 
-def _poll_general_warnings() -> list[GeneralWarning]:
-    result = [poll_police_warning(), poll_katwarn_warning()]
-    return _filter_disaster_warnings(result)
-
-
-def _filter_disaster_warnings(warnings: list[list[GeneralWarning]]) -> list[GeneralWarning]:
+def _filter_warnings(warnings: list[list[GeneralWarning]]) -> list[GeneralWarning]:
     result = []
     for listWarning in warnings:
         for singleWarning in listWarning:
@@ -428,8 +423,7 @@ def _filter_disaster_warnings(warnings: list[list[GeneralWarning]]) -> list[Gene
 _call_general_warning_map = {
     WarnType.WEATHER: poll_dwd_warning,
     WarnType.FLOOD: poll_lhp_warning,
-    WarnType.DISASTER: _poll_disaster_warnings,
-    WarnType.GENERAL: _poll_general_warnings,
+    WarnType.CIVIL_PROTECTION: _poll_civil_protection_warnings,
 }
 
 

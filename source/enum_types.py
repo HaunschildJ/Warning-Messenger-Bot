@@ -92,8 +92,7 @@ class WarnType(Enum):
     this enum is used to differ between the different general warnings from the nina api
     """
     WEATHER = "weather"
-    GENERAL = "general"
-    DISASTER = "disaster"
+    CIVIL_PROTECTION = "civil protection"
     FLOOD = "flood"
     NONE = "none"
 
