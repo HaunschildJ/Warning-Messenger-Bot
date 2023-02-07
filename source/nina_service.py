@@ -409,7 +409,7 @@ def get_detailed_warning_geo(warning_id: str) -> DetailedWarningGeo:
 
 def _poll_civil_protection_warnings() -> list[GeneralWarning]:
     result = [poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning(), poll_police_warning()]
-    return _filter_disaster_warnings(result)
+    return _filter_warnings(result)
 
 
 def _filter_warnings(warnings: list[list[GeneralWarning]]) -> list[GeneralWarning]:
