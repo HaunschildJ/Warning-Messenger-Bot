@@ -220,9 +220,9 @@ def command_message_handler(message: typ.Message):
     chat_id = message.chat.id
     state = data_service.get_user_state(chat_id)
     text = message.text.removeprefix("/").lower()
-    if ("start" in text) or text == "begin":
+    if error.is_help(text):
         start(message)
-    elif ("help" in text) or ("hilf" in text):
+    elif error.is_help(text):
         controller.help_handler(chat_id, str(state))
     else:
         error.error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
