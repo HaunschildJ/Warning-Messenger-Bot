@@ -4,7 +4,7 @@ import controller
 import data_service
 import nina_service
 import place_converter
-from nina_service import WarnType, GeneralWarning
+from nina_service import WarningCategory, GeneralWarning
 
 
 def start_subscriptions(minutes_to_wait: int = 2):
@@ -37,7 +37,7 @@ def warn_users() -> bool:
     for (warning, warn_type) in active_warnings:
         for chat_id in chat_ids_of_warned_users:
             if _should_user_receive_this_warning(chat_id, warning, warn_type):
-                controller.general_warning(chat_id, WarnType.NONE, [warning])
+                controller.general_warning(chat_id, WarningCategory.NONE, [warning])
                 data_service.add_warning_id_to_users_warnings_received_list(chat_id, warning.id)
                 warnings_sent_counter += 1
 
@@ -47,7 +47,7 @@ def warn_users() -> bool:
     return warnings_sent_counter > 0
 
 
-def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, warn_type: WarnType) -> bool:
+def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, warn_type: WarningCategory) -> bool:
     """
 
     Args:
@@ -68,7 +68,7 @@ def _should_user_receive_this_warning(chat_id: int, warning: GeneralWarning, war
 
 
 def _is_warning_relevant_for_subscription(warning: GeneralWarning, subscription: tuple,
-                                          warn_type: WarnType) -> bool:
+                                          warn_type: WarningCategory) -> bool:
     """
 
     Args:

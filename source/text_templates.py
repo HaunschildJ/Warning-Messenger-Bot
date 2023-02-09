@@ -291,7 +291,7 @@ def get_show_subscriptions_message(subscriptions: list[str], only_show: bool = F
         message = dic["headline_after_insertion"] + "\n" + message
     for subscription in subscriptions:
         message = message + "\n" + subscription
-    if not only_show:
+    if not only_show and location != "":
         message = message + "\n" + dic["end_after_insertion"]
         message = message.replace("%location", location)
     return message
