@@ -7,7 +7,7 @@ import error
 import frontend_helper
 import warning_handler
 
-from enum_types import Commands, WarnType, ErrorCodes
+from enum_types import Commands, WarningCategory, ErrorCodes
 
 bot = bot.bot
 
@@ -24,14 +24,20 @@ def filter_callback_manual_warning_covid(call: typ.CallbackQuery) -> bool:
 
 def filter_callback_manual_warning_other(call: typ.CallbackQuery) -> bool:
     split_data = call.data.split(';')
-    if split_data[0] == Commands.WEATHER.value or split_data[0] == Commands.DISASTER.value \
-            or split_data[0] == Commands.FLOOD.value or split_data[0] == Commands.GENERAL.value:
+    if split_data[0] == Commands.WEATHER.value or split_data[0] == Commands.CIVIL_PROTECTION.value \
+            or split_data[0] == Commands.FLOOD.value:
         return True
     return False
 
 
 def filter_callback_cancel(call: typ.CallbackQuery) -> bool:
     if call.data == Commands.CANCEL_INLINE.value:
+        return True
+    return False
+
+
+def filter_callback_just_cancel(call: typ.CallbackQuery) -> bool:
+    if call.data == Commands.JUST_CANCEL_INLINE.value:
         return True
     return False
 
@@ -190,17 +196,13 @@ def normal_message_handler(message: typ.Message):
                 return
             elif state_second_number == 2:  # 22?
                 # Disaster
-                controller.location_for_warning(message.chat.id, text, Commands.DISASTER)
+                controller.location_for_warning(message.chat.id, text, Commands.CIVIL_PROTECTION)
                 return
             elif state_second_number == 3:  # 23?
                 # Flood
                 controller.location_for_warning(message.chat.id, text, Commands.FLOOD)
                 return
-            elif state_second_number == 4:  # 24?
-                # General
-                controller.location_for_warning(message.chat.id, text, Commands.GENERAL)
-                return
-            else:  # 25? - 29?
+            else:  # 24? - 29?
                 error.illegal_state_handler(chat_id, int(state))
                 return
     elif state_first_number == 3:  # 3?
@@ -218,9 +220,9 @@ def command_message_handler(message: typ.Message):
     chat_id = message.chat.id
     state = data_service.get_user_state(chat_id)
     text = message.text.removeprefix("/").lower()
-    if ("start" in text) or text == "begin":
+    if error.is_start(text):
         start(message)
-    elif ("help" in text) or ("hilf" in text):
+    elif error.is_help(text):
         controller.help_handler(chat_id, str(state))
     else:
         error.error_handler(chat_id, ErrorCodes.UNKNOWN_COMMAND)
@@ -282,7 +284,7 @@ def covid_button(call: typ.CallbackQuery):
 @bot.callback_query_handler(func=filter_callback_manual_warning_other)
 def other_warnings_button(call: typ.CallbackQuery):
     """
-    This method is a callback_handler for the warning (weather, disaster, flood, general) inline buttons (suggestions)
+    This method is a callback_handler for the warning (weather, civil protection, flood) inline buttons (suggestions)
     and will call the methods needed to give the user the desired output \n
     It will also delete the inline buttons
 
@@ -297,13 +299,11 @@ def other_warnings_button(call: typ.CallbackQuery):
     postal_code = split_message[1]
     district_id = split_message[2]
     if split_message[0] == Commands.WEATHER.value:
-        controller.detailed_general_warning(chat_id, WarnType.WEATHER, postal_code, district_id)
-    elif split_message[0] == Commands.DISASTER.value:
-        controller.detailed_general_warning(chat_id, WarnType.DISASTER, postal_code, district_id)
+        controller.detailed_general_warning(chat_id, WarningCategory.WEATHER, postal_code, district_id)
+    elif split_message[0] == Commands.CIVIL_PROTECTION.value:
+        controller.detailed_general_warning(chat_id, WarningCategory.CIVIL_PROTECTION, postal_code, district_id)
     elif split_message[0] == Commands.FLOOD.value:
-        controller.detailed_general_warning(chat_id, WarnType.FLOOD, postal_code, district_id)
-    elif split_message[0] == Commands.GENERAL.value:
-        controller.detailed_general_warning(chat_id, WarnType.GENERAL, postal_code, district_id)
+        controller.detailed_general_warning(chat_id, WarningCategory.FLOOD, postal_code, district_id)
     else:
         error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
     controller.delete_message(chat_id, call.message.id)
@@ -381,6 +381,17 @@ def cancel_button(call: typ.CallbackQuery):
     """
     controller.delete_message(call.message.chat.id, call.message.id)
     frontend_helper.back_to_main_keyboard(call.message.chat.id)
+
+
+@bot.callback_query_handler(func=filter_callback_just_cancel)
+def just_cancel_button(call: typ.CallbackQuery):
+    """
+    This method is a callback_handler for cancel inline buttons and will delete the inline buttons
+
+    Args:
+        call: data that has been sent by the inline button
+    """
+    controller.delete_message(call.message.chat.id, call.message.id)
 
 
 @bot.callback_query_handler(func=filter_callback_add_recommendation)
