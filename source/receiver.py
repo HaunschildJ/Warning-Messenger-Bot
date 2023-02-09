@@ -220,7 +220,7 @@ def command_message_handler(message: typ.Message):
     chat_id = message.chat.id
     state = data_service.get_user_state(chat_id)
     text = message.text.removeprefix("/").lower()
-    if error.is_help(text):
+    if error.is_start(text):
         start(message)
     elif error.is_help(text):
         controller.help_handler(chat_id, str(state))
