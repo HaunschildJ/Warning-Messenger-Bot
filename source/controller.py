@@ -604,7 +604,10 @@ def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_ser
     Args:
         chat_id: integer for the users chat id
         general_warnings: list of GeneralWarning enum for all general_warnings which could be relevant for sending
-        relevant_postal_codes: list of strings for all relevant postal codes
+        relevant_postal_codes: list of postal code strings.
+                            If the general warning has a postal code that is in this list
+                            the detailed warning will be sent to the user with the chat_id
+
 
     Returns:
         integer with the number of relevant warnings that were sent

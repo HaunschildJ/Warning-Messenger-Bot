@@ -124,27 +124,27 @@ class TestSubscriptions(TestCase):
         with self.subTest('User has already received that warning'):
             has_user_already_received_warning_mock.return_value = True
             get_subscriptions_mock.return_value = demo_subscriptions
-            result = subscriptions._should_user_receive_this_warning(chat_id, warning, warn_type)
+            result = subscriptions._any_user_subscription_matches_warning(chat_id, warning, warn_type)
             self.assertFalse(result)
 
         with self.subTest('User has no subscriptions'):
             has_user_already_received_warning_mock.return_value = False
             get_subscriptions_mock.return_value = {}
-            result = subscriptions._should_user_receive_this_warning(chat_id, warning, warn_type)
+            result = subscriptions._any_user_subscription_matches_warning(chat_id, warning, warn_type)
             self.assertFalse(result)
 
         with self.subTest('User has a matching subscription for the warning'):
             has_user_already_received_warning_mock.return_value = False
             get_subscriptions_mock.return_value = demo_subscriptions
             get_warning_locations_mock.return_value = warning_locations
-            result = subscriptions._should_user_receive_this_warning(chat_id, warning, warn_type)
+            result = subscriptions._any_user_subscription_matches_warning(chat_id, warning, warn_type)
             self.assertTrue(result)
 
         with self.subTest('User has no matching subscription for the warning'):
             has_user_already_received_warning_mock.return_value = False
             get_subscriptions_mock.return_value = demo_subscriptions
             get_warning_locations_mock.return_value = ['Frankfurt']
-            result = subscriptions._should_user_receive_this_warning(chat_id, warning, warn_type)
+            result = subscriptions._any_user_subscription_matches_warning(chat_id, warning, warn_type)
             self.assertFalse(result)
 
     @patch('nina_service.get_warning_locations')

@@ -554,3 +554,22 @@ def get_active_warnings_dict() -> dict:
 
 def set_active_warnings_dict(new_data: dict):
     _write_file(_ACTIVE_WARNINGS_PATH, new_data)
+
+
+def get_user_subscription_postal_codes(chat_id: int) -> list[str]:
+    """
+    Returns a list of all postal codes the user is subscribed to
+
+    Args:
+        chat_id: to identify the user
+
+    Returns: list of all postal codes the user is subscribed to
+
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        return []
+
+    return list(all_user[cid][Attributes.LOCATIONS.value].keys())
