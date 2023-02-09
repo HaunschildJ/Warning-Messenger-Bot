@@ -49,7 +49,7 @@ def _write_file(path: str, data: dict):
     file and writes into it.
 
     Arguments:
-        path: where to write to
+        path: where to write data to
         data: what to write to path
     """
     with open(path, 'w+') as writefile:
@@ -278,7 +278,8 @@ def add_suggestion(chat_id: int, postal_code: str, district_id: str) -> list[dic
     """
     This method adds a location to the recommended location list of a user. \n
     The list is sorted: The most recently added location is the first element and the oldest added location
-    is the last element (FIFO)
+    is the last element (FIFO).\n
+    If user with given chat_id is not present, he will be added.
 
     Arguments:
         chat_id: an integer for the chatID that the message is sent to

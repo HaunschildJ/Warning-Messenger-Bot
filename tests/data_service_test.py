@@ -101,31 +101,59 @@ class MyTestCase(unittest.TestCase):
         data_service._write_file(file_path, {})
 
         # user with id == 10 wants to get different warnings
-        data_service.add_subscription(10, "Darmstadt", "3", 2)
-        data_service.add_subscription(10, "Darmstadt", "0", 3)
-        data_service.add_subscription(10, "Berlin", "3", 1)
-
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="64287",
+                                      district_id="06411",
+                                      warning="weather",
+                                      warning_level="severe")
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="64287",
+                                      district_id="06411",
+                                      warning="flood",
+                                      warning_level="moderate")
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="99099",
+                                      district_id="16051",
+                                      warning="civil_protection",
+                                      warning_level="minor")
+        # 3 entries expected. 2 for Darmstadt, 1 for Erfurt
         should_be = {
-                    "Darmstadt": {
-                        "3": 2,
-                        "0": 3
-                        },
-                    "Berlin": {
-                        "3": 1
-                    }
-                    }
+            "64287": {
+                "district_id": "06411",
+                "weather": "severe",
+                "flood": "moderate"
+            },
+            "99099": {
+                "district_id": "16051",
+                "civil_protection": "minor"
+            }
+        }
 
         # check if it was saved
         self.assertEqual(should_be, data_service.get_subscriptions(10))
 
-        # user with id == 10 wants to delete warnings
-        data_service.delete_subscription(10, "Darmstadt", "0")
-        data_service.delete_subscription(10, "Berlin", "3")
-        data_service.add_subscription(10, "Darmstadt", "3", 5)
+        # delete severe weather warnings for Darmstadt
+        data_service.delete_subscription(chat_id=10,
+                                         postal_code="64287",
+                                         warning="weather")
 
+        # add all weather warnings to Erfurt
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="99099",
+                                      district_id="16051",
+                                      warning="weather",
+                                      warning_level="minor")
+
+        # 3 entries expected. 1 for Darmstadt, 2 for Erfurt
         should_be = {
-            "Darmstadt": {
-                "3": 5
+            "64287": {
+                "district_id": "06411",
+                "flood": "moderate"
+            },
+            "99099": {
+                "district_id": "16051",
+                "civil_protection": "minor",
+                "weather": "minor"
             }
         }
 
@@ -140,6 +168,15 @@ class MyTestCase(unittest.TestCase):
         data_service._write_file(file_path, user_entries)
 
     def test_suggestion(self):
+        """Tests various methods related to favorites in data_service.py.\n
+         First checks if reading suggestions of non-existing entry correctly returns default parameters.\n
+         Then adds 3 favorites and reshuffles them in all possible ways:
+             (i) Readding the least recently added favorit
+             (ii) Readding the second least recently added favorit
+             (iii) Readding the most recenlty added favorit
+         and checks whether the readded favorite correctly becomes first favorit and whether the other
+         favorites are correctly moved back one place without deleting them.
+         """
         # read json file and safe the current content before the test
         user_entries = data_service._read_file(file_path)
 
@@ -151,83 +188,85 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(expected, data_service.get_suggestions(1))
 
         # adding a location that was not in recommendations before
-        control_user = [{
-                "name": "Test",
-                "place_id": "12345",
-                "district_id": "12345"
+        expected_favorites_after_adding = [
+            {
+                'postal_code': '70599',
+                'district_id': '08111'
             },
             {
-                "name": "Berlin, Stadt",
-                "place_id": "110000000000",
-                "district_id": "11000"
+                'postal_code': '99099',
+                'district_id': '16051'
             },
             {
-                "name": "Berlin-Mitte",
-                "place_id": "110010000000",
-                "district_id": "11001"
+                'postal_code': '22559',
+                'district_id': '02000'
             }
         ]
-        return_value = data_service.add_suggestion(10, "Test", "12345", "12345")
+        data_service.add_suggestion(10, '22559', '02000')
+        data_service.add_suggestion(10, '99099', '16051')
+        favorites = data_service.add_suggestion(10, '70599', '08111')
 
-        # check if the user entries are equal
-        self.assertEqual(control_user, data_service.get_suggestions(10))
+        actual_suggestions = data_service.get_suggestions(10)
 
-        for (control_recommendation, result_recommendation) in zip(control_user, return_value):
-            self.assertEqual(control_recommendation["name"],
-                             data_service.get_recommendation_name(result_recommendation))
-            self.assertEqual(control_recommendation["place_id"],
-                             data_service.get_recommendation_place_id(result_recommendation))
+        # check if add_suggestions
+        #   (i) added correct favorites to newly generated user with chat_id 10 and
+        #   (ii) returned the right list of dicts
+        self.assertEqual(favorites, actual_suggestions, expected_favorites_after_adding)
+
+        for (control_recommendation, result_recommendation) in zip(expected_favorites_after_adding, favorites):
+            self.assertEqual(control_recommendation["postal_code"],
+                             data_service.get_recommendation_postal_code(result_recommendation))
             self.assertEqual(control_recommendation["district_id"],
                              data_service.get_recommendation_district_id(result_recommendation))
 
-        # adding the least recently added location
-        control_user = [{
-                "name": "Berlin-Mitte",
-                "place_id": "110010000000",
-                "district_id": "11001"
+        # adding the least recently added location, 1-2-3 should become 3-1-2
+        expected_favorites_after_readding_least_recently = [
+            {
+                'postal_code': '22559',
+                'district_id': '02000'
             },
             {
-            "name": "Test",
-            "place_id": "12345",
-            "district_id": "12345"
+                'postal_code': '70599',
+                'district_id': '08111'
             },
             {
-                "name": "Berlin, Stadt",
-                "place_id": "110000000000",
-                "district_id": "11000"
+                'postal_code': '99099',
+                'district_id': '16051'
             }
         ]
-        data_service.add_suggestion(10, "Berlin-Mitte", "110010000000", "11001")
+        actual_favorites_after_readding_least_recently = data_service.add_suggestion(10, "22559", '02000')
+        self.assertEqual(expected_favorites_after_readding_least_recently,
+                         data_service.get_suggestions(10),
+                         actual_favorites_after_readding_least_recently)
 
-        # check if the user entries are equal
-        self.assertEqual(control_user, data_service.get_suggestions(10))
-
-        # adding the second most recently added location
-        control_user = [{
-                "name": "Test",
-                "place_id": "12345",
-                "district_id": "12345"
+        # adding the 2nd recently added location, 1-2-3 should become 2-1-3
+        expected_favorites_after_readding_second_least_recently = [
+            {
+                'postal_code': '70599',
+                'district_id': '08111'
             },
             {
-            "name": "Berlin-Mitte",
-            "place_id": "110010000000",
-            "district_id": "11001"
+                'postal_code': '22559',
+                'district_id': '02000'
             },
             {
-                "name": "Berlin, Stadt",
-                "place_id": "110000000000",
-                "district_id": "11000"
+                'postal_code': '99099',
+                'district_id': '16051'
             }
         ]
-        data_service.add_suggestion(10, "Test", "12345", "12345")
+        actual_favorites_after_readding_second_least_recently = data_service.add_suggestion(10, '70599', '08111')
 
         # check if the user entries are equal
-        self.assertEqual(control_user, data_service.get_suggestions(10))
+        self.assertEqual(expected_favorites_after_readding_second_least_recently,
+                         data_service.get_suggestions(10),
+                         actual_favorites_after_readding_second_least_recently)
 
         # adding the location that was most recently added should change nothing
-        data_service.add_suggestion(10, "Test", "12345", "12345")
+        actual_favorites_after_readding_most_recenlty = data_service.add_suggestion(10, '70599', '08111')
 
-        self.assertEqual(control_user, data_service.get_suggestions(10))
+        self.assertEqual(expected_favorites_after_readding_second_least_recently,
+                         data_service.get_suggestions(10),
+                         actual_favorites_after_readding_most_recenlty)
 
         # write data back to json from before the test
         data_service._write_file(file_path, user_entries)
@@ -267,25 +306,311 @@ class MyTestCase(unittest.TestCase):
         data_service.remove_user(10)
 
         # read json file
-        user_entries = data_service._read_file(file_path)
+        entries_before_deleting_non_existing_user = data_service._read_file(file_path)
 
         # remove the user with the id == 10 (should do nothing)
         data_service.remove_user(10)
 
         # read json file again after remove
-        user_entries2 = data_service._read_file(file_path)
+        entries_after_deleting_non_existing_user = data_service._read_file(file_path)
 
         # check if json file after removing a non-existing user is equal to the json file before
-        self.assertEqual(user_entries, user_entries2)
+        self.assertEqual(entries_before_deleting_non_existing_user, entries_after_deleting_non_existing_user)
 
         # write data back to json from before the test
         data_service._write_file(file_path, saved_user_entries)
 
+    def test_delete_all_subscriptions(self):
+        """
+        Tests delete_all_subscriptions in data_service.py.\n
+        Creates two users (user_10 and user_20) and adds some subscriptions for both of them.\n
+        First checks whether subscriptions got written correctly to data base.\n
+        Then calls tested method for user_20 and checks if all subscriptions were deleted.\n
+        Lastly checks if subscriptions of user_10 stayed the same.
+        """
+
+        # read json file and safe the current content before the test
+        entries_before_test = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+
+        # writing 2 users (chat_ids 10 and 20) to data base, both with default values
+        entries = {"10": data_service.DEFAULT_DATA, "20": data_service.DEFAULT_DATA}
+        data_service._write_file(file_path, entries)
+
+        # add various warnings for user with chat_id 20
+        data_service.add_subscription(chat_id=20,
+                                      postal_code="22559",
+                                      district_id="02000",
+                                      warning="weather",
+                                      warning_level="moderate")
+        data_service.add_subscription(chat_id=20,
+                                      postal_code="99099",
+                                      district_id="16051",
+                                      warning="flood",
+                                      warning_level="severe")
+        data_service.add_subscription(chat_id=20,
+                                      postal_code="70599",
+                                      district_id="08111",
+                                      warning="weather",
+                                      warning_level="minor")
+
+        # add one warning for user with chat_id 10
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="22559",
+                                      district_id="02000",
+                                      warning="flood",
+                                      warning_level="moderate")
+
+        # check if data base has correct subscriptions for user with chat_id 20
+        expected_subscriptions_after_adding = {
+            '22559':
+                {
+                    'district_id': '02000',
+                    'weather': 'moderate'
+                },
+            '99099':
+                {
+                    'district_id': '16051',
+                    'flood': 'severe'
+                },
+            '70599':
+                {
+                    'district_id': '08111',
+                    'weather': 'minor'
+                }
+        }
+        actual_subscriptions_after_adding = data_service.get_subscriptions(20)
+        self.assertEqual(actual_subscriptions_after_adding, expected_subscriptions_after_adding)
+
+        # check whether subscriptions of user with chat_id 10 stayed the same
+        expected_subscriptions_user_chat_id_10 = {
+            '22559':
+                {
+                    'district_id': '02000',
+                    'flood': 'moderate'
+                }
+        }
+        actual_subscriptions_user_chat_id_10 = data_service.get_subscriptions(10)
+        self.assertEqual(expected_subscriptions_user_chat_id_10, actual_subscriptions_user_chat_id_10)
+
+        # check if deleting all subscriptions of user with chat_id 20 works
+        data_service.delete_all_subscriptions(20)
+        expected_subscriptions_after_deleting_all_subscriptions = {}
+        actual_subscriptions_after_deleting_all_subscriptions = data_service.get_subscriptions(20)
+        self.assertEqual(actual_subscriptions_after_deleting_all_subscriptions,
+                         expected_subscriptions_after_deleting_all_subscriptions)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, entries_before_test)
+
+    def test_reset_favorites(self):
+        """
+        Tests reset_favorites in data_service.py.
+        Creates two users (user_10 and user_20) and adds 3 favorites for user_20.\n
+        First checks whether favorites of user_20 got written correctly to data base.
+        Then calls tested method for one user_20 and checks if favorites of both users match default favorites.
+            (i) user_10 because he never got other favorites
+            (ii) user_20 because his were resetted.\n
+        """
+        # read json file and safe the current content before the test
+        entries_before_test = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+
+        # writing 2 users (chat_ids 10 and 20) to data base, both with default values
+        entries = {"10": data_service.DEFAULT_DATA, "20": data_service.DEFAULT_DATA}
+        data_service._write_file(file_path, entries)
+
+        # add 3 favorites to user with chat_id 20
+        data_service.add_suggestion(chat_id=20,
+                                    postal_code="22559",
+                                    district_id="02000")
+        data_service.add_suggestion(chat_id=20,
+                                    postal_code="99099",
+                                    district_id="16051")
+        data_service.add_suggestion(chat_id=20,
+                                    postal_code="70599",
+                                    district_id="08111")
+
+        # check if data base has correct favorites for user with chat_id 20
+        expected_favorites_after_adding = [
+            {
+                'postal_code': '70599',
+                'district_id': '08111'
+            },
+            {
+                'postal_code': '99099',
+                'district_id': '16051'
+            },
+            {
+                'postal_code': '22559',
+                'district_id': '02000'
+            }
+        ]
+        actual_favorites_after_adding = data_service.get_suggestions(20)
+        self.assertEqual(actual_favorites_after_adding, expected_favorites_after_adding)
+
+        # check if both users have default suggestions, chat_id 20 because all its favorites got resetted
+        #   and chat_id 10 because his favorites were never changed after initialization
+        data_service.reset_favorites(20)
+        default_favorites = data_service.DEFAULT_DATA['recommendations']
+
+        actual_favorites_chat_id_20_after_deleting = data_service.get_suggestions(20)
+        actual_favorites_chat_id_10 = data_service.get_suggestions(10)
+
+        self.assertEqual(actual_favorites_chat_id_20_after_deleting, default_favorites)
+        self.assertEqual(actual_favorites_chat_id_10, default_favorites)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, entries_before_test)
+
+    def test_delete_user(self):
+        """Tests reset_favorites in data_service.py.
+        reates two users (user_10 and user_20) and adds 3 favorites for user_20.\n
+        First checks whether favorites of user_20 got written correctly to data base.
+        Then calls tested method for one user_20 and checks if favorites of both users match default favorites.
+            (i) user_10 because he never got other favorites
+            (ii) user_20 because his were resetted.\n
+        """
+        # read json file and safe the current content before the test
+        entries_before_test = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+
+        # writing 2 users (chat_ids 10 and 20) to data base, both with default values
+        entries = {"10": data_service.DEFAULT_DATA, "20": data_service.DEFAULT_DATA}
+        data_service._write_file(file_path, entries)
+
+        # add dummy values for favorites and subscriptions for user with chat_id 10
+        data_service.add_suggestion(chat_id=10,
+                                    postal_code="22559",
+                                    district_id="02000")
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="22559",
+                                      district_id="02000",
+                                      warning="flood",
+                                      warning_level="moderate")
+        # add dummy values for favorites and subscriptions for user with chat_id 20
+        data_service.add_suggestion(chat_id=20,
+                                    postal_code="99099",
+                                    district_id="16051")
+        data_service.add_subscription(chat_id=20,
+                                      postal_code="70599",
+                                      district_id="08111",
+                                      warning="weather",
+                                      warning_level="minor")
+
+        # check if data base has correct favorites for user with chat_id 10
+        expected_favorites_user_10_after_deleting_user_20 = [
+            {
+                "postal_code": "22559",
+                "district_id": "02000"
+            },
+            {
+                "postal_code": "10827",
+                "district_id": "11000"
+            },
+            {
+                "postal_code": "60308",
+                "district_id": "06412"
+            }
+        ]
+        actual_favorites_user_10_after_deleting_user_20 = data_service.get_suggestions(10)
+        self.assertEqual(actual_favorites_user_10_after_deleting_user_20,
+                         expected_favorites_user_10_after_deleting_user_20)
+
+        # check if data base has correct subscriptions for user with chat_id 10
+        expected_subscriptions_user_10_after_deleting_user_20 = {
+            '22559':
+                {
+                    'district_id': '02000',
+                    'flood': 'moderate'
+                }
+        }
+        actual_subscriptions_user_10_after_deleting_user_20 = data_service.get_subscriptions(10)
+        self.assertEqual(actual_subscriptions_user_10_after_deleting_user_20,
+                         expected_subscriptions_user_10_after_deleting_user_20)
+
+        # check if data base has correct favorites for user with chat_id 20
+        expected_favorites_user_20 = [
+            {
+                "postal_code": "99099",
+                "district_id": "16051"
+            },
+            {
+                "postal_code": "10827",
+                "district_id": "11000"
+            },
+            {
+                "postal_code": "60308",
+                "district_id": "06412"
+            }
+        ]
+        actual_favorites_user_20 = data_service.get_suggestions(20)
+        self.assertEqual(actual_favorites_user_20, expected_favorites_user_20)
+
+        # check if data base has correct subscriptions for user with chat_id 20
+        expected_subscriptions_user_20 = {
+            '70599':
+                {
+                    'district_id': '08111',
+                    'weather': 'minor'
+                }
+        }
+        actual_subscriptions_user_20 = data_service.get_subscriptions(20)
+        self.assertEqual(actual_subscriptions_user_20, expected_subscriptions_user_20)
+
+        # BEFORE deleting user 20 there should be 2 entries
+        d = data_service._read_file(file_path)
+        dict_keys_before_deleting_user_20 = d.keys()
+        self.assertEqual(len(dict_keys_before_deleting_user_20), 2)
+
+        # remove user with chat_id 20
+        data_service.delete_user(20)
+
+        # AFTER deleting user 20 there should be 1 entry
+        d = data_service._read_file(file_path)
+        dict_keys_after_deleting_user_20 = d.keys()
+        self.assertEqual(len(dict_keys_after_deleting_user_20), 1)
+
+        # check that user with chat_id 10 is unchanged in data base
+        expected_favorites_user_10_after_deleting_user_20 = [
+            {
+                "postal_code": "22559",
+                "district_id": "02000"
+            },
+            {
+                "postal_code": "10827",
+                "district_id": "11000"
+            },
+            {
+                "postal_code": "60308",
+                "district_id": "06412"
+            }
+        ]
+        actual_favorites_user_10_after_deleting_user_20 = data_service.get_suggestions(10)
+        self.assertEqual(actual_favorites_user_10_after_deleting_user_20,
+                         expected_favorites_user_10_after_deleting_user_20)
+
+        # check if data base still has correct subscriptions for user with chat_id 10
+        expected_subscriptions_user_10_after_deleting_user_20 = {
+            '22559':
+                {
+                    'district_id': '02000',
+                    'flood': 'moderate'
+                }
+        }
+        actual_subscriptions_user_10_after_deleting_user_20 = data_service.get_subscriptions(10)
+        self.assertEqual(actual_subscriptions_user_10_after_deleting_user_20,
+                         expected_subscriptions_user_10_after_deleting_user_20)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, entries_before_test)
+
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
