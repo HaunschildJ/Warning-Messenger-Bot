@@ -12,6 +12,7 @@ class Commands(Enum):
 
     just for the bot not the user:\n
     CANCEL_INLINE\n
+    JUST_CANCEL_INLINE\n
     DELETE_SUBSCRIPTION ; "postal_code" ; "district_id" ; "warn_type"\n
     ADD_SUBSCRIPTION ; "postal_code" ; "district_id" ; "warn_type" ; "warn_level"\n
     COVID_UPDATES + "ReceiveInformation from data_service as int"\n
@@ -22,6 +23,7 @@ class Commands(Enum):
     """
     AUTO_WARNING = "/aw"
     CANCEL_INLINE = "/cancel"
+    JUST_CANCEL_INLINE = "just_cancel"
     ADD_RECOMMENDATION = "/addR"
     DELETE_SUBSCRIPTION = "/delS"
     ADD_SUBSCRIPTION = "/addS"
@@ -33,9 +35,8 @@ class Commands(Enum):
     COVID_INFO = "/cI"
     COVID_RULES = "/cR"
     WEATHER = "/weather"
-    DISASTER = "/disaster"
+    CIVIL_PROTECTION = "/cP"
     FLOOD = "/flood"
-    GENERAL = "/general"
 
 
 class ErrorCodes(Enum):
@@ -87,15 +88,15 @@ class WarningSeverity(Enum):
     MANUAL = "Manual"
 
 
-class WarnType(Enum):
+class WarningCategory(Enum):
     """
     this enum is used to differ between the different general warnings from the nina api
     """
     WEATHER = "weather"
-    GENERAL = "general"
-    DISASTER = "disaster"
+    CIVIL_PROTECTION = "civil_protection"
     FLOOD = "flood"
     NONE = "none"
+    ALL = "all"
 
 
 class WarningType(Enum):
@@ -138,10 +139,10 @@ class Button(Enum):
     LANGUAGE = "language"
     CANCEL = "cancel"
     SEND_LOCATION = "send_location"
-    WEATHER = "weather"  # name needs to be equal to name in nina_service.WarnType
-    GENERAL = "general"  # name needs to be equal to name in nina_service.WarnType
-    DISASTER = "disaster"  # name needs to be equal to name in nina_service.WarnType
-    FLOOD = "flood"  # name needs to be equal to name in nina_service.WarnType
+    WEATHER = "weather"  # name needs to be equal to name in nina_service.WarningCategory
+    CIVIL_PROTECTION = "civil_protection"  # name needs to be equal to name in nina_service.WarningCategory
+    FLOOD = "flood"  # name needs to be equal to name in nina_service.WarningCategory
+    ALL = "all"  # name needs to be equal to name in nina_service.WarningCategory
     SHOW_SUBSCRIPTION = "show_subscriptions"
     DELETE_SUBSCRIPTION = "delete_subscription"
     ADD_SUBSCRIPTION = "add_subscription"

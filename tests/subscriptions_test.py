@@ -8,7 +8,7 @@ import subscriptions
 from nina_service import GeneralWarning, WarnType, WarningType, WarningSeverity
 
 
-def get_test_subscription(warn_type: nina_service.WarnType, warning_severity: nina_service.WarningSeverity,
+def get_test_subscription(warn_type: nina_service.WarningCategory, warning_severity: nina_service.WarningSeverity,
                           place_id="064110000000"):
     """
 

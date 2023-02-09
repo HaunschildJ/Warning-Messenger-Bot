@@ -9,7 +9,7 @@ import frontend_helper
 import warning_handler
 
 from text_templates import Button, Answers
-from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarnType, BotUsageHelp
+from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarningCategory, BotUsageHelp
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from error import error_handler, illegal_state_handler, help_handler
 
@@ -181,15 +181,12 @@ def button_in_manual_warnings_pressed(chat_id: int, button_text: str):
     elif button_text == str(frontend_helper.WARNING_WEATHER_TEXT):
         data_service.set_user_state(chat_id, 21)
         show_suggestions(chat_id, Commands.WEATHER.value + ";")
-    elif button_text == str(frontend_helper.WARNING_DISASTER_TEXT):
+    elif button_text == str(frontend_helper.WARNING_CIVIL_PROTECTION_TEXT):
         data_service.set_user_state(chat_id, 22)
-        show_suggestions(chat_id, Commands.DISASTER.value + ";")
+        show_suggestions(chat_id, Commands.CIVIL_PROTECTION.value + ";")
     elif button_text == str(frontend_helper.WARNING_FLOOD_TEXT):
         data_service.set_user_state(chat_id, 23)
         show_suggestions(chat_id, Commands.FLOOD.value + ";")
-    elif button_text == str(frontend_helper.WARNING_GENERAL_TEXT):
-        data_service.set_user_state(chat_id, 24)
-        show_suggestions(chat_id, Commands.GENERAL.value + ";")
     else:
         error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED, message=button_text)
 
@@ -271,7 +268,7 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
             corresponding_buttons = []
             for warning in subscriptions[postal_code]:
                 if warning != "district_id":
-                    warning_name = _get_general_warning_name(nina_service.WarnType(warning))
+                    warning_name = _get_general_warning_name(nina_service.WarningCategory(warning))
                     button_name = str(i)
                     button = sender.create_inline_button(button_name, command + warning)
                     warnings.append(warning_name)
@@ -293,7 +290,7 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
         elif len(buttons) == 1:
             markup.add(buttons[0])
 
-        cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
+        cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.JUST_CANCEL_INLINE.value))
         markup.add(cancel_button)
         sender.send_message(chat_id, answer, markup)
     elif button_text == frontend_helper.DEFAULT_LEVEL_TEXT:
@@ -312,12 +309,12 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
         markup.add(buttons[0], buttons[1], buttons[2]).add(buttons[3])
         sender.send_message(chat_id, answer, markup)
     elif button_text == frontend_helper.SILENCE_SUBSCRIPTIONS_TEXT:
-        data_service.set_user_state(chat_id, 104)
+        data_service.set_user_state(chat_id, 10)
         command = Commands.AUTO_WARNING.value + " "
         markup = InlineKeyboardMarkup()
         yes_button = sender.create_inline_button(frontend_helper.YES_TEXT, command + "True")
         no_button = sender.create_inline_button(frontend_helper.NO_TEXT, command + "False")
-        cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
+        cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.JUST_CANCEL_INLINE.value))
         markup.add(yes_button, no_button, cancel_button)
         sender.send_message(chat_id, text_templates.get_answers(Answers.AUTO_WARNINGS_TEXT), markup)
     else:
@@ -406,9 +403,9 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
     if len(split_command) == 3:
         markup = InlineKeyboardMarkup()
 
-        for warning in list(nina_service.WarnType):
-            if warning == nina_service.WarnType.NONE:
-                break
+        for warning in list(WarningCategory):
+            if warning == WarningCategory.NONE:
+                continue
             warn_name = _get_general_warning_name(warning)
             button = sender.create_inline_button(warn_name, callback_command + ";" + str(warning.value))
             markup.add(button)
@@ -436,18 +433,31 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
         markup.add(cancel_button)
         message = text_templates.get_adding_subscription_level_message(
-            location_name, _get_general_warning_name(nina_service.WarnType(warning)))
+            location_name, _get_general_warning_name(WarningCategory(warning)))
         sender.send_message(chat_id, message, markup)
     else:
         # done with process of adding subscription, and it can now be added
         warning_level = split_command[4]
-        warning_type = nina_service.WarnType(warning)
+        warning_type = WarningCategory(warning)
 
-        data_service.add_subscription(chat_id, postal_code, district_id, str(warning_type.value), str(warning_level))
-
-        show_subscriptions(chat_id, location=location_name)
-        new_callback_command = split_command[0] + ";" + split_command[1] + ";" + split_command[2]
-        inline_button_for_adding_subscriptions(chat_id, new_callback_command)
+        # add to database
+        if warning_type == WarningCategory.ALL:
+            for one_warning in list(WarningCategory):
+                if one_warning == WarningCategory.NONE or one_warning == WarningCategory.ALL:
+                    continue
+                data_service.add_subscription(chat_id, postal_code, district_id,
+                                              str(one_warning.value), str(warning_level))
+            # show subscriptions
+            show_subscriptions(chat_id, only_show=False)
+            frontend_helper.back_to_main_keyboard(chat_id)
+        else:
+            data_service.add_subscription(chat_id, postal_code, district_id,
+                                          str(warning_type.value), str(warning_level))
+            # show subscriptions and add further ones
+            show_subscriptions(chat_id, only_show=False, location=location_name)
+            # ask if user wants to add another warning if they didn't already add everything
+            new_callback_command = split_command[0] + ";" + split_command[1] + ";" + split_command[2]
+            inline_button_for_adding_subscriptions(chat_id, new_callback_command)
 
 
 def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str):
@@ -467,7 +477,7 @@ def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str
     warning = split_command[3]
     data_service.delete_subscription(chat_id, postal_code, warning)
 
-    warning_name = _get_general_warning_name(nina_service.WarnType(warning))
+    warning_name = _get_general_warning_name(nina_service.WarningCategory(warning))
     location_name = get_location_name(district_id, postal_code)
     sender.send_message(chat_id, text_templates.get_delete_subscription_message(location_name, warning_name))
 
@@ -544,7 +554,7 @@ def show_suggestions(chat_id: int, command_begin: str):
     sender.send_message(chat_id, text_templates.get_answers(Answers.CLICK_SUGGESTION), markup)
 
 
-def detailed_general_warning(chat_id: int, warning: WarnType, postal_code: str, district_id: str):
+def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str):
     """
     Sets the chat action of the bot to typing
     Calls for the warnings (warning) from the Nina API via the nina_service
@@ -558,7 +568,7 @@ def detailed_general_warning(chat_id: int, warning: WarnType, postal_code: str, 
         postal_code: string with the postal code
         district_id: string with the district id
     """
-    if warning == nina_service.WarnType.NONE:
+    if warning == nina_service.WarningCategory.NONE:
         return
     sender.send_chat_action(chat_id, "typing")
     keyboard = frontend_helper.get_warning_keyboard_buttons()
@@ -571,12 +581,16 @@ def detailed_general_warning(chat_id: int, warning: WarnType, postal_code: str, 
     if len(warnings) == 0:
         sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
                             keyboard)
+        ask_if_add_to_subscriptions(chat_id, warning, postal_code, district_id)
         return
 
     num_sent = send_detailed_general_warnings(chat_id, warnings, [postal_code])
     if num_sent == 0:
         sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS), keyboard)
+    ask_if_add_to_subscriptions(chat_id, warning, postal_code, district_id)
 
+
+def ask_if_add_to_subscriptions(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str):
     subscriptions = data_service.get_subscriptions(chat_id)
     # if the called warning is not in the users subscriptions yet, ask if they want to add it
     if postal_code not in subscriptions:
@@ -586,7 +600,7 @@ def detailed_general_warning(chat_id: int, warning: WarnType, postal_code: str, 
         button = sender.create_inline_button(text_templates.get_answers(Answers.YES), command + str(warning.value))
         markup.add(button)
 
-        cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
+        cancel_button = sender.create_inline_button(frontend_helper.NO_TEXT, str(Commands.JUST_CANCEL_INLINE.value))
         markup.add(cancel_button)
 
         location_name = get_location_name(district_id, postal_code)
@@ -613,7 +627,6 @@ def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_ser
     for warning_id in relevant_warning_ids:
         try:
             detail = nina_service.get_detailed_warning(warning_id)
-            # TODO make a real message
             event = detail.info.event
             headline = detail.info.headline
             description = detail.info.description
@@ -713,7 +726,7 @@ def show_subscriptions(chat_id: int, only_show: bool = False, location: str = ""
         levels = []
         for warning in subscriptions[postal_code].keys():
             if warning != "district_id":
-                warnings.append(_get_general_warning_name(nina_service.WarnType(warning)))
+                warnings.append(_get_general_warning_name(nina_service.WarningCategory(warning)))
                 level = str(subscriptions[postal_code][warning])
                 levels.append(text_templates.get_button_name(Button(level)))
         district_name = place_converter.get_district_name_for_district_id(district_id)
@@ -846,7 +859,7 @@ def delete_message(chat_id: int, message_id: int):
     sender.delete_message(chat_id, message_id)
 
 
-def _get_general_warning_name(warn_type: nina_service.WarnType) -> str:
+def _get_general_warning_name(warn_type: nina_service.WarningCategory) -> str:
     """
     Helper Method to convert a nina_service.WarnType to a string from text_templates
     """
@@ -857,6 +870,3 @@ def get_location_name(district_id: str, postal_code: str) -> str:
     district_name = place_converter.get_district_name_for_district_id(district_id)
     place_name = place_converter.get_place_name_for_postal_code(postal_code)
     return text_templates.get_display_name_for_location(district_name, place_name, postal_code)
-
-
-

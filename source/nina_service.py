@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List
 
 from enum_types import WarningSeverity
-from enum_types import WarnType
+from enum_types import WarningCategory
 from enum_types import WarningType
 
 import requests
@@ -407,17 +407,12 @@ def get_detailed_warning_geo(warning_id: str) -> DetailedWarningGeo:
     return DetailedWarningGeo(affected_areas=affected_areas)
 
 
-def _poll_disaster_warnings() -> list[GeneralWarning]:
-    result = [poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning()]
-    return _filter_disaster_warnings(result)
+def _poll_civil_protection_warnings() -> list[GeneralWarning]:
+    result = [poll_biwapp_warning(), poll_mowas_warning(), poll_katwarn_warning(), poll_police_warning()]
+    return _filter_warnings(result)
 
 
-def _poll_general_warnings() -> list[GeneralWarning]:
-    result = [poll_police_warning(), poll_katwarn_warning()]
-    return _filter_disaster_warnings(result)
-
-
-def _filter_disaster_warnings(warnings: list[list[GeneralWarning]]) -> list[GeneralWarning]:
+def _filter_warnings(warnings: list[list[GeneralWarning]]) -> list[GeneralWarning]:
     result = []
     for listWarning in warnings:
         for singleWarning in listWarning:
@@ -426,14 +421,13 @@ def _filter_disaster_warnings(warnings: list[list[GeneralWarning]]) -> list[Gene
 
 
 _call_general_warning_map = {
-    WarnType.WEATHER: poll_dwd_warning,
-    WarnType.FLOOD: poll_lhp_warning,
-    WarnType.DISASTER: _poll_disaster_warnings,
-    WarnType.GENERAL: _poll_general_warnings,
+    WarningCategory.WEATHER: poll_dwd_warning,
+    WarningCategory.FLOOD: poll_lhp_warning,
+    WarningCategory.CIVIL_PROTECTION: _poll_civil_protection_warnings,
 }
 
 
-def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
+def call_general_warning(warning: WarningCategory) -> list[GeneralWarning]:
     """
     The Nina Api has different API calls for each warning that all basically work the same.
     Since we each user can subscribe to each warning individually we need to save their subscriptions.
@@ -443,19 +437,19 @@ def call_general_warning(warning: WarnType) -> list[GeneralWarning]:
     :return:  a list of GeneralWarnings, list ist empty if there are no current warnings
     :raises HTTPError:
     """
-    if warning == WarnType.NONE:
+    if warning == WarningCategory.NONE or warning == WarningCategory.ALL:
         return []
     return _call_general_warning_map[warning]()
 
 
-def get_all_active_warnings() -> list[tuple[GeneralWarning, WarnType]]:
+def get_all_active_warnings() -> list[tuple[GeneralWarning, WarningCategory]]:
     """
 
     Returns: a list of tuples where each tuple contains an active warning and its WarnType
 
     """
     warnings = []
-    for warn_type in WarnType:
+    for warn_type in WarningCategory:
         for warning in call_general_warning(warn_type):
             warnings.append((warning, warn_type))
 

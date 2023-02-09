@@ -19,9 +19,8 @@ WARNING_COVID_TEXT = text_templates.get_button_name(Button.COVID)
 WARNING_COVID_INFO_TEXT = text_templates.get_button_name(Button.COVID_INFORMATION)  # MVP 5. i)
 WARNING_COVID_RULES_TEXT = text_templates.get_button_name(Button.COVID_RULES)  # MVP 5. i)
 WARNING_WEATHER_TEXT = text_templates.get_button_name(Button.WEATHER)  # MVP 5. i)
-WARNING_DISASTER_TEXT = text_templates.get_button_name(Button.DISASTER)  # MVP 5. i)
+WARNING_CIVIL_PROTECTION_TEXT = text_templates.get_button_name(Button.CIVIL_PROTECTION)  # MVP 5. i)
 WARNING_FLOOD_TEXT = text_templates.get_button_name(Button.FLOOD)  # MVP 5. i)
-WARNING_GENERAL_TEXT = text_templates.get_button_name(Button.GENERAL)  # MVP 5. i)
 
 # settings keyboard buttons
 SETTING_SUGGESTION_LOCATION_TEXT = text_templates.get_button_name(Button.SUGGESTION_LOCATION)  # MVP 4. b)
@@ -109,11 +108,10 @@ def get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     keyboard = ReplyKeyboardMarkup(resize_keyboard=False, one_time_keyboard=True)
     covid_button = sender.create_button(WARNING_COVID_TEXT)
     weather_button = sender.create_button(WARNING_WEATHER_TEXT)
-    disaster_button = sender.create_button(WARNING_DISASTER_TEXT)
+    civil_protection_button = sender.create_button(WARNING_CIVIL_PROTECTION_TEXT)
     flood_button = sender.create_button(WARNING_FLOOD_TEXT)
-    general_button = sender.create_button(WARNING_GENERAL_TEXT)
     back_button = sender.create_button(BACK_TO_MAIN_TEXT)
-    keyboard.add(covid_button).add(weather_button, disaster_button).add(flood_button, general_button).add(back_button)
+    keyboard.add(covid_button).add(weather_button, flood_button).add(civil_protection_button).add(back_button)
     return keyboard
 
 
