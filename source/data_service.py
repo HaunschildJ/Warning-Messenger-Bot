@@ -76,7 +76,8 @@ def remove_user(chat_id: int):
 
 def set_receive_warnings(chat_id: int, new_value: bool):
     """
-    Sets receive_warnings of the user (chat_id) to the new value (new_value)
+    Sets receive_warnings of the user (chat_id) to the new value (new_value).
+    Creates user with given chat_id, if he does not exist already.
 
     Arguments:
         chat_id: Integer to identify the user
@@ -250,8 +251,8 @@ def delete_subscription(chat_id: int, postal_code: str, warning: str):
         return
 
     del user[Attributes.LOCATIONS.value][postal_code][warning]
-
-    if len(user[Attributes.LOCATIONS.value][postal_code]) <= 1:
+    number_of_warnings_left = len(user[Attributes.LOCATIONS.value][postal_code])
+    if number_of_warnings_left <= 1:
         del user[Attributes.LOCATIONS.value][postal_code]
 
     _write_file(_USER_DATA_PATH, all_user)
@@ -389,26 +390,28 @@ def set_language(chat_id: int, new_language: Language):
 
 
 def set_default_level(chat_id: int, new_level: WarningSeverity):
-    all_user = _read_file(_USER_DATA_PATH)
+    all_users = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
-    if not (cid in all_user):
-        all_user[cid] = DEFAULT_DATA.copy()
+    if not (cid in all_users):
+        all_users[cid] = DEFAULT_DATA.copy()
 
-    all_user[cid][Attributes.DEFAULT_LEVEL.value] = new_level.value
+    all_users[cid][Attributes.DEFAULT_LEVEL.value] = new_level.value
 
-    _write_file(_USER_DATA_PATH, all_user)
+    _write_file(_USER_DATA_PATH, all_users)
 
 
 def get_default_level(chat_id: int) -> WarningSeverity:
     """
     Returns the language the user (chat_id) has currently active or the default language
+    If user for given chat_id is not found in database, returns the default_level "Manual".
 
     Arguments:
         chat_id: Integer to identify the user
 
     Returns:
-        WarningSeverity the user has currently as the default level
+        WarningSeverity the user has currently as the default level. "Manual" if
+        user does not exist in database.
     """
     all_user = _read_file(_USER_DATA_PATH)
 

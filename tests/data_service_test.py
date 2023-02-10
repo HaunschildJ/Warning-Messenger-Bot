@@ -5,8 +5,11 @@ import sys
 sys.path.insert(0, "..\source")
 
 import data_service
+import enum_types
 
 file_path = "../source/data/data.json"
+warnings_already_received_path = "../source/data/warnings_already_received.json"
+active_warnings_path = "../source/data/active_warnings.json"
 
 
 class MyTestCase(unittest.TestCase):
@@ -87,14 +90,14 @@ class MyTestCase(unittest.TestCase):
         data_service._write_file(file_path, {})
 
         # user 1 wants to delete a subscription but is not in json yet -> nothing should happen
-        data_service.delete_subscription(1, "Darmstadt", "3")
+        data_service.delete_subscription(1, "64287", "weather")
         test_entries = data_service._read_file(file_path)
         self.assertEqual({}, test_entries)
 
         # user 1 wants to delete a subscription but has no subscriptions yet
-        should_be = {"1": data_service.DEFAULT_DATA}
+        should_be = {"1": data_service.DEFAULT_DATA.copy()}
         data_service._write_file(file_path, should_be)
-        data_service.delete_subscription(1, "Darmstadt", "3")
+        data_service.delete_subscription(1, "64287", "flood")
         self.assertEqual(should_be, data_service._read_file(file_path))
 
         # clear the json file
@@ -159,6 +162,16 @@ class MyTestCase(unittest.TestCase):
 
         # check if it was saved
         self.assertEqual(should_be, data_service.get_subscriptions(10))
+
+        # delete all subscriptions
+        data_service.delete_subscription(10, "64287", "flood")
+        data_service.delete_subscription(10, "99099", "civil_protection")
+        data_service.delete_subscription(10, "99099", "weather")
+
+        # check whether postal code got deleted when last warning gets deleted
+        entries_after_deleting_all_subscriptions = data_service._read_file(file_path)
+        locations = entries_after_deleting_all_subscriptions["10"]["locations"]
+        self.assertEqual(locations, {})
 
         # get subscriptions of user 1 who is currently not in json
         expected = data_service.DEFAULT_DATA["locations"]
@@ -334,9 +347,14 @@ class MyTestCase(unittest.TestCase):
 
         # clear the json file
         data_service._write_file(file_path, {})
+        # delete all subs for non existing user -> nothing should happen
+        data_service.delete_all_subscriptions(99)
+        test_entries = data_service._read_file(file_path)
+        self.assertEqual({}, test_entries)
 
         # writing 2 users (chat_ids 10 and 20) to data base, both with default values
-        entries = {"10": data_service.DEFAULT_DATA, "20": data_service.DEFAULT_DATA}
+        entries = {"10": data_service.DEFAULT_DATA.copy(),
+                   "20": data_service.DEFAULT_DATA.copy()}
         data_service._write_file(file_path, entries)
 
         # add various warnings for user with chat_id 20
@@ -419,9 +437,13 @@ class MyTestCase(unittest.TestCase):
 
         # clear the json file
         data_service._write_file(file_path, {})
+        # delete all favorites for non existing user -> nothing should happen
+        data_service.reset_favorites(99)
+        test_entries = data_service._read_file(file_path)
+        self.assertEqual({}, test_entries)
 
         # writing 2 users (chat_ids 10 and 20) to data base, both with default values
-        entries = {"10": data_service.DEFAULT_DATA, "20": data_service.DEFAULT_DATA}
+        entries = {"10": data_service.DEFAULT_DATA.copy(), "20": data_service.DEFAULT_DATA.copy()}
         data_service._write_file(file_path, entries)
 
         # add 3 favorites to user with chat_id 20
@@ -480,9 +502,14 @@ class MyTestCase(unittest.TestCase):
 
         # clear the json file
         data_service._write_file(file_path, {})
+        # delete non existing user -> nothing should happen
+        data_service.delete_user(99)
+        test_entries = data_service._read_file(file_path)
+        self.assertEqual({}, test_entries)
+
 
         # writing 2 users (chat_ids 10 and 20) to data base, both with default values
-        entries = {"10": data_service.DEFAULT_DATA, "20": data_service.DEFAULT_DATA}
+        entries = {"10": data_service.DEFAULT_DATA.copy(), "20": data_service.DEFAULT_DATA.copy()}
         data_service._write_file(file_path, entries)
 
         # add dummy values for favorites and subscriptions for user with chat_id 10
@@ -610,6 +637,264 @@ class MyTestCase(unittest.TestCase):
 
         # write data back to json from before the test
         data_service._write_file(file_path, entries_before_test)
+
+    def test_get_subscription_district_id(self):
+        saved_user_entries = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+        # write 2 dummy entries into the json file
+        entries = {"10": data_service.DEFAULT_DATA.copy(), "20": data_service.DEFAULT_DATA.copy()}
+        data_service._write_file(file_path, entries)
+        # add a subscription
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="99099",
+                                      district_id="16051",
+                                      warning="weather",
+                                      warning_level="minor")
+
+        entries_after_adding_subscription = data_service._read_file(file_path)
+        warnings_dict_postal_code_99099 = entries_after_adding_subscription["10"]["locations"]["99099"]
+
+        expected_district_id_for_postal_code_99099 = "16051"
+        actual_distr_id_postal_code_99099 = data_service.get_subscription_district_id(warnings_dict_postal_code_99099)
+
+        self.assertEqual(actual_distr_id_postal_code_99099, expected_district_id_for_postal_code_99099)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, saved_user_entries)
+
+    def test_set_default_level(self):
+
+        saved_user_entries = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+        # write 2 dummy entries into the json file
+        entries = {"10": data_service.DEFAULT_DATA.copy(), "20": data_service.DEFAULT_DATA.copy()}
+        data_service._write_file(file_path, entries)
+        # add a subscription
+        data_service.add_subscription(chat_id=10,
+                                      postal_code="99099",
+                                      district_id="16051",
+                                      warning="flood",
+                                      warning_level="minor")
+
+        expected = enum_types.WarningSeverity.SEVERE
+
+        data_service.set_default_level(10, expected)
+        actual = data_service.get_default_level(10)
+        self.assertEqual(actual, expected)
+
+        expected = enum_types.WarningSeverity.MINOR
+        data_service.set_default_level(11, expected)
+        actual = data_service.get_default_level(11)
+        self.assertEqual(actual, expected)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, saved_user_entries)
+
+    def test_get_default_level(self):
+        """
+        Tests get_default_level in data_service.py\n
+        Writes dummy values for a user with chat id 10 to data.json. Then changes his
+        default_level from "Manual" which is the default severity for new users to "Severe".
+        Checks whether that worked e.g. whether "Severe" gets returned. \n
+        Then calls tested method again with a non existing user and check whether
+        "Manual" gets returned as it ought to be when the user does not exist.
+        """
+
+        saved_user_entries = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+        # write 2 dummy entries into the json file
+        entries = {"10": data_service.DEFAULT_DATA.copy()}
+        data_service._write_file(file_path, entries)
+        # add a subscription
+
+        expected_default_level = "Severe"
+
+        entries = data_service._read_file(file_path)
+        entries["10"]["default_level"] = expected_default_level
+        data_service._write_file(file_path, entries)
+        tested_default_level = data_service.get_default_level(10)
+
+        self.assertEqual(tested_default_level.value, expected_default_level)
+
+        # check for non existing user if default level is default ("manual")
+        expected_default_level = "Manual"
+        tested_default_level = data_service.get_default_level(20)
+
+        self.assertEqual(tested_default_level.value, expected_default_level)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, saved_user_entries)
+
+    def test_get_all_chat_ids(self):
+        """ Tests get_all_chat_ids() in data_service.py\n
+        Clears the data.json file and writes {} into it
+        Loops 0-49 and fills a list acting as keys.
+        Adds default values as values and then writes all those entries with the interface
+         { i : default value }   where i is the index
+        to the file.
+        Finally checks whether tested method correctly returns a list with integers from 0-49.
+        """
+
+        saved_user_entries = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+        # write 2 dummy entries into the json file
+
+        some_chat_ids = []
+        entries = {}
+
+        for i in range(50):
+            some_chat_ids.append(i)
+            key = str(i)
+            entries[key] = data_service.DEFAULT_DATA.copy()
+
+        data_service._write_file(file_path, entries)
+
+        tested_list_of_chat_ids = data_service.get_all_chat_ids()
+
+        self.assertEqual(tested_list_of_chat_ids, some_chat_ids)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, saved_user_entries)
+
+    def test_get_chat_ids_of_warned_users(self):
+        """ Tests get_chat_ids_of_warned_users() in data_service.py. \n
+        First creates 3 dummy entries. Expects all their chat ids in return from tested method, since
+        default value of receive_warning is True.\n
+        Then sets the receive_warnings value for 2 users to False, thus expecting that only the
+        left out users chat id gets returned from tested method.
+        """
+
+        saved_user_entries = data_service._read_file(file_path)
+
+        # clear the json file
+        data_service._write_file(file_path, {})
+
+        # write 3 dummy entries into the json file
+        entries = {"10": data_service.DEFAULT_DATA.copy(),
+                   "20": data_service.DEFAULT_DATA.copy(),
+                   "30": data_service.DEFAULT_DATA.copy()}
+        data_service._write_file(file_path, entries)
+        # default value for "receive_warnings" key is True -> all three chat ids should be in returned list
+        expected_list_with_three_default_users = [10, 20, 30]
+        actual_list_with_three_default_users = data_service.get_chat_ids_of_warned_users()
+        self.assertEqual(actual_list_with_three_default_users, expected_list_with_three_default_users)
+
+        # change some receive_warnings for 2 users and check whether it worked
+        entries['10']["receive_warnings"] = False
+        entries["30"]["receive_warnings"] = False
+        data_service._write_file(file_path, entries)
+        expected_list_where_two_users_do_not_want_to_receive_warnings = [20]
+        actual_list_where_two_users_do_not_want_to_receive_warnings = data_service.get_chat_ids_of_warned_users()
+
+        self.assertEqual(actual_list_where_two_users_do_not_want_to_receive_warnings,
+                         expected_list_where_two_users_do_not_want_to_receive_warnings)
+
+        # write data back to json from before the test
+        data_service._write_file(file_path, saved_user_entries)
+
+    def test_add_warning_id_to_users_warnings_received_list(self):
+        saved_received_warnings = data_service._read_file(warnings_already_received_path)
+
+        # clear the json file
+        data_service._write_file(warnings_already_received_path, {})
+
+        entry = {
+            "10": [
+                "lhp.HOCHWASSERZENTRALEN.DE.BY",
+                "lhp.HOCHWASSERZENTRALEN.DE.HE"
+            ]
+        }
+        data_service._write_file(warnings_already_received_path, entry)
+
+        # adding general warning for non existing user
+        data_service.add_warning_id_to_users_warnings_received_list(20, "test_warning")
+        file_after_adding_to_non_existing_user = data_service._read_file(warnings_already_received_path)
+        expected = ['test_warning']
+        actual = file_after_adding_to_non_existing_user["20"]
+        self.assertEqual(expected, actual)
+
+        # check for both users
+        expected_complete_file = {
+            "10": [
+                "lhp.HOCHWASSERZENTRALEN.DE.BY",
+                "lhp.HOCHWASSERZENTRALEN.DE.HE"
+            ],
+            "20": [
+                "test_warning"
+            ]
+        }
+        actual_file = data_service._read_file(warnings_already_received_path)
+        self.assertEqual(expected_complete_file, actual_file)
+
+        # write data back to json from before the test
+        data_service._write_file(warnings_already_received_path, saved_received_warnings)
+
+    def test_get_users_already_received_warning_ids_and_has_user_already_received_warning(self):
+        saved_received_warnings = data_service._read_file(warnings_already_received_path)
+
+        # clear the json file
+        data_service._write_file(warnings_already_received_path, {})
+
+        entry = {
+            "10": [
+                "lhp.HOCHWASSERZENTRALEN.DE.BY",
+                "lhp.HOCHWASSERZENTRALEN.DE.HE"
+            ]
+        }
+        data_service._write_file(warnings_already_received_path, entry)
+
+        # adding general warning for non existing user
+        actual = data_service.get_users_already_received_warning_ids(20)
+        expected = []
+        self.assertEqual(expected, actual)
+
+        file_after_adding_user_10 = data_service._read_file(warnings_already_received_path)
+
+        # check for both users
+        expected_warning_ids = [
+            "lhp.HOCHWASSERZENTRALEN.DE.BY",
+            "lhp.HOCHWASSERZENTRALEN.DE.HE"
+        ]
+        actual_file = data_service.get_users_already_received_warning_ids(10)
+        self.assertEqual(expected_warning_ids, actual_file)
+
+        # tests for has_user_already_received_warning()
+        should_be_in_user_10s_list = "lhp.HOCHWASSERZENTRALEN.DE.BY"
+        actual_boolean = data_service.has_user_already_received_warning(10, should_be_in_user_10s_list)
+        self.assertEqual(True, actual_boolean)
+
+        should_not_be_in_user_10s_list = "nothing_to_see_here"
+        actual_boolean = data_service.has_user_already_received_warning(10, should_not_be_in_user_10s_list)
+        self.assertEqual(False, actual_boolean)
+
+        # write data back to json from before the test
+        data_service._write_file(warnings_already_received_path, saved_received_warnings)
+
+    def test_active_warnings_getter_and_setter(self):
+        saved_active_warnings = data_service._read_file(active_warnings_path)
+
+        # clear the json file
+        data_service._write_file(active_warnings_path, {})
+
+        test_dict = {
+            "test_key_1": "very important value",
+            "key_to_rule_them_all": "epstein didn't kill himself"
+        }
+        data_service.set_active_warnings_dict(test_dict)
+        actual_entries_after_setting_and_getting_test_dict = data_service.get_active_warnings_dict()
+
+        self.assertEqual(test_dict, actual_entries_after_setting_and_getting_test_dict)
+
+        # write data back to json from before the test
+        data_service._write_file(active_warnings_path, saved_active_warnings)
 
 
 if __name__ == '__main__':
