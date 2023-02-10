@@ -3,7 +3,6 @@ import time
 import controller
 import data_service
 import nina_service
-import place_converter
 from nina_service import WarningCategory, GeneralWarning
 
 
