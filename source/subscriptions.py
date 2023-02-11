@@ -36,36 +36,18 @@ def warn_users() -> bool:
 
     for chat_id in chat_ids_of_warned_users:
         postal_codes = data_service.get_user_subscription_postal_codes(chat_id)
-        filtered_warnings = filter_out_warnings_user_has_already_received(chat_id, active_warnings_with_category)
+        filtered_warnings = list(filter(lambda x: not data_service.has_user_already_received_warning(chat_id, x[0].id), active_warnings_with_category))
 
         for (warning, warning_category) in filtered_warnings:
             if _any_user_subscription_matches_warning(chat_id, warning, warning_category):
-                controller.send_detailed_general_warnings(chat_id, warning_category, [warning], postal_codes)
+                controller.send_detailed_general_warnings(chat_id, [warning], postal_codes)
                 data_service.add_warning_id_to_users_warnings_received_list(chat_id, warning.id)
                 warnings_sent_counter += 1
 
     print(f'There are {str(len(active_warnings_with_category))} active warnings.')
-    print(f'{warnings_sent_counter} users were warned.\n')
+    print(f'{warnings_sent_counter} warnings were sent out.\n')
 
     return warnings_sent_counter > 0
-
-
-def filter_out_warnings_user_has_already_received(chat_id: int, warnings_with_category) -> list:
-    """
-
-    Args:
-        warnings_with_category: list of (warning, category) tuples that should be filtered
-        chat_id: of the user
-
-    Returns: list of warnings the user has not received yet
-
-    """
-    filtered_warnings = []
-    for warning, category in warnings_with_category:
-        if not data_service.has_user_already_received_warning(chat_id, warning.id):
-            filtered_warnings.append((warning, category))
-
-    return filtered_warnings
 
 
 def _any_user_subscription_matches_warning(chat_id: int, warning: GeneralWarning, warning_category: WarningCategory) -> bool:
@@ -81,12 +63,12 @@ def _any_user_subscription_matches_warning(chat_id: int, warning: GeneralWarning
     """
     subscriptions = data_service.get_subscriptions(chat_id)
     for subscription in subscriptions.items():
-        if _do_subscription_and_warning_match_severity(warning, subscription, warning_category):
+        if _do_subscription_and_warning_match_severity_and_category(warning, subscription, warning_category):
             return True
     return False
 
 
-def _do_subscription_and_warning_match_severity(warning: GeneralWarning, subscription: tuple,
+def _do_subscription_and_warning_match_severity_and_category(warning: GeneralWarning, subscription: tuple,
                                                 warning_category: WarningCategory) -> bool:
     """
 
@@ -99,7 +81,6 @@ def _do_subscription_and_warning_match_severity(warning: GeneralWarning, subscri
 
     """
     subscription_dict = subscription[1]
-
     for _ in subscription_dict:
         try:
             subscription_warning_severity = subscription_dict[str(warning_category.value)]
