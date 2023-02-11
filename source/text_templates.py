@@ -117,15 +117,42 @@ def get_general_warning_message(event: str, headline: str, description: str, sev
     Returns:
         Message that can be sent to the user with the parameter in the message
     """
+
+    placeholder = "-"
+
     message = get_replaceable_answer(ReplaceableAnswer.GENERAL_WARNING)
-    message = message.replace("%event", event)
-    message = message.replace("%headline", headline)
-    message = message.replace("%description", description)
-    message = message.replace("%severity", severity)
-    message = message.replace("%type", warning_type)
-    message = message.replace("%start_date", start_date)
-    message = message.replace("%date_expires", date_expires)
-    message = message.replace("%status", status)
+    if event is not None:
+        message = message.replace("%event", event)
+    else:
+        message = message.replace("%event", placeholder)
+    if headline is not None:
+        message = message.replace("%headline", headline)
+    else:
+        message = message.replace("%headline", placeholder)
+    if description is not None:
+        message = message.replace("%description", description)
+    else:
+        message = message.replace("%description", placeholder)
+    if severity is not None:
+        message = message.replace("%severity", severity)
+    else:
+        message = message.replace("%severity", placeholder)
+    if warning_type is not None:
+        message = message.replace("%warning_type", warning_type)
+    else:
+        message = message.replace("%warning_type", placeholder)
+    if start_date is not None:
+        message = message.replace("%start_date", start_date)
+    else:
+        message = message.replace("%start_date", placeholder)
+    if date_expires is not None:
+        message = message.replace("%date_expires", date_expires)
+    else:
+        message = message.replace("%date_expires", placeholder)
+    if status is not None:
+        message = message.replace("%status", status)
+    else:
+        message = message.replace("%status", placeholder)
     return message
 
 
