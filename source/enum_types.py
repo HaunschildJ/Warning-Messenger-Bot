@@ -214,3 +214,13 @@ class BotUsageHelp(Enum):
     DELETE_DATA_MENU = "delete_data_menu"
     FAVORITES = "favorites"
     SUBSCRIPTIONS_MENU = "subscriptions_menu"
+
+
+def get_integer_from_warning_severity(severity: WarningSeverity) -> int:
+    severity = str(severity).lower()
+    if severity == str(WarningSeverity.MINOR.value).lower():
+        return 1
+    elif severity == str(WarningSeverity.SEVERE.value).lower():
+        return 2
+    else:
+        return 0
