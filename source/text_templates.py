@@ -138,9 +138,9 @@ def get_general_warning_message(event: str, headline: str, description: str, sev
     else:
         message = message.replace("%severity", placeholder)
     if warning_type is not None:
-        message = message.replace("%warning_type", warning_type)
+        message = message.replace("%type", warning_type)
     else:
-        message = message.replace("%warning_type", placeholder)
+        message = message.replace("%type", placeholder)
     if start_date is not None:
         message = message.replace("%start_date", start_date)
     else:
