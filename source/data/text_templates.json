@@ -7,23 +7,23 @@
         "information": [
           {
             "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
-            "text": "Der abgefragte Ortsname lautet: %location:"
+            "text": "%location:"
           },
           {
             "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
-            "text": "Die Infektionsgefahr Stufe beträgt: %infektionsgefahr_stufe"
+            "text": "%infektionsgefahr_stufe"
           },
           {
             "description": "Schreib unten im text %sieben_tage_inzidenz_kreis an die Stelle, wo die 7-Tage-Inzidenz im Kreis stehen soll.",
-            "text": "Die 7-Tage-Inzidenz im Kreis beträgt: %sieben_tage_inzidenz_kreis"
+            "text": "%sieben_tage_inzidenz_kreis"
           },
           {
             "description": "Schreib unten im text %sieben_tage_inzidenz_bundesland an die Stelle, wo die 7-Tage-Inzidenz im Bundesland stehen soll.",
-            "text": "Die 7-Tage-Inzidenz im Bundesland beträgt: %sieben_tage_inzidenz_bundesland"
+            "text": "%sieben_tage_inzidenz_bundesland \n\n"
           },
           {
             "description": "Schreib unten im text %general_tips an die Stelle, wo allgemeine Hinweise stehen sollen.",
-            "text": "Die allgemeinen Hinweise lauten: %allgemeine_hinweise"
+            "text": "%allgemeine_hinweise"
           }
         ]
       },
@@ -90,7 +90,7 @@
           },
           {
             "description": "Was man mit dem Bot machen kann. Erste Schritte.",
-            "text": "\nDer Bot wird hauptsächlich über die Buttons gesteuert. Texteingaben sind nur dann nötig, wenn du eine Stadt eingeben willst oder mit \/help Hilfe erhalten möchtest. Der Bot wird dich immer informieren, wann du eine Texteingabe machen sollst. Ansonsten bitte nur Buttons nutzen.\n\nFür den Anfang kannst du dich ein bisschen umsehen. Mit dem Button \"Zurück zur Startseite\" kommst du immer wieder zurück zum Hauptmenü.\n\nMöchtest du direkt loslegen, kannst du entweder unter \"Warnungen\" deine erste Warnung abfragen oder unter \"Einstellungen\" > \"Abonnements verwalten\" dein erstes Abonnement einrichten."
+            "text": "\nDer Bot wird hauptsächlich über die Buttons gesteuert. Texteingaben nur für Eingabe einer Stadt.\n\n \/help für mehr Informationen."
           }
         ]
       },
@@ -99,7 +99,7 @@
         "information": [
           {
             "description": "Schreibe %location_button an die Stelle, wo der Ortsname stehen soll.",
-            "text": "Du bist dabei, ein Abonnement hinzuzufügen. Damit ich weiß, um welche Stadt es sich handelt, gibt es zwei Möglichkeiten:\n\n1. Gib den Namen der Stadt oder ihre PLZ ein.\n2. Klick auf \"%location_button.\""
+            "text": "✉️ Du bist dabei, ein Abonnement hinzuzufügen.\n\nGib den Städtenamen ein, die PLZ ein oder sende deinen Standort."
           }
         ]
       },
@@ -117,7 +117,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht. Und %warning für die zugehörige Warnung.",
-            "text": "Du bist dabei, ein neues Abonnement einzurichten.\n\nWähle die Stufe der Warnungskategorie %warning für %location aus:"
+            "text": "✉️ Du bist dabei, ein Abonnement hinzuzufügen.\n\nWelche Dringlichkeit sollen die Warnungen mindestens haben?"
           }
         ]
       },
@@ -144,7 +144,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname steht, für welchen die Warnung %warning entfernt wurde. ",
-            "text": "---\nMöchtest du ein Abonnement einrichten, sodass du in Zukunft automatisch über neue %warning für %location informiert wirst?"
+            "text": "---\nMöchtest du hierfür ein Abonnement einrichten?"
           }
         ]
       }
@@ -201,16 +201,16 @@
     "text": {
       "yes": "Ja",
       "no": "Nein",
-      "settings": "Du bist in den Einstellungen.\n\nWenn du mehr erfahren willst, gib /help ein.",
-      "warnings": "Du bist im Menü für Warnungen.\n\nWenn du mehr erfahren willst, gib /help ein.",
-      "help": "Wenn du mehr erfahren willst, gib /help ein.",
+      "settings": "Einstellungen. /help für Hilfe.",
+      "warnings": "Warnungen. /help für Hilfe.",
+      "help": "/help für mehr Informationen.",
       "auto_warnings_text": "Möchtest du automatische Warnungen erhalten? (nur eingestellte)",
       "auto_warnings_enable": "Du erhältst ab jetzt automatische Warnungen.",
       "auto_warnings_disable": "Du erhältst keine automatischen Warnungen mehr.",
       "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
-      "back_to_main_menu": "Du bist im Hauptmenü.\n\nWenn du mehr erfahren willst, gib /help ein.",
+      "back_to_main_menu": "Hauptmenü. /help für Hilfe.",
       "suggestion_helper_text": "Du hast zwei Möglichkeiten, um den Vorschlägen eine Stadt hinzuzufügen:\n\n1. Gib \"[Stadtname oder PLZ]\" ein.\n2. Sende deinen aktuellen Standort",
-      "manage_subscriptions": "Hier kannst du deine Abonnements verwalten.\n\nWenn du mehr erfahren willst, gib /help ein.",
+      "manage_subscriptions": "Abonnements verwalten. /help für Hilfe.",
       "manage_auto_covid_updates": "Wie oft möchtest du automatische Corona Updates erhalten?",
       "no_subscriptions": "Du hast keine Abonnements.",
       "click_suggestion": "Wähle einen dieser Orte aus oder gib über die Texteingabe einen anderen Ort ein [Stadtname oder PLZ].",
@@ -225,8 +225,15 @@
       "default_level": "Du bist dabei, die Standard Dringlichkeitsstufe einzustellen. Du hast folgende Möglichkeiten.\n\n• Eine Stufe auswählen, die dann automatisch für alle zukünftigen Abonnements gilt. Du wirst nicht mehr danach gefragt, welche Stufe eine Warnung haben soll. Es wird immer automatisch das eingestellt, was du auswählst: alle, mittlere oder nur ernste Warnungen.\n• Manuell. Das heißt, du wirst bei jedem Abonnement gefragt, welche Stufe die Warnung haben soll.",
       "delete_data": "Welche Daten möchtest du löschen?",
       "imprint": "Kontakt/ Impressum:\n\nJasmin Haunschild, M.A.,\nWissenschaft und Technik für Frieden und Sicherheit (PEASEC),\nTU Darmstadt, \nPankratiusstraße 2,\n64289 Darmstadt",
-      "privacy": "Wir speichern\n1) deine Chat ID, um dir antworten zu können und\n2) die Daten, die du eingibst, um dich informieren zu können,\n\naber niemals deinen Namen oder andere personenspezifische Informationen. Mit der Chat ID können wir keine Rückschlüsse auf deine Person ziehen.\n\nWir speichern nur die Ortsdaten, die du eingibst. Auch wenn du deinen Standort sendest, zum Beispiel um Warnungen abzufragen, speichern wir nicht deinen genauen Standort, sondern nur deine Postleitzahl. Zu keinem Zeitpunkt wird dein genauer Standpunkt irgendwo gespeichert.\n\nDu kannst deine Daten jederzeit löschen. Dann bist du in der Datenbank nicht mehr auffindbar.",
-      "unknown": "-"
+      "privacy": "Wir speichern\n1) deine Chat ID, um dir antworten zu können und\n2) die eingegebenen Daten und deine Abfragen,\n\naber niemals deinen Namen oder andere personenspezifische Informationen. Mit der Chat ID können wir keine Rückschlüsse auf deine Person ziehen.\n\nWir speichern nur die Ortsdaten, die du eingibst.\n\nDu kannst deine Daten jederzeit löschen. Dann bist du in der Datenbank nicht mehr auffindbar.",
+      "unknown": "-",
+      "error_nina": "Es ist ein Fehler mit der Nina-API aufgetreten.",
+      "error_not_implemented": "Diese Funktionalität wurde noch nicht implementiert.",
+      "error_unknown_command": "Unbekannter Befehlt. Bitte benutze das Menü oder gib /help für Hilfe ein.",
+      "error_unknown_location": "Unbekannter Ort. Bitte versuche es erneut mit einer präziseren Eingabe.",
+      "error_location_at_wrong_place": "Hier bitte keinen Ort eingeben. Nutze \/help, um mehr zu erfahren.",
+      "error_start": "Bitte gib /start ein, um deine Konversation mit dem Bot zu starten.",
+      "error_no_input_expected": "Hier bitte nichts eingeben. Nur Buttons benutzen. Nutze /help, um mehr zu erfahren."
     }
   },
   {
@@ -241,7 +248,7 @@
         "headline": "Aktuell hast du folgende Abonnements eingerichtet:",
         "location": "\n%location:",
         "warning": "• %warning, Stufe %level",
-        "headline_after_insertion": "---\nDu hast erfolgreich ein neues Abonnement eingerichtet\n---",
+        "headline_after_insertion": "---\n✅ Du hast erfolgreich ein neues Abonnement eingerichtet\n---",
         "end_after_insertion": "\n\n\nWenn du willst, kannst du weitere Abonnements für %location einrichten. Klick dafür auf die Art von Warnung, die du abonnieren willst.\n\nWenn du das nicht willst, klicke auf \"Abbrechen\".\n---"
       },
       "recommendations": {
@@ -293,7 +300,7 @@
         "settings_menu_navigation": "•••Einstellungen•••\nUm in die Einstellungen zu gelangen, musst du im Hauptmenü den Einstellungen Knopf drücken.",
         "settings_menu": "In den Einstellungen hast du mehrere Möglichkeiten.\n\nDu kannst deine Abonnements verwalten: Neue hinzufügen, bestehende anzeigen, bestehende löschen oder Abonnements kurzfristig stummschalten.\n\nAußerdem kannst du einen neuen Ort zu deinen Favoriten hinzufügen. Das sind die Orte, die dir bei Warnungen standardmäßig vorgeschlagen werden. Du kannst bis zu 3 Favoriten haben.\n\nUnter \"Meine Daten löschen\" kannst du einzelne oder alle deine Daten löschen.",
         "delete_data_menu_navigation": "•••Meine Daten löschen•••\nUm Daten, die dieser Bot über dich speichert, löschen zu können musst du in den Einstellungen den Meine Daten löschen Knopf drücken.",
-        "delete_data_menu": "In dem Daten löschen Menü kannst du auswählen ob du nur deine bereits erstellten Abonnements, deine eingestellten Favoriten zurücksetzen oder gar alle Daten zu dir löschen willst.",
+        "delete_data_menu": "Hier kannst du auswählen, ob du deine bereits erstellten Abonnements, deine eingestellten Favoriten oder alle deine Daten löschen willst.\n\nSelbstverständlich kannst du den Bot weiterhin benutzen.",
         "favorites_navigation": "•••Favoriten hinzufügen•••\nUm deine Ortsfavoriten für die Abfrage von manuellen Warnungen einstellen zu können musst du in den Einstellungen den Ortsfavoriten hinzufügen Knopf drücken.",
         "favorites": "In Favoriten kannst du einen Ort eingeben oder deinen Aktuellen Standort schicken um einen Ort für die manuelle Abfrage von Warnungen vorgeschlagen zu bekommen.",
         "subscriptions_menu_navigation": "•••Abonnements verwalten•••\nUm deine Abonnements verwalten zu können musst du in den Einstellungen \"Abonnements verwalten\" drücken.",

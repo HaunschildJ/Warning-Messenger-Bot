@@ -195,6 +195,13 @@ class Answers(Enum):
     IMPRINT_TEXT = "imprint"
     PRIVACY_TEXT = "privacy"
     UNKNOWN = "unknown"
+    ERROR_NINA = "error_nina"
+    ERROR_NOT_IMPLEMENTED = "error_not_implemented"
+    ERROR_UNKNOWN_COMMAND = "error_unknown_command"
+    ERROR_UNKNOWN_LOCATION = "error_unknown_location"
+    ERROR_LOCATION_AT_WRONG_PLACE = "error_location_at_wrong_place"
+    ERROR_START = "error_start"
+    ERROR_NO_INPUT_EXPECTED = "error_no_input_expected"
 
 
 class BotUsageHelp(Enum):

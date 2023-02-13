@@ -2,7 +2,7 @@ import sender
 import text_templates
 import data_service
 
-from enum_types import ErrorCodes, BotUsageHelp
+from enum_types import ErrorCodes, BotUsageHelp, Answers
 from frontend_helper import back_to_main_keyboard
 
 
@@ -52,46 +52,32 @@ def error_handler(chat_id: int, error_code: ErrorCodes, state: int = None, messa
     if state is None:
         state = data_service.get_user_state(chat_id)
     if error_code == ErrorCodes.NINA_API:
-        # TODO text_templates
-        sender.send_message(chat_id, "Es ist ein Fehler mit der Nina-API aufgetreten.")
+        sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_NINA))
         print("WARNING: a Nina-API error was thrown (user was in state: " + str(state) + ")")
         back_to_main_keyboard(chat_id)
     elif error_code == ErrorCodes.NOT_IMPLEMENTED_YET or error_code == ErrorCodes.CALLBACK_MISTAKE \
             or error_code == ErrorCodes.ONLY_PART_OF_COMMAND:
-        # TODO text_templates
-        sender.send_message(chat_id, "Diese Funktionalität wurde noch nicht implementiert.")
+        sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_NOT_IMPLEMENTED))
         print("WARNING: " + error_code.value + " (user was in state: " + str(state) + ")")
         back_to_main_keyboard(chat_id)
     elif error_code == ErrorCodes.UNKNOWN_COMMAND:
-        # TODO text_templates
-        sender.send_message(chat_id, "Unbekannter Befehlt. Bitte benutze das Menü oder gib /help für Hilfe ein.")
+        sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_UNKNOWN_COMMAND))
     elif error_code == ErrorCodes.UNKNOWN_LOCATION:
-        # TODO text_templates
-        sender.send_message(chat_id, "Unbekannter Ort. Bitte versuche es erneut mit einer präziseren Eingabe.")
+        sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_UNKNOWN_LOCATION))
     elif error_code == ErrorCodes.NO_INPUT_EXPECTED:
         if message is None:
             help_handler(chat_id, str(state))
             return
         if is_location(message):
-            # TODO text_templates
-            sender.send_message(chat_id, "Es wurde ein Ort erkannt, jedoch kannst du hier nichts eingeben. "
-                                         "Nutze /help um zu erfahren was du jetzt machen kannst oder gehe "
-                                         "zurück ins Hauptmenü um von dort aus über 'mehr' und 'Botbedienung' eine "
-                                         "komplette Anleitung für den Bot zu finden.")
+            sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_LOCATION_AT_WRONG_PLACE))
         elif is_help(message):
             help_handler(chat_id, str(state))
         elif is_start(message):
-            # TODO text_templates
-            sender.send_message(chat_id, "Bitte gib /start ein, um deine Konversation mit dem Bot zu starten.")
+            sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_START))
         elif is_insult(message):
-            # TODO text_templates
             sender.send_message(chat_id, "🤨")
         else:
-            # TODO text_templates
-            sender.send_message(chat_id, "Es wurde keine Eingabe erwartet. "
-                                         "Nutze /help um zu erfahren was du jetzt machen kannst oder gehe "
-                                         "zurück ins Hauptmenü um von dort aus über 'mehr' und 'Botbedienung' eine "
-                                         "komplette Anleitung für den Bot zu finden.")
+            sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_NO_INPUT_EXPECTED))
     else:
         error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET, state, message)
 
