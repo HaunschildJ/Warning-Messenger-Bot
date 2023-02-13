@@ -467,9 +467,8 @@ def get_warning_locations(warning: GeneralWarning) -> list[str]:
     """
     detailed_warning = get_detailed_warning(warning.id)
     locations = []
-    for info in detailed_warning.infos:
-        for area in info.area:
-            for location in area.area_description.split(", "):
-                locations.append(location)
+    for area in detailed_warning.info.area:
+        for location in area.area_description.split(", "):
+            locations.append(location)
 
     return locations
