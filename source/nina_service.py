@@ -279,6 +279,7 @@ class DetailedWarning:
     date_sent: str
     status: str
     info: DetailedWarningInfo
+    government_warning_url: str
 
 
 def _get_detailed_warning_infos_area_geocode(response_geocode) -> list[str]:
@@ -359,7 +360,12 @@ def get_detailed_warning(warning_id: str, language: str = "de") -> DetailedWarni
     info = _get_detailed_warning_infos(_get_safely(response, "info"),
                                        language)  # _get_detailed_warning_infos already checks if the input is None
 
-    return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, info=info)
+    if info is not None and info.headline is not None:
+        government_warning_url = "https://warnung.bund.de/meldung/" + id_response + "/" + info.headline.replace(" ", "_")
+    else:
+        government_warning_url = None
+
+    return DetailedWarning(id=id_response, sender=sender, date_sent=date_sent, status=status, info=info, government_warning_url=government_warning_url)
 
 
 @dataclass
