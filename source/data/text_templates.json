@@ -7,7 +7,7 @@
         "information": [
           {
             "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
-            "text": "%location:"
+            "text": "<b>test</b>    %location:"
           },
           {
             "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",

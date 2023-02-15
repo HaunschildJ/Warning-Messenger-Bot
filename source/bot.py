@@ -4,4 +4,4 @@ from decouple import config
 global bot
 
 token = config('key')
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot(token, parse_mode="HTML")
