@@ -7,7 +7,7 @@ irgendwie geht import nina_service nicht. Man muss alles was man benutzt einzeln
 Das mit dem bootloader.util funktioniert auch nicht da nina_service, noch andere module wie place_converter importiert
 """
 
-from nina_service import WarnType
+from enum_types import WarningCategory
 from nina_service import GeneralWarning
 from nina_service import call_general_warning
 from nina_service import DetailedWarning
@@ -62,6 +62,7 @@ def _print_detailed_warning(warning: DetailedWarning):
     print("sender: " + _none_or_value_to_str(warning.sender))
     print("date_sent: " + _none_or_value_to_str(warning.date_sent))
     print("status: " + _none_or_value_to_str(warning.status))
+    print("url to warning: " + _none_or_value_to_str(warning.government_warning_url))
 
     if warning.info is not None:
         _print_detailed_warning_infos(warning.info)
@@ -78,7 +79,7 @@ def _print_detailed_warning_geo(warning: DetailedWarningGeo):
 def manual_test():
     CRED = '\033[91m'
     CEND = '\033[0m'
-    for enum in WarnType:
+    for enum in WarningCategory:
         warnings = call_general_warning(enum)
         print(CRED + "###########################################################")
         print("################# Warnings for " + enum.name + ": #######################")
