@@ -59,6 +59,9 @@ def _write_file(path: str, data: dict):
 if not os.path.exists(_USER_DATA_PATH):
     _write_file(path=_USER_DATA_PATH, data={})
 
+if not os.path.exists(_ACTIVE_WARNINGS_PATH):
+    _write_file(path=_ACTIVE_WARNINGS_PATH, data={})
+
 
 def remove_user(chat_id: int):
     """

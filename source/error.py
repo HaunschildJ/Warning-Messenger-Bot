@@ -75,7 +75,7 @@ def error_handler(chat_id: int, error_code: ErrorCodes, state: int = None, messa
         elif is_start(message):
             sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_START))
         elif is_insult(message):
-            sender.send_message(chat_id, "🤨")
+            sender.send_message(chat_id, "🤨 <b> test mit spitzen klammer </b>      **test mit sternen**")
         else:
             sender.send_message(chat_id, text_templates.get_answers(Answers.ERROR_NO_INPUT_EXPECTED))
     else:
