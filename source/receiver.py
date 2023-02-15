@@ -92,6 +92,13 @@ def filter_callback_delete_data(call: typ.CallbackQuery) -> bool:
     return False
 
 
+def filter_callback_send_emergency_pdf(call: typ.CallbackQuery) -> bool:
+    data = call.data
+    if data == Commands.SEND_PDF.value:
+        return True
+    return False
+
+
 # filter for message handler -------------------------------------------------------------------------------------------
 
 
@@ -437,6 +444,18 @@ def delete_data(call: typ.CallbackQuery):
         call: data that has been sent by the inline button
     """
     controller.delete_data_confirmed(call.message.chat.id, call.data)
+    controller.delete_message(call.message.chat.id, call.message.id)
+
+
+@bot.callback_query_handler(func=filter_callback_send_emergency_pdf)
+def send_pdf(call: typ.CallbackQuery):
+    """
+    This method gets called when the user presses yes when asking if the pdf should be sent
+
+    Args:
+        call: data that has been sent by the inline button
+    """
+    controller.send_emergency_pdf(call.message.chat.id)
     controller.delete_message(call.message.chat.id, call.message.id)
 
 

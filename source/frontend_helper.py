@@ -8,6 +8,9 @@ from enum_types import Button, Answers
 
 
 # global variables -----------------------------------------------------------------------------------------------------
+
+EMERGENCY_TIPS = "../source/data/emergency_tips.pdf"
+
 # main keyboard buttons
 SETTING_BUTTON_TEXT = text_templates.get_button_name(Button.SETTINGS)  # MVP 4.
 WARNING_BUTTON_TEXT = text_templates.get_button_name(Button.WARNINGS)  # MVP 5.

@@ -16,6 +16,10 @@ def send_message(chat_id: int, message_string: str, reply_markup=None) -> telebo
     return bot.send_message(chat_id, message_string, reply_markup=reply_markup)
 
 
+def send_document(chat_id: int, document, caption: str, reply_markup=None):
+    bot.send_document(chat_id, document, caption=caption, reply_markup=reply_markup)
+
+
 def send_chat_action(chat_id: int, action: str):
     """
     Args:
