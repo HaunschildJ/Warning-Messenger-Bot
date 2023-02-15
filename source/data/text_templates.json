@@ -7,7 +7,7 @@
         "information": [
           {
             "description": "Schreib unten im text %location an die Stelle, wo der abgefragte Ortsname stehen soll.",
-            "text": "<b>test</b>    %location:"
+            "text": "%location:"
           },
           {
             "description": "Schreib unten im text %infektion_danger_level an die Stelle, wo die Infektionsgefahr Stufe stehen soll.",
@@ -233,7 +233,10 @@
       "error_unknown_location": "Unbekannter Ort. Bitte versuche es erneut mit einer präziseren Eingabe.",
       "error_location_at_wrong_place": "Hier bitte keinen Ort eingeben. Nutze \/help, um mehr zu erfahren.",
       "error_start": "Bitte gib /start ein, um deine Konversation mit dem Bot zu starten.",
-      "error_no_input_expected": "Hier bitte nichts eingeben. Nur Buttons benutzen. Nutze /help, um mehr zu erfahren."
+      "error_no_input_expected": "Hier bitte nichts eingeben. Nur Buttons benutzen. Nutze /help, um mehr zu erfahren.",
+      "pdf_caption": "Hier ist das PDF mit den Notfalltipps.",
+      "emergency_tips": "Du kannst die Notfalltips hier nachlesen: https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/Notfalltipps/notfalltipps_node.html",
+      "emergency_tips_ask": "Möchtest du die Notfalltipps als PDF runterladen?"
     }
   },
   {

@@ -37,6 +37,7 @@ class Commands(Enum):
     WEATHER = "/weather"
     CIVIL_PROTECTION = "/cP"
     FLOOD = "/flood"
+    SEND_PDF = "/sendPDF"
 
 
 class ErrorCodes(Enum):
@@ -202,6 +203,9 @@ class Answers(Enum):
     ERROR_LOCATION_AT_WRONG_PLACE = "error_location_at_wrong_place"
     ERROR_START = "error_start"
     ERROR_NO_INPUT_EXPECTED = "error_no_input_expected"
+    PDF_CAPTION = "pdf_caption"
+    EMERGENCY_TIPS = "emergency_tips"
+    EMERGENCY_TIPS_ASK = "emergency_tips_ask"
 
 
 class BotUsageHelp(Enum):

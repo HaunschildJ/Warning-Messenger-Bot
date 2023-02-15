@@ -13,12 +13,6 @@ from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from error import error_handler, illegal_state_handler, help_handler
 
-"""
-get_non_covid_dict_from_coordinates try statement drum
-get_postal_code_dicts_in_polygon nach plz suchen
-get_non_covid_dict_suggestions
-"""
-
 
 def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str):
     """
@@ -109,10 +103,14 @@ def main_button_pressed(chat_id: int, button_text: str):
         keyboard = frontend_helper.get_warning_keyboard_buttons()
         sender.send_message(chat_id, text_templates.get_answers(Answers.WARNINGS), keyboard)
     elif button_text == frontend_helper.TIP_BUTTON_TEXT:
-        data_service.set_user_state(chat_id, 3)
-        # the keyboard for the emergency tips
-        keyboard = frontend_helper.get_emergency_pdfs_keyboard()
-        sender.send_message(chat_id, text_templates.get_button_name(Button.EMERGENCY_TIPS), keyboard)
+        data_service.set_user_state(chat_id, 0)
+        # emergency tips
+        markup = InlineKeyboardMarkup()
+        yes_button = sender.create_inline_button(frontend_helper.YES_TEXT, Commands.SEND_PDF.value)
+        no_button = sender.create_inline_button(frontend_helper.NO_TEXT, Commands.JUST_CANCEL_INLINE.value)
+        markup.add(yes_button, no_button)
+        sender.send_message(chat_id, text_templates.get_answers(Answers.EMERGENCY_TIPS))
+        sender.send_message(chat_id, text_templates.get_answers(Answers.EMERGENCY_TIPS_ASK), markup)
     elif button_text == frontend_helper.HELP_BUTTON_TEXT:
         data_service.set_user_state(chat_id, 4)
         # the keyboard for the help menu
@@ -227,7 +225,7 @@ def button_in_settings_pressed(chat_id: int, button_text: str):
         sender.send_message(chat_id, text_templates.get_answers(Answers.MANAGE_AUTO_COVID_UPDATES), markup)
     elif button_text == frontend_helper.SETTING_LANGUAGE_TEXT:
         # currently not implemented
-        sender.send_message(chat_id, "TODO " + button_text)
+        sender.send_message(chat_id, "not implemented " + button_text)
     else:
         error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED, message=button_text)
 
@@ -302,11 +300,12 @@ def button_in_subscriptions_pressed(chat_id: int, button_text: str):
         buttons = []
         default_levels = list(WarningSeverity)
         default_levels.remove(WarningSeverity.EXTREME)
+        default_levels.remove(WarningSeverity.MODERATE)
         for level in default_levels:
             level_name = text_templates.get_button_name(Button[level.name])
             buttons.append(sender.create_inline_button(level_name, command + str(level.value)))
 
-        markup.add(buttons[0], buttons[1], buttons[2]).add(buttons[3])
+        markup.add(buttons[0], buttons[1]).add(buttons[2])
         sender.send_message(chat_id, answer, markup)
     elif button_text == frontend_helper.SILENCE_SUBSCRIPTIONS_TEXT:
         data_service.set_user_state(chat_id, 10)
@@ -425,10 +424,13 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         # not done with process of adding subscription yet, ask for warning level
         markup = InlineKeyboardMarkup()
 
-        for button_level in [Button.MINOR, Button.MODERATE, Button.SEVERE]:
+        buttons = []
+        for button_level in [Button.MINOR, Button.SEVERE]:
             button_name = text_templates.get_button_name(button_level)
             button = sender.create_inline_button(button_name, callback_command + ";" + str(button_level.value))
-            markup.add(button)
+            buttons.append(button)
+
+        markup.add(buttons[0], buttons[1])
 
         cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
         markup.add(cancel_button)
@@ -447,17 +449,14 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
                     continue
                 data_service.add_subscription(chat_id, postal_code, district_id,
                                               str(one_warning.value), str(warning_level))
-            # show subscriptions
-            show_subscriptions(chat_id, only_show=False)
-            frontend_helper.back_to_main_keyboard(chat_id)
         else:
             data_service.add_subscription(chat_id, postal_code, district_id,
                                           str(warning_type.value), str(warning_level))
-            # show subscriptions and add further ones
-            show_subscriptions(chat_id, only_show=False, location=location_name)
-            # ask if user wants to add another warning if they didn't already add everything
-            new_callback_command = split_command[0] + ";" + split_command[1] + ";" + split_command[2]
-            inline_button_for_adding_subscriptions(chat_id, new_callback_command)
+        # set state right (subscriptions settings)
+        markup = frontend_helper.get_subscription_settings_keyboard()
+        data_service.set_user_state(chat_id, 10)
+        # show subscriptions
+        show_subscriptions(chat_id, only_show=False, markup=markup)
 
 
 def inline_button_for_deleting_subscriptions(chat_id: int, callback_command: str):
@@ -597,11 +596,10 @@ def ask_if_add_to_subscriptions(chat_id: int, warning: WarningCategory, postal_c
         markup = InlineKeyboardMarkup()
         command = Commands.ADD_SUBSCRIPTION.value + ";" + postal_code + ";" + district_id + ";"
 
-        button = sender.create_inline_button(text_templates.get_answers(Answers.YES), command + str(warning.value))
-        markup.add(button)
+        yes_button = sender.create_inline_button(text_templates.get_answers(Answers.YES), command + str(warning.value))
 
         cancel_button = sender.create_inline_button(frontend_helper.NO_TEXT, str(Commands.JUST_CANCEL_INLINE.value))
-        markup.add(cancel_button)
+        markup.add(yes_button, cancel_button)
 
         location_name = get_location_name(district_id, postal_code)
         warning_name = _get_general_warning_name(warning)
@@ -709,14 +707,14 @@ def covid_rules(chat_id: int, postal_code: str, district_id: str, rules: nina_se
     sender.send_message(chat_id, message, frontend_helper.get_covid_keyboard())
 
 
-def show_subscriptions(chat_id: int, only_show: bool = False, location: str = ""):
+def show_subscriptions(chat_id: int, only_show: bool = False, markup: ReplyKeyboardMarkup = None):
     """
     This method will send the current subscriptions to the user (chat_id)
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
         only_show: a boolean when True then the user only want to see subscriptions and has not recently added one
-        location: a string with the location that is shown when the user want to add further warnings
+        markup: the markup for the user keyboard buttons
     """
     subscriptions = data_service.get_subscriptions(chat_id)
     if len(subscriptions.keys()) == 0:
@@ -738,8 +736,8 @@ def show_subscriptions(chat_id: int, only_show: bool = False, location: str = ""
         subscriptions_text.append(text_templates.get_show_subscriptions_for_one_location_messsage(location_name,
                                                                                                   warnings,
                                                                                                   levels))
-    message = text_templates.get_show_subscriptions_message(subscriptions_text, only_show, location)
-    sender.send_message(chat_id, message)
+    message = text_templates.get_show_subscriptions_message(subscriptions_text, only_show)
+    sender.send_message(chat_id, message, markup)
 
 
 def location_was_sent(chat_id: int, latitude: float, longitude: float):
@@ -770,6 +768,16 @@ def location_was_sent(chat_id: int, latitude: float, longitude: float):
     else:
         error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED)
         return
+
+
+def send_emergency_pdf(chat_id: int):
+    """
+    When this method is called the bot will send the emergency pdf to the user
+    Args:
+        chat_id: integer with the chat id
+    """
+    caption = text_templates.get_answers(Answers.PDF_CAPTION)
+    sender.send_document(chat_id, data_service.open_file(frontend_helper.EMERGENCY_TIPS), caption)
 
 
 def change_auto_warning_in_database(chat_id: int, value: bool):

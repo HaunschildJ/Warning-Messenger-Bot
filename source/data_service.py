@@ -37,6 +37,10 @@ DEFAULT_DATA = {
 }
 
 
+def open_file(path: str):
+    return open(path, "rb")
+
+
 def _read_file(path: str) -> dict:
     with open(path, "r") as file_object:
         json_content = file_object.read()
