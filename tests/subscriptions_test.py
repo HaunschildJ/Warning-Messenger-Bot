@@ -1,7 +1,10 @@
 import unittest
 from unittest import TestCase
+import sys
 
 from mock import patch
+
+sys.path.insert(0, "..\source")
 
 import nina_service
 import subscriptions
@@ -142,9 +145,6 @@ class TestSubscriptions(TestCase):
             warning = get_test_general_warning(warning_id="test warning abc", severity=WarningSeverity.MINOR)
             result = subscriptions._any_user_subscription_matches_warning(chat_id, warning, warning_category)
             self.assertFalse(result)
-
-
-
 
     def test_do_subscription_and_warning_match_severity_and_category(self):
         # Mock subscription

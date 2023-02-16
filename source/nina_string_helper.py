@@ -51,6 +51,7 @@ def filter_html_tags(s: str) -> str:
     Returns:
         Filtered String
     """
+    # return s
     filtered_string = ""
     opened_brackets_counter = 0
 
