@@ -94,6 +94,3 @@ def _do_subscription_and_warning_match_severity_and_category(warning: GeneralWar
             return False
 
     return False
-
-
-warn_users()
