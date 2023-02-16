@@ -73,10 +73,6 @@ class TestSubscriptions(TestCase):
         add_warning_id_to_users_warnings_received_list_mock.side_effect = \
             (lambda chat_id, warning_id: print(f"Added warning_id {warning_id} to database"))
 
-        # Mock controller
-        send_detailed_general_warnings_mock.side_effect = lambda chat_id, warning_category, warning: print(
-            "Sent warning")
-
         # Mock active warnings + warning_category
         warning_1 = (get_test_general_warning(warning_id="WARNING_ID_ABC", severity=WarningSeverity.MINOR),
                      WarningCategory.FLOOD)
@@ -106,6 +102,7 @@ class TestSubscriptions(TestCase):
         with self.subTest('There are active warnings and all users want to be warned'):
             has_user_already_received_warning_mock.return_value = False
             any_user_subscription_matches_warning_mock.return_value = True
+            send_detailed_general_warnings_mock.return_value = 4
             get_chat_ids_of_warned_users_mock.return_value = chat_ids
             result = subscriptions.warn_users()
             self.assertTrue(result)
@@ -115,6 +112,7 @@ class TestSubscriptions(TestCase):
                                                                              warning_category: chat_id == 123)
             get_chat_ids_of_warned_users_mock.return_value = chat_ids
             send_detailed_general_warnings_mock.call_count = 0
+            send_detailed_general_warnings_mock.return_value = 2
             result = subscriptions.warn_users()
             self.assertEqual(send_detailed_general_warnings_mock.call_count, 2)  # only chat_id=123 should be warned
             self.assertTrue(result)
@@ -142,9 +140,6 @@ class TestSubscriptions(TestCase):
             warning = get_test_general_warning(warning_id="test warning abc", severity=WarningSeverity.MINOR)
             result = subscriptions._any_user_subscription_matches_warning(chat_id, warning, warning_category)
             self.assertFalse(result)
-
-
-
 
     def test_do_subscription_and_warning_match_severity_and_category(self):
         # Mock subscription
