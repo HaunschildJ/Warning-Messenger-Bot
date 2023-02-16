@@ -1,7 +1,10 @@
 import unittest
 from unittest import TestCase
+import sys
 
 from mock import patch
+
+sys.path.insert(0, "..\source")
 
 import nina_service
 import subscriptions
