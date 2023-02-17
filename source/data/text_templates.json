@@ -64,11 +64,11 @@
         "topic": "general_warning",
         "information": [
           {
-            "description": "Schreibe %title an die Stelle, wo der Titel der Warnung stehen soll.",
+            "description": "Schreibe %headline an die Stelle, wo die Überschrift der Warnung stehen soll.",
             "text": "<b>%headline</b>"
           },
           {
-            "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll.",
+            "description": "Schreibe %description an die Stelle, wo die Beschreibung der Warnung stehen soll.",
             "text": "\n%description"
           },
           {
@@ -76,8 +76,12 @@
             "text": "\n<b>Warnstufe:</b> %severity"
           },
           {
-            "description": "Schreibe %type an die Stelle, wo die Art der Warnung stehen soll.",
+            "description": "Schreibe %start_date an die Stelle, wo das Startdatum der Warnung stehen soll. Und %date_expires für das Datum zum auslaufen der Warnung.",
             "text": "<b>Aktiv seit:</b> %start_date\n<b>Relevant bis:</b> %date_expires"
+          },
+          {
+            "description": "Schreibe %link an die Stelle, wo der Link für die Karte stehen soll.",
+            "text": "Für eine genaue Karte des betroffenen Gebiets klicke auf diesen Link: %link"
           }
         ]
       },
@@ -163,7 +167,7 @@
       "back_to_main_menu": "Zurück ins Hauptmenü \uD83D\uDD19",
       "auto_warning": "Abos stummschalten \uD83D\uDD15",
       "default_level": "Standard Warnstufe einstellen \uD83C\uDF9B",
-      "suggestion_location": "Standort zu Favoriten hinzufügen ⭐",
+      "add_favorite": "Standort zu Favoriten hinzufügen ⭐",
       "subscription": "Abonnements verwalten",
       "delete_data": "Meine Daten löschen \uD83D\uDDD1",
       "auto_covid_info": "Automatische Coronawarnung",
@@ -209,11 +213,11 @@
       "auto_warnings_disable": "Du erhältst keine automatischen Warnungen mehr.",
       "no_current_warnings": "Aktuell liegen keine Warnungen vor.",
       "back_to_main_menu": "Hauptmenü. /help für Hilfe.",
-      "suggestion_helper_text": "Du hast zwei Möglichkeiten, um den Vorschlägen eine Stadt hinzuzufügen:\n\n1. Gib \"[Stadtname oder PLZ]\" ein.\n2. Sende deinen aktuellen Standort \uD83D\uDCCD",
+      "add_favorite_helper_text": "Du hast zwei Möglichkeiten, um den Vorschlägen eine Stadt hinzuzufügen:\n\n1. Gib \"[Stadtname oder PLZ]\" ein.\n2. Sende deinen aktuellen Standort \uD83D\uDCCD",
       "manage_subscriptions": "Abonnements verwalten. /help für Hilfe.",
       "manage_auto_covid_updates": "Wie oft möchtest du automatische Corona Updates erhalten?",
       "no_subscriptions": "Du hast keine Abonnements.",
-      "click_suggestion": "Wähle einen dieser Orte aus oder gib über die Texteingabe einen anderen Ort ein [Stadtname oder PLZ].",
+      "click_add_favorite": "Wähle einen dieser Orte aus oder gib über die Texteingabe einen anderen Ort ein [Stadtname oder PLZ].",
       "no_location_found": "Es konnten keine Städte gefunden werden.",
       "delete_data_subscriptions": "Möchtest du wirklich alle deine Abonnements löschen?",
       "delete_data_favorites": "Möchtest du wirklich deine Favoriten zurücksetzen?",
@@ -247,20 +251,20 @@
         "description2": "headline steht entweder ganz am Anfang oder nach headline_after_insertion (hai), falls hai genutzt wird. Danach werden je Standort die Warnungen mit den jeweiligen Warnstufen aufgelistet.",
         "description3": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe.",
         "description4": "headline_after_insertion steht ganz am Anfang, wenn man eine Warnung zu den Abonnements hinzufügt.",
-        "description5": "end_after_insertion steht ganz am Ende, NACH der Abo-Übersicht. Wird immer genutzt, außer wenn man sich die Abos nur anzeigen lässt (d.h. kein neues Abo hinzugefügt hat)." ,
+        "description5": "end_after_insertion steht ganz am Ende, NACH der Abo-Übersicht. Wird immer genutzt, außer wenn man sich die Abos nur anzeigen lässt (d.h. kein neues Abo hinzugefügt hat).",
         "headline": "\uD83D\uDCE2 Aktuell hast du folgende Abonnements eingerichtet:",
         "location": " <b>\n%location:</b>",
         "warning": "• %warning, %level",
         "headline_after_insertion": "\n✅ Du hast erfolgreich ein neues Abonnement eingerichtet\n"
       },
-      "recommendations": {
-        "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile recommendation hinzugefügt.",
+      "favorites": {
+        "description": "headline wird einmal am Anfang stehen, danach werden für jeden Vorschlag in der Datenbank in eine neue Zeile favorite hinzugefügt.",
         "description2": "%r gibt an, wo der Vorschlag stehen soll.",
         "headline": "Deine Favoriten sind ab jetzt:\n",
-        "recommendation": "• %r"
+        "favorite": "• %f"
       },
       "delete_subscription": {
-        "description": "headline wird einmal am Anfang stehen. Danach gibt es in der Datenbank für jeden Vorschlag eine neue Zeile recommendation. Am Ende wird noch end hinzugefügt. (außer end ist ein leerer String)",
+        "description": "headline wird einmal am Anfang stehen. Danach gibt es für jedes Abo in der Datenbank eine neue Zeile location und warning. Am Ende wird noch end hinzugefügt. (außer end ist ein leerer String)",
         "description2": "%location um den Ortsname des Abonnements anzugeben. %warning für die Warnung des Abonnements und %level für die Warnstufe. %button_name für den Name des dazugehörigen Buttons.",
         "headline": "Welches Abonnement möchtest du löschen?",
         "location": "\n%location:",
@@ -284,8 +288,15 @@
         "description": "Es wird beim FAQ zuerst die headline zu sehen sein und dann für jede Frage einmal question_format und am ende nochmal end.",
         "description2": "In question_format %question für die Frage und %answer für die Antwort.",
         "headline": "Hier finden sich Antworten auf häufig gestellte Fragen",
-        "question_format": "\nFrage: %question \nAntwort: %answer",
-        "end": "\nFür weitere Informationen gehe auf die offizielle Seite der Bundesregierung: https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/warn-app-nina_node.html"
+        "question_format": "\n<b>Frage:</b> %question \n<b>Antwort:</b> %answer",
+        "end": "\nFür weitere Informationen gehe auf die offizielle Seite der Bundesregierung: https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/warn-app-nina_node.html",
+        "faq_questions": {
+          "Ist die Nutzung der App oder der Empfang von Push-Nachrichten kostenpflichtig?": "Nein. Die Nutzung der App und auch der Empfang von Push-Nachrichten sind kostenfrei. Lediglich für den Datenverkehr durch die Installation und Nutzung der App können Kosten anfallen. Dies wird aber in der Regel durch marktübliche Mobilfunktarife für die mobile Internetnutzung abgedeckt. Wir empfehlen dennoch, die Installation und Updates der App mit einer WLAN-Verbindung durchzuführen.",
+          "Welche Daten über mich werden erhoben?": "Siehe \"Über den Bot \uD83E\uDD16\" -> \"Datenschutz \uD83D\uDD12\"",
+          "Was ist ein Abonnement?": "Das bedeutet, dass du automatisch über neue Warnungen informiert wirst, falls du sie abonniert hast.",
+          "Sind Abonnements kostenpflichtig?": "Nein, sämtliche Funktionalitäten des Bots sind gratis.",
+          "Kann ich meine abonnierten Orte später bearbeiten?": "Du kannst unter \"Einstellungen ⚙️\" -> \"Abonnements verwalten\" deine Abonnements anzeigen lassen, neue hinzufügen, bestehende löschen oder alle temporär stummschalten. "
+        }
       },
       "bot_usage": {
         "description": "Hierbei wird entweder nur eine Nachricht genommen oder potentiell alle. (general wird immer angefügt)",
@@ -307,9 +318,6 @@
         "subscriptions_menu_navigation": "<b>Abonnements verwalten</b>\nKlicke dazu in den Einstellungen auf \"Abonnements verwalten\".",
         "subscriptions_menu": "Ein Abonnements bedeutet, dass du automatisch über neue Warnungen deiner Wahl für eine Stadt deiner Wahl informiert wirst.\n\nMit \"Abonnements stummschalten\" kannst du vorübergehend alle deine eingestellten Abonnements stummschalten.\n\nAbonnements haben verschiedene Warnstufen, mit denen du angeben kannst, welche Dringlichkeit die Warnungen mindestens haben müssen, damit sie dir geschickt werden. So kannst du verhindern, dass du zu viele oder triviale Warnungen erhältst. Unter \"Standard Warnstufe \uD83C\uDF9B\" kannst du die Warnstufe für alle deine zukünftigen Abos einstellen. Dann wirst du zukünftig beim Erstellen eines Abos nicht mehr nach der Warnstufe gefragt.",
         "general": "\nSolltest du das Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
-      }, "faq_questions": {
-        "frage1" : "antwort1",
-        "frage2" : "antwort2"
       }
     }
   }
