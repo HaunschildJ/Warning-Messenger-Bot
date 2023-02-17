@@ -76,6 +76,7 @@ class Attributes(Enum):
     FAVORITES = "favorites"
     LANGUAGE = "language"
     DEFAULT_LEVEL = "default_level"
+    LAST_BOT_MESSAGE_ID = "last_bot_message_id"
 
 
 # nina_service ---------------------------------------------------------------------------------------------------------

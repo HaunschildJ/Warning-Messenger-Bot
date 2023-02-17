@@ -120,6 +120,9 @@ def filter_command_message(message: typ.Message) -> bool:
 @bot.message_handler(func=filter_normal_message)
 def normal_message_handler(message: typ.Message):
     chat_id = message.chat.id
+    prev_message_id = data_service.get_last_bot_message_id(chat_id)
+    if prev_message_id != "None":
+        controller.delete_message(chat_id, int(prev_message_id))
     state = str(data_service.get_user_state(chat_id))
     state_first_number = int(state[0])
     text = message.text

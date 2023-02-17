@@ -1,6 +1,7 @@
 import telebot.types
 
 import bot
+import data_service
 bot = bot.bot
 
 
@@ -13,7 +14,12 @@ def send_message(chat_id: int, message_string: str, reply_markup=None) -> telebo
     Returns:
         The message that was sent
     """
-    return bot.send_message(chat_id, message_string, reply_markup=reply_markup)
+    message = bot.send_message(chat_id, message_string, reply_markup=reply_markup)
+    if isinstance(reply_markup, telebot.types.InlineKeyboardMarkup):
+        prev_message_id = data_service.set_last_bot_message_id(chat_id, message.id)
+        if prev_message_id != "None":
+            delete_message(chat_id, int(prev_message_id))
+    return message
 
 
 def send_document(chat_id: int, document, caption: str, reply_markup=None):
@@ -31,8 +37,11 @@ def send_chat_action(chat_id: int, action: str):
     bot.send_chat_action(chat_id, action)
 
 
-def delete_message(chat_id: int, message_id: int) -> None:
-    bot.delete_message(chat_id, message_id)
+def delete_message(chat_id: int, message_id: int):
+    try:
+        bot.delete_message(chat_id, message_id)
+    except:
+        pass
 
 
 # helper methods -------------------------------------------------------------------------------------------------------

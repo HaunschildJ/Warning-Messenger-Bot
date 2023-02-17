@@ -33,7 +33,8 @@ DEFAULT_DATA = {
             "district_id": "06411"
         }
     ],
-    "language": "german"
+    "language": "german",
+    "last_bot_message_id": "None"
 }
 
 
@@ -152,6 +153,47 @@ def set_user_state(chat_id: int, new_state: int):
     all_user[cid][Attributes.CURRENT_STATE.value] = new_state
 
     _write_file(_USER_DATA_PATH, all_user)
+
+
+def get_last_bot_message_id(chat_id: int) -> str:
+    """
+    Returns the last_bot_message_id of the chat.
+
+    Arguments:
+        chat_id: Integer to identify the user
+
+    Returns:
+        string with the last bot message id
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+
+    if str(chat_id) in all_user:
+        return all_user[str(chat_id)][Attributes.LAST_BOT_MESSAGE_ID.value]
+    return DEFAULT_DATA[Attributes.LAST_BOT_MESSAGE_ID.value]
+
+
+def set_last_bot_message_id(chat_id: int, new_state: str) -> str:
+    """
+    Sets the state of the user (chat_id) to the new state (new_state)
+
+    Arguments:
+        chat_id: Integer to identify the user
+        new_state: string with the new message id
+
+    Returns:
+        string with the previous message id ("None" if there was no previous message id)
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        all_user[cid] = DEFAULT_DATA.copy()
+
+    prev_id = all_user[cid][Attributes.LAST_BOT_MESSAGE_ID.value]
+    all_user[cid][Attributes.LAST_BOT_MESSAGE_ID.value] = new_state
+
+    _write_file(_USER_DATA_PATH, all_user)
+    return prev_id
 
 
 def set_auto_covid_information(chat_id: int, how_often: ReceiveInformation):
