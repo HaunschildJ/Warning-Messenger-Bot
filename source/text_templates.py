@@ -109,7 +109,7 @@ def get_greeting_message(username: str) -> str:
 
 
 def get_general_warning_message(event: str, headline: str, description: str, severity: str,
-                                warning_type: str, start_date: str, date_expires: str, status: str) -> str:
+                                warning_type: str, start_date: str, date_expires: str, status: str, link: str) -> str:
     """
     This method will replace the placeholder (%name) with the given parameters from the message for general warnings in
     the json
@@ -153,6 +153,10 @@ def get_general_warning_message(event: str, headline: str, description: str, sev
         message = message.replace("%status", status)
     else:
         message = message.replace("%status", placeholder)
+    if link is not None:
+        message = message.replace("%link", link)
+    else:
+        message = message.replace("%link", placeholder)
     return message
 
 
@@ -451,20 +455,20 @@ def get_quickly_add_to_subscriptions_message(location_name: str, warning_name: s
     return message
 
 
-def get_show_recommendations_message(recommendations: list[str]) -> str:
+def get_show_favorites_message(favorites: list[str]) -> str:
     """
-    This method will build the message containing the recommendations that the user has set
+    This method will build the message containing the favorites that the user has set
 
     Arguments:
-        recommendations: list of strings representing the recommendations the user has set
+        favorites: list of strings representing the favorites the user has set
 
     Returns:
-        string with the message showing the user all recommendations
+        string with the message showing the user all favorites
     """
-    dic = _get_complex_answer_dict("recommendations")
+    dic = _get_complex_answer_dict("favorites")
     message = dic["headline"]
-    for suggestion in recommendations:
-        message = message + "\n" + dic["recommendation"].replace("%r", suggestion)
+    for favorite in favorites:
+        message = message + "\n" + dic["favorite"].replace("%f", favorite)
     return message
 
 
@@ -500,6 +504,27 @@ def get_faq_message(questions: list[str], answers: list[str]) -> str:
         string with the faq
     """
     dic = _get_complex_answer_dict("faq")
+
+    message = dic["headline"]
+    for (question, answer) in zip(questions, answers):
+        one_faq = dic["question_format"]
+        one_faq = one_faq.replace("%question", question)
+        one_faq = one_faq.replace("%answer", answer)
+        message = message + "\n" + one_faq
+    message = message + "\n" + dic["end"]
+    return message
+
+
+def get_faq_message_from_templates() -> str:
+    """
+    This method will create the faq answer with the questions and answers from the text_templates.json
+
+    Returns:
+        string with the faq
+    """
+    dic = _get_complex_answer_dict("faq")
+    questions = dic["faq_questions"].keys()
+    answers = dic["faq_questions"].values()
 
     message = dic["headline"]
     for (question, answer) in zip(questions, answers):

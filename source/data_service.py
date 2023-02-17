@@ -19,7 +19,7 @@ DEFAULT_DATA = {
     "default_level": "Manual",
     "locations": {
     },
-    "recommendations": [
+    "favorites": [
         {
             "postal_code": "10827",
             "district_id": "11000"
@@ -33,7 +33,8 @@ DEFAULT_DATA = {
             "district_id": "06411"
         }
     ],
-    "language": "german"
+    "language": "german",
+    "last_bot_message_id": "None"
 }
 
 
@@ -154,6 +155,47 @@ def set_user_state(chat_id: int, new_state: int):
     _write_file(_USER_DATA_PATH, all_user)
 
 
+def get_last_bot_message_id(chat_id: int) -> str:
+    """
+    Returns the last_bot_message_id of the chat.
+
+    Arguments:
+        chat_id: Integer to identify the user
+
+    Returns:
+        string with the last bot message id
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+
+    if str(chat_id) in all_user:
+        return all_user[str(chat_id)][Attributes.LAST_BOT_MESSAGE_ID.value]
+    return DEFAULT_DATA[Attributes.LAST_BOT_MESSAGE_ID.value]
+
+
+def set_last_bot_message_id(chat_id: int, new_state: str) -> str:
+    """
+    Sets the state of the user (chat_id) to the new state (new_state)
+
+    Arguments:
+        chat_id: Integer to identify the user
+        new_state: string with the new message id
+
+    Returns:
+        string with the previous message id ("None" if there was no previous message id)
+    """
+    all_user = _read_file(_USER_DATA_PATH)
+    cid = str(chat_id)
+
+    if not (cid in all_user):
+        all_user[cid] = DEFAULT_DATA.copy()
+
+    prev_id = all_user[cid][Attributes.LAST_BOT_MESSAGE_ID.value]
+    all_user[cid][Attributes.LAST_BOT_MESSAGE_ID.value] = new_state
+
+    _write_file(_USER_DATA_PATH, all_user)
+    return prev_id
+
+
 def set_auto_covid_information(chat_id: int, how_often: ReceiveInformation):
     """
     Sets how often the user (chat_id) wants to receive covid information
@@ -265,26 +307,26 @@ def delete_subscription(chat_id: int, postal_code: str, warning: str):
     _write_file(_USER_DATA_PATH, all_user)
 
 
-def get_suggestions(chat_id: int) -> list[dict]:
+def get_favorites(chat_id: int) -> list[dict]:
     """
-    Returns an array of suggestions of the user (chat_id)
+    Returns an array of favorites of the user (chat_id)
 
     Arguments:
         chat_id: Integer to identify the user
 
     Returns:
-        list of dictionaries with the recommendations (locations the user set or default locations)
+        list of dictionaries with the favorites (locations the user set or default locations)
     """
     all_user = _read_file(_USER_DATA_PATH)
 
     if str(chat_id) in all_user:
-        return all_user[str(chat_id)][Attributes.RECOMMENDATIONS.value]
-    return DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
+        return all_user[str(chat_id)][Attributes.FAVORITES.value]
+    return DEFAULT_DATA[Attributes.FAVORITES.value]
 
 
-def add_suggestion(chat_id: int, postal_code: str, district_id: str) -> list[dict]:
+def add_favorite(chat_id: int, postal_code: str, district_id: str) -> list[dict]:
     """
-    This method adds a location to the recommended location list of a user. \n
+    This method adds a location to the favorite location list of a user. \n
     The list is sorted: The most recently added location is the first element and the oldest added location
     is the last element (FIFO).\n
     If user with given chat_id is not present, he will be added.
@@ -294,7 +336,7 @@ def add_suggestion(chat_id: int, postal_code: str, district_id: str) -> list[dic
         postal_code: string with the postal code of the favorite
         district_id: string with district id of the favorite
     Returns:
-        list of dictionaries representing the recommendations after the new one has been added
+        list of dictionaries representing the favorites after the new one has been added
     """
     all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
@@ -302,49 +344,49 @@ def add_suggestion(chat_id: int, postal_code: str, district_id: str) -> list[dic
     if not (cid in all_user):
         all_user[cid] = DEFAULT_DATA.copy()
 
-    current_recommendations = all_user[cid][Attributes.RECOMMENDATIONS.value]
+    current_favorites = all_user[cid][Attributes.FAVORITES.value]
     i = 0
     location = {
             "postal_code": postal_code,
             "district_id": district_id
     }
-    prev_recommendation = location
-    for recommendation in current_recommendations:
-        tmp = recommendation
-        current_recommendations[i] = prev_recommendation
-        prev_recommendation = tmp
+    prev_favorite = location
+    for favorite in current_favorites:
+        tmp = favorite
+        current_favorites[i] = prev_favorite
+        prev_favorite = tmp
         i = i + 1
-        if prev_recommendation == location:
+        if prev_favorite == location:
             break
 
     _write_file(_USER_DATA_PATH, all_user)
-    return current_recommendations
+    return current_favorites
 
 
-def get_recommendation_postal_code(recommendation: dict) -> str:
+def get_favorite_postal_code(favorite: dict) -> str:
     """
-    Returns the postal_code of the dict given by add_suggestion or get_suggestions
+    Returns the postal_code of the dict given by add_favorite or get_favorites
 
     Arguments:
-        recommendation: dict given by add_suggestion or get_suggestions
+        favorite: dict given by add_favorite or get_favorites
 
     Returns:
-        postal_code of the recommendation
+        postal_code of the favorite
     """
-    return recommendation["postal_code"]
+    return favorite["postal_code"]
 
 
-def get_recommendation_district_id(recommendation: dict) -> str:
+def get_favorite_district_id(favorite: dict) -> str:
     """
-    Returns the district id of the dict given by add_suggestion or get_suggestions
+    Returns the district id of the dict given by add_favorite or get_favorites
 
     Arguments:
-        recommendation: dict given by add_suggestion or get_suggestions
+        favorite: dict given by add_favorite or get_favorites
 
     Returns:
-        district id of the recommendation
+        district id of the favorite
     """
-    return recommendation["district_id"]
+    return favorite["district_id"]
 
 
 def get_subscription_district_id(subscription: dict) -> str:
@@ -536,7 +578,7 @@ def reset_favorites(chat_id: int):
     if not (cid in all_user):
         return
 
-    all_user[cid][Attributes.RECOMMENDATIONS.value] = DEFAULT_DATA[Attributes.RECOMMENDATIONS.value]
+    all_user[cid][Attributes.FAVORITES.value] = DEFAULT_DATA[Attributes.FAVORITES.value]
 
     _write_file(_USER_DATA_PATH, all_user)
 

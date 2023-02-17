@@ -14,9 +14,9 @@ from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from error import error_handler, illegal_state_handler, help_handler
 
 
-def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str):
+def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: str) -> tuple:
     """
-    When place_id_bool and district_id_bool are True then both will be in command (place_id first)
+    Suggests the user the given locations
 
     Args:
         chat_id: an Integer for the chat id of the user
@@ -27,7 +27,13 @@ def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: s
 
     if len(dicts) == 0:
         sender.send_message(chat_id, text_templates.get_answers(Answers.NO_LOCATION_FOUND))
-        return
+        return ()
+
+    if len(dicts) == 1:
+        dic = dicts[0]
+        district_id = place_converter.get_district_id_from_dict(dic)
+        postal_code = place_converter.get_postal_code_from_dict(dic)
+        return postal_code, district_id
 
     i = 0
     locations_text = []
@@ -63,6 +69,7 @@ def _make_location_suggestions(chat_id: int, dicts: list[dict], command_begin: s
     cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
     markup.add(cancel_button)
     sender.send_message(chat_id, answer, markup)
+    return ()
 
 
 # methods called from the ChatReceiver ---------------------------------------------------------------------------------
@@ -145,10 +152,7 @@ def button_in_help_pressed(chat_id: int, button_text: str):
         message = text_templates.get_help_message(BotUsageHelp.EVERYTHING)
         sender.send_message(chat_id, message)
     elif button_text == frontend_helper.HELP_FAQ_TEXT:
-        # TODO get the FAQ from nina api
-        questions = ["Wie würde eine Frage aussehen?", "Und wie die 2te?"]
-        answers = ["So würde eine Antwort aussehen.", "Und so die 2te."]
-        message = text_templates.get_faq_message(questions, answers)
+        message = text_templates.get_faq_message_from_templates()
         sender.send_message(chat_id, message)
     elif button_text == frontend_helper.HELP_IMPRINT_TEXT:
         sender.send_message(chat_id, text_templates.get_answers(Answers.IMPRINT_TEXT))
@@ -172,19 +176,19 @@ def button_in_manual_warnings_pressed(chat_id: int, button_text: str):
                             frontend_helper.get_covid_keyboard())
     elif button_text == str(frontend_helper.WARNING_COVID_INFO_TEXT):
         data_service.set_user_state(chat_id, 200)
-        show_suggestions(chat_id, Commands.COVID_INFO.value + ";")
+        show_favorites_as_inline_buttons(chat_id, Commands.COVID_INFO.value + ";")
     elif button_text == str(frontend_helper.WARNING_COVID_RULES_TEXT):
         data_service.set_user_state(chat_id, 201)
-        show_suggestions(chat_id, Commands.COVID_RULES.value + ";")
+        show_favorites_as_inline_buttons(chat_id, Commands.COVID_RULES.value + ";")
     elif button_text == str(frontend_helper.WARNING_WEATHER_TEXT):
         data_service.set_user_state(chat_id, 21)
-        show_suggestions(chat_id, Commands.WEATHER.value + ";")
+        show_favorites_as_inline_buttons(chat_id, Commands.WEATHER.value + ";")
     elif button_text == str(frontend_helper.WARNING_CIVIL_PROTECTION_TEXT):
         data_service.set_user_state(chat_id, 22)
-        show_suggestions(chat_id, Commands.CIVIL_PROTECTION.value + ";")
+        show_favorites_as_inline_buttons(chat_id, Commands.CIVIL_PROTECTION.value + ";")
     elif button_text == str(frontend_helper.WARNING_FLOOD_TEXT):
         data_service.set_user_state(chat_id, 23)
-        show_suggestions(chat_id, Commands.FLOOD.value + ";")
+        show_favorites_as_inline_buttons(chat_id, Commands.FLOOD.value + ";")
     else:
         error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED, message=button_text)
 
@@ -205,7 +209,7 @@ def button_in_settings_pressed(chat_id: int, button_text: str):
     elif button_text == frontend_helper.SETTING_SUGGESTION_LOCATION_TEXT:
         data_service.set_user_state(chat_id, 11)
         keyboard = frontend_helper.get_send_location_keyboard()
-        sender.send_message(chat_id, text_templates.get_answers(Answers.SUGGESTION_HELPER_TEXT), keyboard)
+        sender.send_message(chat_id, text_templates.get_answers(Answers.ADD_FAVORITE_HELPER_TEXT), keyboard)
     elif button_text == frontend_helper.SETTING_SUBSCRIPTION_TEXT:
         data_service.set_user_state(chat_id, 10)
         keyboard = frontend_helper.get_subscription_settings_keyboard()
@@ -490,9 +494,11 @@ def location_for_favorites(chat_id: int, text: str):
         text: a string which contains the message the user sent
     """
     try:
-        command_begin = Commands.ADD_RECOMMENDATION.value + ";"
+        command_begin = Commands.ADD_FAVORITE.value + ";"
         suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
-        _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        result = _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        if result != ():
+            add_favorites_in_database(chat_id, result[0], result[1])
     except KeyError:
         error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
 
@@ -508,7 +514,9 @@ def location_for_adding_subscription(chat_id: int, text: str):
     try:
         command_begin = Commands.ADD_SUBSCRIPTION.value + ";"
         suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
-        _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        result = _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        if result != ():
+            inline_button_for_adding_subscriptions(chat_id, command_begin + result[0] + ";" + result[1])
     except KeyError:
         error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
 
@@ -526,31 +534,43 @@ def location_for_warning(chat_id: int, text: str, command: Commands):
     try:
         command_begin = command.value + ";"
         suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
-        _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        result = _make_location_suggestions(chat_id, suggestion_dicts, command_begin)
+        if result != ():
+            postal_code = result[0]
+            district_id = result[1]
+            if command.value == Commands.WEATHER.value:
+                detailed_general_warning(chat_id, WarningCategory.WEATHER, postal_code, district_id)
+            elif command.value == Commands.CIVIL_PROTECTION.value:
+                detailed_general_warning(chat_id, WarningCategory.CIVIL_PROTECTION, postal_code, district_id)
+            elif command.value == Commands.FLOOD.value:
+                detailed_general_warning(chat_id, WarningCategory.FLOOD, postal_code, district_id)
+            elif command.value == Commands.COVID_INFO.value:
+                covid_info(chat_id, postal_code, district_id)
+            elif command.value == Commands.COVID_RULES.value:
+                covid_rules(chat_id, postal_code, district_id)
     except KeyError:
         error_handler(chat_id, ErrorCodes.UNKNOWN_LOCATION)
 
 
-def show_suggestions(chat_id: int, command_begin: str):
+def show_favorites_as_inline_buttons(chat_id: int, command_begin: str):
     """
-    This method is called when the suggestions should be shown in chat with chat_id to finish a command.
-    The button that was pressed will be determined via button_text.
+    This method is called when the favorites should be shown in chat with chat_id to finish a command.
 
     Args:
         chat_id: an integer for the chatID that the message is sent to
         command_begin: a string with the beginning of the command of each favorite (has to end with ';')
     """
     markup = InlineKeyboardMarkup()
-    recommendations = data_service.get_suggestions(chat_id)
-    for recommendation in recommendations:
-        postal_code = data_service.get_recommendation_postal_code(recommendation)
-        district_id = data_service.get_recommendation_district_id(recommendation)
+    favorites = data_service.get_favorites(chat_id)
+    for favorite in favorites:
+        postal_code = data_service.get_favorite_postal_code(favorite)
+        district_id = data_service.get_favorite_district_id(favorite)
         location_name = get_location_name(district_id, postal_code)
         button = sender.create_inline_button(location_name, command_begin + postal_code + ";" + district_id)
         markup.add(button)
     cancel_button = sender.create_inline_button(frontend_helper.CANCEL_TEXT, str(Commands.CANCEL_INLINE.value))
     markup.add(cancel_button)
-    sender.send_message(chat_id, text_templates.get_answers(Answers.CLICK_SUGGESTION), markup)
+    sender.send_message(chat_id, text_templates.get_answers(Answers.CLICK_ADD_FAVORITE), markup)
 
 
 def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str):
@@ -642,8 +662,9 @@ def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_ser
                     break
             date_expires = detail.info.date_expires
             status = detail.status
+            link = detail.government_warning_url
             answer = text_templates.get_general_warning_message(event, headline, description, severity, warning_type,
-                                                                start_date, date_expires, status)
+                                                                start_date, date_expires, status, link)
             sender.send_message(chat_id, answer)
         except HTTPError:
             pass
@@ -760,7 +781,7 @@ def location_was_sent(chat_id: int, latitude: float, longitude: float):
     postal_code = place_converter.get_postal_code_from_dict(suggestion_dict)
     if state == 11:
         # add recommendation
-        add_recommendation_in_database(chat_id, postal_code, district_id)
+        add_favorites_in_database(chat_id, postal_code, district_id)
     elif state == 101:
         # add subscription
         callback_data = Commands.ADD_SUBSCRIPTION.value + ";" + postal_code + ";" + district_id
@@ -813,7 +834,7 @@ def change_auto_covid_updates_in_database(chat_id: int, updates: int):
     sender.send_message(chat_id, text_templates.get_changed_auto_covid_updates_message(how_often_text))
 
 
-def add_recommendation_in_database(chat_id: int, postal_code: str, district_id: str):
+def add_favorites_in_database(chat_id: int, postal_code: str, district_id: str):
     """
     This method changes the recommended locations in the database and informs the user about the recommended locations
     that are stored now
@@ -824,17 +845,18 @@ def add_recommendation_in_database(chat_id: int, postal_code: str, district_id: 
         district_id: string with district id of the favorite
     """
     # update the database
-    recommendations = data_service.add_suggestion(chat_id, postal_code, district_id)
+    favorites = data_service.add_favorite(chat_id, postal_code, district_id)
 
     # inform the user
     names = []
-    for recommendation in recommendations:
-        local_district_id = data_service.get_recommendation_district_id(recommendation)
-        local_postal_code = data_service.get_recommendation_postal_code(recommendation)
+    for favorite in favorites:
+        local_district_id = data_service.get_favorite_district_id(favorite)
+        local_postal_code = data_service.get_favorite_postal_code(favorite)
         location_name = get_location_name(local_district_id, local_postal_code)
         names.append(location_name)
-    message = text_templates.get_show_recommendations_message(names)
-    sender.send_message(chat_id, message, frontend_helper.get_send_location_keyboard())
+    message = text_templates.get_show_favorites_message(names)
+    data_service.set_user_state(chat_id, 1)
+    sender.send_message(chat_id, message, frontend_helper.get_settings_keyboard_buttons())
 
 
 def set_default_level(chat_id: int, level: str):

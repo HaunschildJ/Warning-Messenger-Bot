@@ -16,7 +16,7 @@ class Commands(Enum):
     DELETE_SUBSCRIPTION ; "postal_code" ; "district_id" ; "warn_type"\n
     ADD_SUBSCRIPTION ; "postal_code" ; "district_id" ; "warn_type" ; "warn_level"\n
     COVID_UPDATES + "ReceiveInformation from data_service as int"\n
-    ADD_RECOMMENDATION ; "postal_code" ; "district_id"\n
+    ADD_FAVORITE ; "postal_code" ; "district_id"\n
     SET_DEFAULT_LEVEL ; "value"\n
     (DELETE_DATA_SUBSCRIPTION || DELETE_DATA_FAVORITES || DELETE_DATA_EVERYTHING)
     (COVID_INFO || COVID_RULES || WEATHER || DISASTER || FLOOD || COVID_INFO) ; "postal_code" ; "district_id"\n
@@ -24,7 +24,7 @@ class Commands(Enum):
     AUTO_WARNING = "/aw"
     CANCEL_INLINE = "/cancel"
     JUST_CANCEL_INLINE = "just_cancel"
-    ADD_RECOMMENDATION = "/addR"
+    ADD_FAVORITE = "/addF"
     DELETE_SUBSCRIPTION = "/delS"
     ADD_SUBSCRIPTION = "/addS"
     COVID_UPDATES = "/cu"
@@ -73,9 +73,10 @@ class Attributes(Enum):
     RECEIVE_WARNINGS = "receive_warnings"
     COVID_AUTO_INFO = "receive_covid_information"
     LOCATIONS = "locations"
-    RECOMMENDATIONS = "recommendations"
+    FAVORITES = "favorites"
     LANGUAGE = "language"
     DEFAULT_LEVEL = "default_level"
+    LAST_BOT_MESSAGE_ID = "last_bot_message_id"
 
 
 # nina_service ---------------------------------------------------------------------------------------------------------
@@ -133,7 +134,7 @@ class Button(Enum):
     HELP = "help"
     BACK_TO_MAIN_MENU = "back_to_main_menu"
     AUTO_WARNING = "auto_warning"
-    SUGGESTION_LOCATION = "suggestion_location"
+    ADD_FAVORITE = "add_favorite"
     SUBSCRIPTION = "subscription"
     DELETE_DATA = "delete_data"
     AUTO_COVID_INFO = "auto_covid_info"
@@ -179,11 +180,11 @@ class Answers(Enum):
     AUTO_WARNINGS_DISABLE = "auto_warnings_disable"
     NO_CURRENT_WARNINGS = "no_current_warnings"
     BACK_TO_MAIN_MENU = "back_to_main_menu"
-    SUGGESTION_HELPER_TEXT = "suggestion_helper_text"
+    ADD_FAVORITE_HELPER_TEXT = "add_favorite_helper_text"
     MANAGE_SUBSCRIPTIONS = "manage_subscriptions"
     MANAGE_AUTO_COVID_UPDATES = "manage_auto_covid_updates"
     NO_SUBSCRIPTIONS = "no_subscriptions"
-    CLICK_SUGGESTION = "click_suggestion"
+    CLICK_ADD_FAVORITE = "click_add_favorite"
     NO_LOCATION_FOUND = "no_location_found"
     DELETE_DATA_SUBSCRIPTIONS = "delete_data_subscriptions"
     DELETE_DATA_FAVORITES = "delete_data_favorites"

@@ -26,7 +26,7 @@ WARNING_CIVIL_PROTECTION_TEXT = text_templates.get_button_name(Button.CIVIL_PROT
 WARNING_FLOOD_TEXT = text_templates.get_button_name(Button.FLOOD)  # MVP 5. i)
 
 # settings keyboard buttons
-SETTING_SUGGESTION_LOCATION_TEXT = text_templates.get_button_name(Button.SUGGESTION_LOCATION)  # MVP 4. b)
+SETTING_SUGGESTION_LOCATION_TEXT = text_templates.get_button_name(Button.ADD_FAVORITE)  # MVP 4. b)
 SETTING_SUBSCRIPTION_TEXT = text_templates.get_button_name(Button.SUBSCRIPTION)  # MVP 4. c)
 SETTING_DELETE_DATA_TEXT = text_templates.get_button_name(Button.DELETE_DATA)
 SETTING_AUTO_COVID_INFO_TEXT = text_templates.get_button_name(Button.AUTO_COVID_INFO)  # currently not implemented

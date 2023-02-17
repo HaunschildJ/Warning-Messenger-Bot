@@ -70,9 +70,9 @@ def filter_callback_auto_covid_updates(call: typ.CallbackQuery) -> bool:
     return False
 
 
-def filter_callback_add_recommendation(call: typ.CallbackQuery) -> bool:
+def filter_callback_add_favorite(call: typ.CallbackQuery) -> bool:
     split_data = call.data.split(';')
-    if split_data[0] == Commands.ADD_RECOMMENDATION.value:
+    if split_data[0] == Commands.ADD_FAVORITE.value:
         return True
     return False
 
@@ -120,6 +120,9 @@ def filter_command_message(message: typ.Message) -> bool:
 @bot.message_handler(func=filter_normal_message)
 def normal_message_handler(message: typ.Message):
     chat_id = message.chat.id
+    prev_message_id = data_service.get_last_bot_message_id(chat_id)
+    if prev_message_id != "None":
+        controller.delete_message(chat_id, int(prev_message_id))
     state = str(data_service.get_user_state(chat_id))
     state_first_number = int(state[0])
     text = message.text
@@ -401,10 +404,10 @@ def just_cancel_button(call: typ.CallbackQuery):
     controller.delete_message(call.message.chat.id, call.message.id)
 
 
-@bot.callback_query_handler(func=filter_callback_add_recommendation)
-def add_recommendation(call: typ.CallbackQuery):
+@bot.callback_query_handler(func=filter_callback_add_favorite)
+def add_favorite(call: typ.CallbackQuery):
     """
-    This method is called whenever the user presses a button for adding a recommendation
+    This method is called whenever the user presses a button for adding a favorite
 
     Args:
         call: data that has been sent by the inline button
@@ -415,7 +418,7 @@ def add_recommendation(call: typ.CallbackQuery):
         return
     postal_code = split_message[1]
     district_id = split_message[2]
-    controller.add_recommendation_in_database(call.message.chat.id, postal_code, district_id)
+    controller.add_favorites_in_database(call.message.chat.id, postal_code, district_id)
     controller.delete_message(call.message.chat.id, call.message.id)
 
 
