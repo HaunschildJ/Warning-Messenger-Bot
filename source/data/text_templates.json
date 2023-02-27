@@ -240,7 +240,7 @@
       "error_no_input_expected": "Hier bitte nichts eingeben. Nur Buttons benutzen. Nutze /help, um mehr zu erfahren.",
       "pdf_caption": "Hier ist das PDF mit den Notfalltipps.",
       "emergency_tips": "Du kannst die Notfalltips hier nachlesen: https://www.bbk.bund.de/DE/Warnung-Vorsorge/Warn-App-NINA/Notfalltipps/notfalltipps_node.html",
-      "emergency_tips_ask": "Möchtest du die Notfalltipps als PDF runterladen?"
+      "emergency_tips_ask": "Möchtest du die Notfalltipps als PDF runterladen um diese auch im Falle eines Stromausfalls auf deinem Gerät zu haben?"
     }
   },
   {

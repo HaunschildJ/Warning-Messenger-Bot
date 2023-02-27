@@ -4,7 +4,7 @@ import data_service
 import time
 
 
-def update_all_warnings():
+def update_all_warnings() -> dict:
     print("updating warnings")
     all_warnings = data_service.get_active_warnings_dict()
     # check if another thread is already updating all warnings
@@ -15,7 +15,7 @@ def update_all_warnings():
             while all_warnings["is_already_running"]:
                 time.sleep(1)
                 all_warnings = data_service.get_active_warnings_dict()
-            return
+            return all_warnings
         all_warnings["is_already_running"] = True
         data_service.set_active_warnings_dict(all_warnings)
 
@@ -43,6 +43,7 @@ def update_all_warnings():
         counter += 1
     all_warnings["is_already_running"] = False
     data_service.set_active_warnings_dict(all_warnings)
+    return all_warnings
 
 
 def get_all_relevant_warning_ids(general_warnings: list[nina_service.GeneralWarning],
@@ -54,7 +55,7 @@ def get_all_relevant_warning_ids(general_warnings: list[nina_service.GeneralWarn
             postal_codes_for_warning = all_warnings[warning.id]
         except KeyError:
             print("Warning ID:" + warning.id + " was not found --> updating")
-            update_all_warnings()
+            all_warnings = update_all_warnings()
             try:
                 postal_codes_for_warning = all_warnings[warning.id]
             except KeyError:
@@ -68,6 +69,17 @@ def get_all_relevant_warning_ids(general_warnings: list[nina_service.GeneralWarn
                     break
 
     return result_ids
+
+
+def get_random_postal_code_for_active_warning(general_warning: nina_service.GeneralWarning) -> str:
+    all_warnings = data_service.get_active_warnings_dict()
+    if general_warning.id not in all_warnings:
+        print("Warning ID:" + general_warning.id + " was not found --> updating")
+        all_warnings = update_all_warnings()
+        if general_warning.id not in all_warnings:
+            print("Warning ID was not found even after updating --> no random postal code")
+            return "64283"
+    return all_warnings[general_warning.id][0]
 
 
 def init_warning_handler():
