@@ -94,11 +94,11 @@ class WarningCategory(Enum):
     """
     this enum is used to differ between the different general warnings from the nina api
     """
+    ALL = "all"
     WEATHER = "weather"
     CIVIL_PROTECTION = "civil_protection"
     FLOOD = "flood"
     NONE = "none"
-    ALL = "all"
 
 
 class WarningType(Enum):

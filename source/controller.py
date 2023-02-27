@@ -1,3 +1,5 @@
+import datetime
+
 from requests import HTTPError
 
 import sender
@@ -9,7 +11,8 @@ import frontend_helper
 import warning_handler
 
 from text_templates import Button, Answers
-from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarningCategory, BotUsageHelp
+from enum_types import Commands, ReceiveInformation, WarningSeverity, ErrorCodes, WarningCategory, BotUsageHelp, \
+    WarningType
 from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from error import error_handler, illegal_state_handler, help_handler
 
@@ -531,6 +534,26 @@ def location_for_warning(chat_id: int, text: str, command: Commands):
         text: a string which contains the message the user sent
         command: the Command that should be used
     """
+    # just for the test warning
+    warning_category = WarningCategory.NONE
+    if command.value == Commands.WEATHER.value:
+        warning_category = WarningCategory.WEATHER
+    elif command.value == Commands.CIVIL_PROTECTION.value:
+        warning_category = WarningCategory.CIVIL_PROTECTION
+    elif command.value == Commands.FLOOD.value:
+        warning_category = WarningCategory.FLOOD
+    if text.lower() == "teststadt":
+        if warning_category is not WarningCategory.NONE:
+            default_general_warning_for_test_location(chat_id, warning_category)
+            return
+    if text.lower() == "testhausen":
+        if warning_category is not WarningCategory.NONE:
+            try:
+                general_warnings = nina_service.call_general_warning(warning_category)
+                text = warning_handler.get_random_postal_code_for_active_warning(general_warnings[0])
+            except IndexError:
+                text = "64285"
+    # end of "just for the test warning"
     try:
         command_begin = command.value + ";"
         suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
@@ -573,6 +596,38 @@ def show_favorites_as_inline_buttons(chat_id: int, command_begin: str):
     sender.send_message(chat_id, text_templates.get_answers(Answers.CLICK_ADD_FAVORITE), markup)
 
 
+def default_general_warning_for_test_location(chat_id: int, warning: WarningCategory):
+    """
+    This method will send a dummy general warning in the chat
+
+    Args:
+        chat_id: integer with the chat id
+        warning: WarningCategory Enum with the Warning Category (currently does nothing)
+    """
+    if warning == WarningCategory.WEATHER:
+        title = "Amtliche WARNUNG vor SCHWEREN STURMBÖEN"
+        desc = "Es treten oberhalb 1000 m schwere Sturmböen mit Geschwindigkeiten zwischen 80 km/h " \
+               "(22 m/s, 44 kn, Bft 9) und 100 km/h (28 m/s, 55 kn, Bft 10) aus nordöstlicher Richtung auf. " \
+               "In exponierten Lagen muss mit orkanartigen Böen um 110 km/h (31 m/s, 60 kn, Bft 11) gerechnet werden."
+    elif warning == WarningCategory.FLOOD:
+        title = "Titel"
+        desc = "Beschreibung"
+    else:
+        title = "+++ Betretungsverbot Bergschadensgebiet Stadt Mechernich +++"
+        desc = "Die Stadt Mechernich informiert: Die Flutschäden im Juli haben zu einigen Absenkungen im " \
+               "Bergschadensgebiet Mechernich geführt, die noch nicht alle verfüllt werden konnten. Der Bereich " \
+               "bleibt bis auf weiteres abgesperrt. Aus diesem Grund besteht weiterhin eine Gefahr, sodass das " \
+               "Betretungsverbot noch bestehen bleibt."
+    general_warning = nina_service.GeneralWarning("Test_ID", 0, "2023-02-25 06:51", WarningSeverity.MINOR,
+                                                  WarningType.UPDATE, "Test Warnung")
+    detailed_warning_info = nina_service.DetailedWarningInfo("event", WarningSeverity.MINOR, "2042-01-27 02:00",
+                                                             "Dies ist eine Test Warnung!\n" + title, desc,
+                                                             "deutsch", [])
+    detailed_warning = nina_service.DetailedWarning("Test_ID", "Warning_Messenger_Bot", "date_sent", "status",
+                                                    detailed_warning_info, "https://warnung.bund.de/meldung")
+    send_detailed_general_warnings(chat_id, [general_warning], [], detailed_warning)
+
+
 def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str):
     """
     Sets the chat action of the bot to typing
@@ -610,6 +665,16 @@ def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code
 
 
 def ask_if_add_to_subscriptions(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str):
+    """
+    This method will check if the user already has a subscription for this postal code, if not the user will be asked if
+    they want to add this subscription
+
+    Args:
+        chat_id: integer with the chat id
+        warning: WarningCategory Enum with the warning Category for the subscription
+        postal_code: string with the postal code for the subscription
+        district_id: string with the district id for the subscription
+    """
     subscriptions = data_service.get_subscriptions(chat_id)
     # if the called warning is not in the users subscriptions yet, ask if they want to add it
     if postal_code not in subscriptions:
@@ -628,7 +693,8 @@ def ask_if_add_to_subscriptions(chat_id: int, warning: WarningCategory, postal_c
 
 
 def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_service.GeneralWarning],
-                                   relevant_postal_codes: list[str]) -> int:
+                                   relevant_postal_codes: list[str],
+                                   detail_for_testing: nina_service.DetailedWarning = None) -> int:
     """
     This method will send a detailed warning for each warning in general_warnings when the warning is relevant for
     at least one of the given postal codes (relevant_postal_codes)
@@ -639,15 +705,25 @@ def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_ser
         relevant_postal_codes: list of postal code strings.
                             If the general warning has a postal code that is in this list
                             the detailed warning will be sent to the user with the chat_id
+        detail_for_testing: DetailedWarning which is only used when the user asks for the test location
 
 
     Returns:
         integer with the number of relevant warnings that were sent
     """
-    relevant_warning_ids = warning_handler.get_all_relevant_warning_ids(general_warnings, relevant_postal_codes)
+    # just for the test location
+    if detail_for_testing is not None:
+        relevant_warning_ids = [general_warnings[0].id]
+    else:
+        relevant_warning_ids = warning_handler.get_all_relevant_warning_ids(general_warnings, relevant_postal_codes)
+
     for warning_id in relevant_warning_ids:
         try:
-            detail = nina_service.get_detailed_warning(warning_id)
+            # just for the test location
+            if detail_for_testing is not None:
+                detail = detail_for_testing
+            else:
+                detail = nina_service.get_detailed_warning(warning_id)
             event = detail.info.event
             headline = detail.info.headline
             description = detail.info.description
@@ -665,7 +741,8 @@ def send_detailed_general_warnings(chat_id: int, general_warnings: list[nina_ser
             link = detail.government_warning_url
             answer = text_templates.get_general_warning_message(event, headline, description, severity, warning_type,
                                                                 start_date, date_expires, status, link)
-            sender.send_message(chat_id, answer)
+            sender.send_message(chat_id, answer, frontend_helper.get_warning_keyboard_buttons())
+            data_service.set_user_state(chat_id, 2)
         except HTTPError:
             pass
     return len(relevant_warning_ids)
