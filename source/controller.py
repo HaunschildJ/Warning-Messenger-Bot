@@ -546,7 +546,7 @@ def location_for_warning(chat_id: int, text: str, command: Commands):
         if warning_category is not WarningCategory.NONE:
             default_general_warning_for_test_location(chat_id, warning_category)
             return
-    if text.lower() == "random":
+    if text.lower() == "testhausen":
         if warning_category is not WarningCategory.NONE:
             try:
                 general_warnings = nina_service.call_general_warning(warning_category)
