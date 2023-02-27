@@ -1,13 +1,27 @@
 import nina_service
 import place_converter
 import data_service
+import time
 
 
 def update_all_warnings():
     print("updating warnings")
+    all_warnings = data_service.get_active_warnings_dict()
+    # check if another thread is already updating all warnings
+    if all_warnings == {}:
+        data_service.set_active_warnings_dict({"is_already_running": True})
+    else:
+        if all_warnings["is_already_running"]:
+            while all_warnings["is_already_running"]:
+                time.sleep(1)
+                all_warnings = data_service.get_active_warnings_dict()
+            return
+        all_warnings["is_already_running"] = True
+        data_service.set_active_warnings_dict(all_warnings)
+
+    # if there was no other thread already updating warnings
     warnings = nina_service.get_all_active_warnings()
     counter = 1
-    all_warnings = data_service.get_active_warnings_dict()
     for warning in warnings:
         general_warning = warning[0]
         warning_id = general_warning.id
@@ -27,6 +41,7 @@ def update_all_warnings():
             print("ERROR: processing warning:" + str(counter) + " with id:" + str(warning_id) + " failed")
         print("processed warnings: " + str(counter) + "/" + str(len(warnings)))
         counter += 1
+    all_warnings["is_already_running"] = False
     data_service.set_active_warnings_dict(all_warnings)
 
 
@@ -57,4 +72,7 @@ def get_all_relevant_warning_ids(general_warnings: list[nina_service.GeneralWarn
 
 def init_warning_handler():
     print("Initializing Warning Handler")
+    all_warnings = data_service.get_active_warnings_dict()
+    all_warnings["is_already_running"] = False
+    data_service.set_active_warnings_dict(all_warnings)
     update_all_warnings()
