@@ -121,7 +121,7 @@
         "information": [
           {
             "description": "Schreibe %location an die Stelle, wo der Ortsname für das Abonnement steht. Und %warning für die zugehörige Warnung.",
-            "text": "✉️ Du bist dabei, ein Abonnement hinzuzufügen.\n\nWelche Warnungen möchtest du erhalten?"
+            "text": "✉️ Du bist dabei, ein Abonnement hinzuzufügen.\n\nAb welcher Warnstufe möchtest du Warnungen erhalten?"
           }
         ]
       },
@@ -186,9 +186,9 @@
       "daily": "Täglich",
       "weekly": "Wöchentlich",
       "monthly": "Monatlich",
-      "minor": "alle Warnungen \uD83D\uDFE2",
-      "moderate": "mittel",
-      "severe": "nur ernste Warnungen \uD83D\uDD34",
+      "minor": "alle \uD83D\uDFE2\uD83D\uDFE0\uD83D\uDD34",
+      "moderate": "mittel \uD83D\uDFE0",
+      "severe": "nur ernste \uD83D\uDD34",
       "manual": "manuell",
       "extreme": "extrem \uD83D\uDD34",
       "delete_data_subscriptions": "Alle Abonnements löschen",
