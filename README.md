@@ -18,7 +18,9 @@ Packages:
 
 ## Erster Start
 1. bot_runner.py Datei ausführen
-Befehl: nohup python3 bot_runner.py
+```
+nohup python3 bot_runner.py
+```
 2. Den Bot über Telegram suchen und auf den “Start” Knopf drücken 
 → der Bot schickt direkt eine Nachricht zur Einleitung des Chats
 
