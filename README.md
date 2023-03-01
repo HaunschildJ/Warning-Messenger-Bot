@@ -27,3 +27,7 @@ nohup python3 bot_runner.py
 ## Konfigurationsoptionen
 - token
 - text_templates.json
+
+## Detail-Informationen
+![image](https://user-images.githubusercontent.com/118980413/222142373-c158f359-a2ce-4db8-9cc5-6a565fc24aff.png)
+
