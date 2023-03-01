@@ -1,5 +1,5 @@
 # Warning-Messenger-Bot
-Bachelorpraktikum Projekt
+Dieser Bot ist Teil des Bachelorpraktikum-Projekts 2022/23 der TU Darmstadt.
 
 ## Beschreibung
 Dies ist ein Telegram-Bot, der Bevölkerungswarnungen über die NINA API abrufen und über die Telegram API vermitteln kann. 
