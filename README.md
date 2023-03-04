@@ -29,5 +29,6 @@ nohup python3 bot_runner.py
 - text_templates.json
 
 ## Detail-Informationen
-![image](https://user-images.githubusercontent.com/118980413/222142373-c158f359-a2ce-4db8-9cc5-6a565fc24aff.png)
+![image](https://user-images.githubusercontent.com/118980413/222899837-139ba5fe-0111-4ade-8db3-807b1f0d7614.png)
+
 
