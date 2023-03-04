@@ -316,13 +316,13 @@ class MyTestCase(unittest.TestCase):
         data_service.set_user_state(10, 0)
 
         # remove the user with the id == 10
-        data_service.remove_user(10)
+        data_service.delete_user(10)
 
         # read json file
         entries_before_deleting_non_existing_user = data_service._read_file(file_path)
 
         # remove the user with the id == 10 (should do nothing)
-        data_service.remove_user(10)
+        data_service.delete_user(10)
 
         # read json file again after remove
         entries_after_deleting_non_existing_user = data_service._read_file(file_path)

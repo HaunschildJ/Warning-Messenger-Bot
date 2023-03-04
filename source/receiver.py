@@ -25,7 +25,7 @@ def filter_callback_manual_warning_covid(call: typ.CallbackQuery) -> bool:
 def filter_callback_manual_warning_other(call: typ.CallbackQuery) -> bool:
     split_data = call.data.split(';')
     if split_data[0] == Commands.WEATHER.value or split_data[0] == Commands.CIVIL_PROTECTION.value \
-            or split_data[0] == Commands.FLOOD.value:
+            or split_data[0] == Commands.FLOOD.value or split_data[0] == Commands.ALL_WARNINGS.value:
         return True
     return False
 
@@ -212,7 +212,10 @@ def normal_message_handler(message: typ.Message):
                 # Flood
                 controller.location_for_warning(message.chat.id, text, Commands.FLOOD)
                 return
-            else:  # 24? - 29?
+            elif state_second_number == 4:  # 24?
+                controller.location_for_warning(message.chat.id, text, Commands.ALL_WARNINGS)
+                return
+            else:  # 25? - 29?
                 error.illegal_state_handler(chat_id, int(state))
                 return
     elif state_first_number == 3:  # 3?
@@ -314,6 +317,12 @@ def other_warnings_button(call: typ.CallbackQuery):
         controller.detailed_general_warning(chat_id, WarningCategory.CIVIL_PROTECTION, postal_code, district_id)
     elif split_message[0] == Commands.FLOOD.value:
         controller.detailed_general_warning(chat_id, WarningCategory.FLOOD, postal_code, district_id)
+    elif split_message[0] == Commands.ALL_WARNINGS.value:
+        categories = list(WarningCategory)
+        categories.remove(WarningCategory.ALL_WARNINGS)
+        categories.remove(WarningCategory.NONE)
+        for category in categories:
+            controller.detailed_general_warning(chat_id, category, postal_code, district_id, True)
     else:
         error.error_handler(chat_id, ErrorCodes.CALLBACK_MISTAKE)
     controller.delete_message(chat_id, call.message.id)

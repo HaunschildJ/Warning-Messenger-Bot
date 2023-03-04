@@ -277,6 +277,21 @@ def get_delete_subscription_message(location: str, warning: str) -> str:
     return message
 
 
+def get_no_current_warnings_message(warning_category: str) -> str:
+    """
+    This method will replace the placeholder (%name) with the given parameters from the greeting in the json
+
+    Returns:
+        Message that can be sent to the user with the parameter in the message
+    """
+    message = get_replaceable_answer(ReplaceableAnswer.NO_CURRENT_WARNINGS)
+    message = message.replace("%category", warning_category)
+    return message
+
+
+# complex answers ------------------------------------------------------------------------------------------------------
+
+
 def get_show_subscriptions_for_one_location_messsage(location: str, warnings: list[str], levels: list[str]) -> str:
     """
     This method returns the string for showing one subscription (example: Darmstadt -> warnings + levels).

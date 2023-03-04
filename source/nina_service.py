@@ -443,7 +443,7 @@ def call_general_warning(warning: WarningCategory) -> list[GeneralWarning]:
     :return:  a list of GeneralWarnings, list ist empty if there are no current warnings
     :raises HTTPError:
     """
-    if warning == WarningCategory.NONE or warning == WarningCategory.ALL:
+    if warning == WarningCategory.NONE or warning == WarningCategory.ALL_WARNINGS:
         return []
     return _call_general_warning_map[warning]()
 
