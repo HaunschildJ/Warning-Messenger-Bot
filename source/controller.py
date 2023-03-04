@@ -192,6 +192,9 @@ def button_in_manual_warnings_pressed(chat_id: int, button_text: str):
     elif button_text == str(frontend_helper.WARNING_FLOOD_TEXT):
         data_service.set_user_state(chat_id, 23)
         show_favorites_as_inline_buttons(chat_id, Commands.FLOOD.value + ";")
+    elif button_text == str(frontend_helper.WARNING_ALL_TEXT):
+        data_service.set_user_state(chat_id, 24)
+        show_favorites_as_inline_buttons(chat_id, Commands.ALL_WARNINGS.value + ";")
     else:
         error_handler(chat_id, ErrorCodes.NO_INPUT_EXPECTED, message=button_text)
 
@@ -381,7 +384,7 @@ def delete_data_confirmed(chat_id: int, command: str):
         sender.send_message(chat_id, text_templates.get_answers(Answers.DELETE_EVERYTHING),
                             frontend_helper.get_main_keyboard_buttons())
         data_service.set_user_state(chat_id, 0)
-        data_service.remove_user(chat_id)
+        data_service.delete_user(chat_id)
     else:
         error_handler(chat_id, ErrorCodes.NOT_IMPLEMENTED_YET)
 
@@ -450,9 +453,9 @@ def inline_button_for_adding_subscriptions(chat_id: int, callback_command: str):
         warning_type = WarningCategory(warning)
 
         # add to database
-        if warning_type == WarningCategory.ALL:
+        if warning_type == WarningCategory.ALL_WARNINGS:
             for one_warning in list(WarningCategory):
-                if one_warning == WarningCategory.NONE or one_warning == WarningCategory.ALL:
+                if one_warning == WarningCategory.NONE or one_warning == WarningCategory.ALL_WARNINGS:
                     continue
                 data_service.add_subscription(chat_id, postal_code, district_id,
                                               str(one_warning.value), str(warning_level))
@@ -542,6 +545,8 @@ def location_for_warning(chat_id: int, text: str, command: Commands):
         warning_category = WarningCategory.CIVIL_PROTECTION
     elif command.value == Commands.FLOOD.value:
         warning_category = WarningCategory.FLOOD
+    elif command.value == Commands.ALL_WARNINGS.value:
+        warning_category = WarningCategory.ALL_WARNINGS
     if text.lower() == "teststadt":
         if warning_category is not WarningCategory.NONE:
             default_general_warning_for_test_location(chat_id, warning_category)
@@ -567,6 +572,12 @@ def location_for_warning(chat_id: int, text: str, command: Commands):
                 detailed_general_warning(chat_id, WarningCategory.CIVIL_PROTECTION, postal_code, district_id)
             elif command.value == Commands.FLOOD.value:
                 detailed_general_warning(chat_id, WarningCategory.FLOOD, postal_code, district_id)
+            elif command.value == Commands.ALL_WARNINGS.value:
+                categories = list(WarningCategory)
+                categories.remove(WarningCategory.ALL_WARNINGS)
+                categories.remove(WarningCategory.NONE)
+                for category in categories:
+                    detailed_general_warning(chat_id, category, postal_code, district_id, True)
             elif command.value == Commands.COVID_INFO.value:
                 covid_info(chat_id, postal_code, district_id)
             elif command.value == Commands.COVID_RULES.value:
@@ -628,7 +639,8 @@ def default_general_warning_for_test_location(chat_id: int, warning: WarningCate
     send_detailed_general_warnings(chat_id, [general_warning], [], detailed_warning)
 
 
-def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str):
+def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code: str, district_id: str,
+                             is_for_all: bool = False):
     """
     Sets the chat action of the bot to typing
     Calls for the warnings (warning) from the Nina API via the nina_service
@@ -641,6 +653,7 @@ def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code
         warning: WarnType enum for the general warning that should be sent to the user
         postal_code: string with the postal code
         district_id: string with the district id
+        is_for_all: boolean when true this method was called when asking for all warning categories at once
     """
     if warning == nina_service.WarningCategory.NONE:
         return
@@ -653,14 +666,19 @@ def detailed_general_warning(chat_id: int, warning: WarningCategory, postal_code
         error_handler(chat_id, ErrorCodes.NINA_API)
         return
     if len(warnings) == 0:
-        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS),
+        sender.send_message(chat_id, text_templates.get_no_current_warnings_message(_get_general_warning_name(warning)),
                             keyboard)
+        if is_for_all:
+            warning = WarningCategory.ALL_WARNINGS
         ask_if_add_to_subscriptions(chat_id, warning, postal_code, district_id)
         return
 
     num_sent = send_detailed_general_warnings(chat_id, warnings, [postal_code])
     if num_sent == 0:
-        sender.send_message(chat_id, text_templates.get_answers(Answers.NO_CURRENT_WARNINGS), keyboard)
+        sender.send_message(chat_id, text_templates.get_no_current_warnings_message(_get_general_warning_name(warning)),
+                            keyboard)
+    if is_for_all:
+        warning = WarningCategory.ALL_WARNINGS
     ask_if_add_to_subscriptions(chat_id, warning, postal_code, district_id)
 
 

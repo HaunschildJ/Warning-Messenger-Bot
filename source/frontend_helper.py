@@ -24,6 +24,7 @@ WARNING_COVID_RULES_TEXT = text_templates.get_button_name(Button.COVID_RULES)  #
 WARNING_WEATHER_TEXT = text_templates.get_button_name(Button.WEATHER)  # MVP 5. i)
 WARNING_CIVIL_PROTECTION_TEXT = text_templates.get_button_name(Button.CIVIL_PROTECTION)  # MVP 5. i)
 WARNING_FLOOD_TEXT = text_templates.get_button_name(Button.FLOOD)  # MVP 5. i)
+WARNING_ALL_TEXT = text_templates.get_button_name(Button.ALL_WARNINGS)
 
 # settings keyboard buttons
 SETTING_SUGGESTION_LOCATION_TEXT = text_templates.get_button_name(Button.ADD_FAVORITE)  # MVP 4. b)
@@ -113,8 +114,10 @@ def get_warning_keyboard_buttons() -> telebot.types.ReplyKeyboardMarkup:
     weather_button = sender.create_button(WARNING_WEATHER_TEXT)
     civil_protection_button = sender.create_button(WARNING_CIVIL_PROTECTION_TEXT)
     flood_button = sender.create_button(WARNING_FLOOD_TEXT)
+    all_warnings = sender.create_button(WARNING_ALL_TEXT)
     back_button = sender.create_button(BACK_TO_MAIN_TEXT)
-    keyboard.add(covid_button).add(weather_button, flood_button).add(civil_protection_button).add(back_button)
+    keyboard.add(covid_button).add(weather_button, flood_button).add(civil_protection_button, all_warnings)
+    keyboard.add(back_button)
     return keyboard
 
 

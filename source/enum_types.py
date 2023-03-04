@@ -37,6 +37,7 @@ class Commands(Enum):
     WEATHER = "/weather"
     CIVIL_PROTECTION = "/cP"
     FLOOD = "/flood"
+    ALL_WARNINGS = "/allW"
     SEND_PDF = "/sendPDF"
 
 
@@ -94,7 +95,7 @@ class WarningCategory(Enum):
     """
     this enum is used to differ between the different general warnings from the nina api
     """
-    ALL = "all"
+    ALL_WARNINGS = "all"
     WEATHER = "weather"
     CIVIL_PROTECTION = "civil_protection"
     FLOOD = "flood"
@@ -122,6 +123,7 @@ class ReplaceableAnswer(Enum):
     DELETE_SUBSCRIPTION = "delete_subscription"
     CHANGED_AUTO_COVID_UPDATES = "changed_auto_covid_updates"
     QUICKLY_ADD_TO_SUBSCRIPTIONS = "quickly_add_to_subscriptions"
+    NO_CURRENT_WARNINGS = "no_current_warning"
 
 
 class Button(Enum):
@@ -144,7 +146,7 @@ class Button(Enum):
     WEATHER = "weather"  # name needs to be equal to name in nina_service.WarningCategory
     CIVIL_PROTECTION = "civil_protection"  # name needs to be equal to name in nina_service.WarningCategory
     FLOOD = "flood"  # name needs to be equal to name in nina_service.WarningCategory
-    ALL = "all"  # name needs to be equal to name in nina_service.WarningCategory
+    ALL_WARNINGS = "all"  # name needs to be equal to name in nina_service.WarningCategory
     SHOW_SUBSCRIPTION = "show_subscriptions"
     DELETE_SUBSCRIPTION = "delete_subscription"
     ADD_SUBSCRIPTION = "add_subscription"

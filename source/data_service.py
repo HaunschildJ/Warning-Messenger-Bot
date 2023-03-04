@@ -68,20 +68,6 @@ if not os.path.exists(_ACTIVE_WARNINGS_PATH):
     _write_file(path=_ACTIVE_WARNINGS_PATH, data={})
 
 
-def remove_user(chat_id: int):
-    """
-    Removes a User from the database. If the user is not in the database this method does nothing.
-
-    Attributes:
-        chat_id: Integer used to identify the user to be removed
-    """
-    all_user = _read_file(_USER_DATA_PATH)
-
-    if str(chat_id) in all_user:
-        del all_user[str(chat_id)]
-        _write_file(_USER_DATA_PATH, all_user)
-
-
 def set_receive_warnings(chat_id: int, new_value: bool):
     """
     Sets receive_warnings of the user (chat_id) to the new value (new_value).
@@ -585,20 +571,26 @@ def reset_favorites(chat_id: int):
 
 def delete_user(chat_id: int):
     """
-    This method removes a user from the database
+    This method removes a user from the databases
 
     Args:
         chat_id: to identify the user
     """
+    # delete user from the data json
     all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)
 
-    if not (cid in all_user):
-        return
+    if cid in all_user:
+        del all_user[cid]
+        _write_file(_USER_DATA_PATH, all_user)
 
-    del all_user[cid]
+    # also delete user from warnings already received
+    user_data = _read_file(_WARNINGS_ALREADY_RECEIVED_PATH)
+    chat_id_string = str(chat_id)
 
-    _write_file(_USER_DATA_PATH, all_user)
+    if chat_id_string in user_data:
+        del user_data[chat_id_string]
+        _write_file(_WARNINGS_ALREADY_RECEIVED_PATH, user_data)
 
 
 def get_active_warnings_dict() -> dict:

@@ -151,6 +151,15 @@
             "text": "Möchtest du hierfür ein Abonnement einrichten?"
           }
         ]
+      },
+      {
+        "topic": "no_current_warning",
+        "information": [
+          {
+            "description": "Schreibe %category für die Kategorie für die keine Warnungen vorliegen.",
+            "text": "Aktuell liegen keine %category Warnungen vor."
+          }
+        ]
       }
     ]
   },
