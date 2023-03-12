@@ -78,7 +78,7 @@ def start_warning_handler_loop():
         all_active_warnings = nina_service.get_all_active_warnings()
         """
             First: remove all warnings in active_warnings.json that are not active anymore
-            """
+        """
         for saved_warning_id in all_saved_warnings:
             is_active = False
             for active_warning in all_active_warnings:

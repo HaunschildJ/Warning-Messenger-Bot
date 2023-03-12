@@ -76,6 +76,9 @@ def filter_html_tags(s: str) -> str:
         if find_specific(s, i, "/p"):
             filtered_string += '\n'
 
+        if not in_text and find_specific(s, i, "br"):
+            filtered_string += '\n'
+
         if find_specific(s, i, "href="):
             link = extract_till_char(s, i + len("href=\""), '"')
 
