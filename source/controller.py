@@ -995,6 +995,16 @@ def _get_general_warning_name(warn_type: nina_service.WarningCategory) -> str:
 
 
 def get_location_name(district_id: str, postal_code: str) -> str:
+    """
+    This method returns a location name for given location.
+
+    Args:
+        district_id: string of location id
+        postal_code: string of locations postal code
+
+    Returns:
+        string with display name for given location
+    """
     district_name = place_converter.get_district_name_for_district_id(district_id)
     place_name = place_converter.get_place_name_for_postal_code(postal_code)
     return text_templates.get_display_name_for_location(district_name, place_name, postal_code)

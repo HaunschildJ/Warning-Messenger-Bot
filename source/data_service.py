@@ -44,6 +44,15 @@ def open_file(path: str):
 
 
 def _read_file(path: str) -> dict:
+    """
+    Reads given file and return a dict.
+
+    Args:
+        path: str of path
+
+    Returns:
+        content of file as dict
+    """
     with open(path, "r") as file_object:
         json_content = file_object.read()
         return json.loads(json_content)
@@ -458,9 +467,8 @@ def get_default_level(chat_id: int) -> WarningSeverity:
 
 def get_all_chat_ids() -> list[int]:
     """
-
-    Returns: list of all chat_ids that are saved in the database
-
+    Returns:
+        list of all chat_ids that are saved in the database
     """
     chat_ids = []
     all_users = _read_file(_USER_DATA_PATH)
@@ -471,21 +479,17 @@ def get_all_chat_ids() -> list[int]:
 
 def get_chat_ids_of_warned_users() -> list[int]:
     """
-
-    Returns: list of all chat_ids that have receiveWarnings set to True
-
+    Returns:
+        list of all chat_ids that have receiveWarnings set to True
     """
     return list(filter(lambda chat_id: get_receive_warnings(chat_id), get_all_chat_ids()))
 
 
 def add_warning_id_to_users_warnings_received_list(chat_id: int, general_warning_id: str):
     """
-
     Args:
         chat_id: of the user
         general_warning_id: of the warning that should be added to users warnings_already_received list
-
-
     """
     user_data = _read_file(_WARNINGS_ALREADY_RECEIVED_PATH)
     chat_id_string = str(chat_id)
@@ -501,12 +505,10 @@ def add_warning_id_to_users_warnings_received_list(chat_id: int, general_warning
 
 def get_users_already_received_warning_ids(chat_id: int) -> list[str]:
     """
-
     Args:
         chat_id: of the user
-
-    Returns: a list of the warning_ids of warnings the user has already received
-
+    Returns:
+        a list of the warning_ids of warnings the user has already received
     """
     user_data = _read_file(_WARNINGS_ALREADY_RECEIVED_PATH)
     chat_id_string = str(chat_id)
@@ -519,13 +521,12 @@ def get_users_already_received_warning_ids(chat_id: int) -> list[str]:
 
 def has_user_already_received_warning(chat_id: int, general_warning_id: str) -> bool:
     """
-
     Args:
         chat_id: of the user
         general_warning_id: of the warning that should be checked
 
-    Returns: True if the user has already received the warning
-
+    Returns:
+        True if the user has already received the warning
     """
     list_of_received_warnings = get_users_already_received_warning_ids(chat_id)
     if general_warning_id in list_of_received_warnings:
@@ -598,16 +599,32 @@ ACTIVE_WARNINGS_LOCK = threading.Lock()
 
 
 def get_active_warnings_dict() -> dict:
+    """
+    Returns:
+        Dict containing all active warnings
+    """
     with ACTIVE_WARNINGS_LOCK:
         return _read_file(_ACTIVE_WARNINGS_PATH)
 
 
 def _set_active_warnings_dict(new_data: dict):
-    #NO LOCK HERE
+    """
+    Args:
+        new_data: dict that will be written to _active_warnings_path
+
+    """
+    # NO LOCK HERE
     _write_file(_ACTIVE_WARNINGS_PATH, new_data)
 
 
 def write_to_active_warnings_dict(key: int, new_data: list[any]):
+    """
+    Writes any given data to active_warnings_path.
+
+    Args:
+        key: int representing key of new dict entry
+        new_data: list representing value of new dict entry
+    """
     with ACTIVE_WARNINGS_LOCK:
         active_warnings = _read_file(_ACTIVE_WARNINGS_PATH)
         active_warnings[key] = new_data
@@ -615,6 +632,12 @@ def write_to_active_warnings_dict(key: int, new_data: list[any]):
 
 
 def remove_from_active_warnings_dict(key_to_remove: int):
+    """
+    Removes entry with given key of file in active_warnings_path.
+
+    Args:
+        key_to_remove: key of entry that will be deleted
+    """
     with ACTIVE_WARNINGS_LOCK:
         active_warnings = _read_file(_ACTIVE_WARNINGS_PATH)
         del active_warnings[key_to_remove]
@@ -628,8 +651,8 @@ def get_user_subscription_postal_codes(chat_id: int) -> list[str]:
     Args:
         chat_id: to identify the user
 
-    Returns: list of all postal codes the user is subscribed to
-
+    Returns:
+        list of all postal codes the user is subscribed to
     """
     all_user = _read_file(_USER_DATA_PATH)
     cid = str(chat_id)

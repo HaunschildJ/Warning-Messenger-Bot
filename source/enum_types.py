@@ -224,6 +224,15 @@ class BotUsageHelp(Enum):
 
 
 def get_integer_from_warning_severity(severity: WarningSeverity) -> int:
+    """
+    Returns int of given WarningSeverity.
+
+    Args:
+        severity: WarningSeverity of which a corresponding int is wanted
+
+    Returns:
+        int of given WarningSeverity.
+    """
     severity = str(severity).lower()
     if severity == str(WarningSeverity.MINOR.value).lower():
         return 1

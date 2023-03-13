@@ -119,6 +119,12 @@ def filter_command_message(message: typ.Message) -> bool:
 
 @bot.message_handler(func=filter_normal_message)
 def normal_message_handler(message: typ.Message):
+    """
+    Callc correct message handler based on current state and message.
+
+    Args:
+        message: Message that will be checked.
+    """
     chat_id = message.chat.id
     prev_message_id = data_service.get_last_bot_message_id(chat_id)
     if prev_message_id != "None":
@@ -230,6 +236,12 @@ def normal_message_handler(message: typ.Message):
 
 @bot.message_handler(func=filter_command_message)
 def command_message_handler(message: typ.Message):
+    """
+    Calls correct message handler based on given message.
+
+    Args:
+        message: Message that will be checked to call correct message handler
+    """
     chat_id = message.chat.id
     state = data_service.get_user_state(chat_id)
     text = message.text.removeprefix("/").lower()

@@ -38,6 +38,12 @@ def send_chat_action(chat_id: int, action: str):
 
 
 def delete_message(chat_id: int, message_id: int):
+    """
+    Deleted message for given chat and message.
+    Args:
+        chat_id: int representing chat id
+        message_id: int representing message id one wants to delete
+    """
     try:
         bot.delete_message(chat_id, message_id)
     except:
@@ -46,6 +52,14 @@ def delete_message(chat_id: int, message_id: int):
 
 # helper methods -------------------------------------------------------------------------------------------------------
 def create_keyboard(button_names: str, one_time=False) -> telebot.types.ReplyKeyboardMarkup:
+    """
+    Args:
+        button_names: string with wanted button names
+        one_time: boolean if it is a one time keyboard
+
+    Returns:
+        KeyboardMarkup with buttons
+    """
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=one_time)
     for name in button_names:
         button = telebot.types.KeyboardButton(name)

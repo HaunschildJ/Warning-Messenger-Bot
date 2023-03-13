@@ -54,6 +54,15 @@ def get_random_postal_code_for_active_warning(general_warning: nina_service.Gene
 
 
 def write_postal_codes(warning_id: int, geo_areas, counter: int):
+    """
+    Gets postal code out of the polygones in geo_ares and writes them into active_warnings_dictionary using
+    the key warning_id
+
+    Args:
+        warning_id: int, used as key to write to active warnings dictionary
+        geo_areas: used to get the postal codes
+        counter: int, used to count the entries
+    """
     try:
         print("Processing Warning Number: " + str(counter))
 

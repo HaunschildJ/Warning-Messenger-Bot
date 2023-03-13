@@ -10,12 +10,29 @@ from frontend_helper import back_to_main_keyboard
 
 
 def is_location(text: str) -> bool:
+    """
+    Returns whether given str is a location.
+
+    Args:
+        text: string that should be checked if it is a location
+
+    Returns:
+          boolean whether given string is a location
+    """
     if text == "Darmstadt":
         return True
     return False
 
 
 def is_help(text: str) -> bool:
+    """
+    Checks whether given text is asking for help.
+    Args:
+        text: string to be checked
+
+    Returns:
+        boolean whether string contains help in german or englisch
+    """
     lower_text = text.lower()
     if ("help" in lower_text) or ("hilf" in lower_text):
         return True
@@ -23,6 +40,14 @@ def is_help(text: str) -> bool:
 
 
 def is_start(text: str) -> bool:
+    """
+        Checks whether given text is start.
+        Args:
+            text: string to be checked
+
+        Returns:
+            boolean whether string contains start in german or englisch
+        """
     lower_text = text.lower()
     if ("start" in lower_text) or lower_text == "beginn":
         return True
@@ -30,6 +55,14 @@ def is_start(text: str) -> bool:
 
 
 def is_insult(text: str) -> bool:
+    """
+        Checks whether given text is an insult.
+        Args:
+            text: string to be checked
+
+        Returns:
+            boolean whether string contains an insult in german or englisch
+        """
     lower_text = text.lower()
     if ("doof" in lower_text) or ("idiot" in lower_text) or ("dumm" in lower_text):
         return True

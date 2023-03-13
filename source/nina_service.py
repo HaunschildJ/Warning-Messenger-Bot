@@ -451,7 +451,7 @@ def call_general_warning(warning: WarningCategory) -> list[GeneralWarning]:
 def get_all_active_warnings() -> list[tuple[GeneralWarning, WarningCategory]]:
     """
 
-    Returns: a list of tuples where each tuple contains an active warning and its WarnType
+    Returns: List of tuples consisting of GeneralWarning and WarningCategory
 
     """
     warnings = []

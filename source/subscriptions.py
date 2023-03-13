@@ -70,10 +70,11 @@ def _any_user_subscription_matches_warning(chat_id: int, warning: GeneralWarning
     return False
 
 
-def _do_subscription_and_warning_match_severity_and_category(warning: GeneralWarning, subscription: tuple,
-                                                warning_category: WarningCategory) -> bool:
+def _do_subscription_and_warning_match_severity_and_category(warning: GeneralWarning,
+                                                             subscription: tuple,
+                                                             warning_category: WarningCategory) -> bool:
     """
-
+    Returns whether the warning matches given subscription.
     Args:
         warning: warning that should be checked
         subscription: subscription the warning should be checked against
