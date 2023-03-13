@@ -1,5 +1,6 @@
 import json
 import os
+import threading
 
 from enum_types import Attributes
 from enum_types import Language
@@ -333,8 +334,8 @@ def add_favorite(chat_id: int, postal_code: str, district_id: str) -> list[dict]
     current_favorites = all_user[cid][Attributes.FAVORITES.value]
     i = 0
     location = {
-            "postal_code": postal_code,
-            "district_id": district_id
+        "postal_code": postal_code,
+        "district_id": district_id
     }
     prev_favorite = location
     for favorite in current_favorites:
@@ -593,12 +594,31 @@ def delete_user(chat_id: int):
         _write_file(_WARNINGS_ALREADY_RECEIVED_PATH, user_data)
 
 
+ACTIVE_WARNINGS_LOCK = threading.Lock()
+
+
 def get_active_warnings_dict() -> dict:
-    return _read_file(_ACTIVE_WARNINGS_PATH)
+    with ACTIVE_WARNINGS_LOCK:
+        return _read_file(_ACTIVE_WARNINGS_PATH)
 
 
-def set_active_warnings_dict(new_data: dict):
+def _set_active_warnings_dict(new_data: dict):
+    #NO LOCK HERE
     _write_file(_ACTIVE_WARNINGS_PATH, new_data)
+
+
+def write_to_active_warnings_dict(key: int, new_data: list[any]):
+    with ACTIVE_WARNINGS_LOCK:
+        active_warnings = _read_file(_ACTIVE_WARNINGS_PATH)
+        active_warnings[key] = new_data
+        _set_active_warnings_dict(active_warnings)
+
+
+def remove_from_active_warnings_dict(key_to_remove: int):
+    with ACTIVE_WARNINGS_LOCK:
+        active_warnings = _read_file(_ACTIVE_WARNINGS_PATH)
+        del active_warnings[key_to_remove]
+        _set_active_warnings_dict(active_warnings)
 
 
 def get_user_subscription_postal_codes(chat_id: int) -> list[str]:
