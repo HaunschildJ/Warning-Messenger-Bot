@@ -38,7 +38,7 @@ Das Projekt wurde im Auftrag von PEASEC erstellt, um einen Warning Messenger Bot
 3. Den Bot über Telegram suchen (Name oder Tag des Bots in der Suchleiste eingeben) und auf den “Start” Knopf drücken (oder "/start" eingeben) 
 → der Bot schickt direkt eine Nachricht zur Einleitung des Chats
 
-## Konfigurationsoptionen
+## <a name="head1234"></a>Konfigurationsoptionen
 - In der ```.env ```-Datei wird mit ```key="BOT_TOKEN"``` der Token gesetzt, den der Bot verwenden soll.
 - Alle Texte, die der Bot sendet, sind leicht konfigurierbar in der Datei: ```text_templates.json```. Eine detailierte Erkärung dazu findet man in der Datei ```text_templates_manual.md```
 
@@ -50,6 +50,6 @@ Das Projekt wurde im Auftrag von PEASEC erstellt, um einen Warning Messenger Bot
 ### Moduleübersicht
 ![image](https://user-images.githubusercontent.com/118980413/224966907-14614975-8076-42b7-aa6c-8fe97cf25bea.png)
 
-Der Bot Start läuft über den ```bot_runner```. Mit dem Ausführen von diesem werden drei Threads erstellt. Im ersten Thread läuft der Subscription-Mechanismus, der standardmäßig alle zwei Minuten schaut, ob neue Warnungen an die entsprechenden Nutzer versendet werden müssen. Im zweiten Thread läuft der ```receiver```. Dieser wartet auf User Input im Telegram Chat und ruft dann im ```controller``` die passenden Methoden auf. Im dritten Thread läuft der ```warning_handler```. Er prozessiert die gesamten aktiven Warnungen beim erstmaligen Start des Bots. Der ```controller``` greift dann auf verschiedene weitere Module, wie ```place_converter```, ```nina_service``` und ```sender```, zu. Der sender bewirkt dann die Chat Message, die der User auf seinem Gerät sieht.
+Der Bot Start läuft über den ```bot_runner```. Mit dem Ausführen von diesem werden drei Threads erstellt. Im ersten Thread läuft der Subscription-Mechanismus, der standardmäßig alle zwei Minuten schaut, ob neue Warnungen an die entsprechenden Nutzer versendet werden müssen. Im zweiten Thread läuft der ```receiver```. Dieser wartet auf User Input im Telegram Chat und ruft dann im ```controller``` die passenden Methoden auf. Im dritten Thread läuft der ```warning_handler```. Er prozessiert die gesamten aktiven Warnungen beim erstmaligen Start des Bots. Der ```controller``` greift dann auf verschiedene weitere Module, wie ```place_converter```, ```nina_service```, ```data_service```, ```text_templates``` und ```sender```, zu. Der ```sender``` bewirkt dann die Chat Message, die der User auf seinem Gerät sieht. Im ```place_converter``` werden die Vorschläge für angefragte Städte erstellt. Der ```nina_service``` ist die Schnittstelle zur NINA-API und der ```data_service``` stellt die Schnittstelle mit unserer Datenbank dar. ```text_templates``` erstellt die passenden Textausgaben (siehe [Konfigurationsoptionen](#head1234)).
 
 
