@@ -1,7 +1,7 @@
 ## Anleitung, wie man die Schablonen in TextTemplates.json benutzt und anpasst
 
 In TextTemplates.json liegen die Schablonen, mit denen man den Text anpassen kann, mit dem
-die von der NINA API geholten Informationen präsentiert werden. Hier finden sich auch die Beschriftungen der Knöpfe,
+die von der NINA API geholten Informationen präsentiert werden. Hier finden sich auch die Beschriftungen der Buttons (Knöpfe),
 die der Bot verwendet, um dem Nutzer eine angenehmere Usability zu gewährleisten.
 
 Die json ist ein Array von dictionaries. Die Felder `"description":` stehen immer für eine Erklärung und werden vom Bot ignoriert.
@@ -15,12 +15,12 @@ allen Einträgen des Arrays die `"text":` Felder genommen und mit \n der Reihenf
 Es sollten nur die Felder nach `"text":` verändert werden.
 
 Der zweite Eintrag `"topic": "buttons"` speichert in dem dictionary nach `"names":` die Button-Namen für den Bot. Beispiel:
-`"settings": "Einstellungen ⚙️"` hierbei steht `settings` für den Namen des Knopfes innerhalb des Codes und sollte daher 
-nicht verändert werden. `Einstellungen ⚙️` steht für den Namen des Knopfes, welcher im Telegram Chat angezeigt wird. 
+`"settings": "Einstellungen ⚙️"` hierbei steht `settings` für den Namen des Buttons innerhalb des Codes und sollte daher 
+nicht verändert werden. `Einstellungen ⚙️` steht für den Namen des Buttons, welcher im Telegram Chat angezeigt wird. 
 Dieser kann ohne Probleme verändert werden.
 
 Der dritte Eintrag `"topic": "answers"` stellt die einfachen Antworten des Bots bereit.
-Innerhalb des dictionaries nach `"text":` werden alle einfachen Antworten gespeichert in der gleichen Form wie bei den Knöpfen (zweiter Eintrag).
+Innerhalb des dictionaries nach `"text":` werden alle einfachen Antworten gespeichert in der gleichen Form wie bei den Buttons (zweiter Eintrag).
 
 Der vierte Eintrag `"topic": "complex_answers"` stellt die komplexen Antworten des Bots bereit.
 Hierbei werden wieder in dem dictionary nach `"all_answers"` alle Antworten gespeichert. 
@@ -29,7 +29,7 @@ Code verwendet wird und das dictionary dahinter stellt die Antwort dar.
 Da diese, wie der Name schon sagt, komplex sind, ist hier die Beschreibung in "description" zu verwenden.
 
 - In 1) wird beschrieben, wie man die Texte ändern kann.
-- In 2) wird beschrieben, wie man neue Buttons/ Knöpfe hinzufügen kann.
+- In 2) wird beschrieben, wie man neue Buttons hinzufügen kann.
 - In 3) wird beschrieben, wie andere Programmierer die Datei nutzen können.
 ---
 ### 1. Anpassung
