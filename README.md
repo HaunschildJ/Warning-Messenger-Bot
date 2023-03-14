@@ -31,16 +31,14 @@ Packages (siehe requirements.txt):
 - mock~=5.0.1
 
 ## Erster Start
-1. bot_runner.py Datei ausführen
-```
-nohup python3 bot_runner.py
-```
-2. Den Bot über Telegram suchen und auf den “Start” Knopf drücken 
+1. Über die Kommandozeile in den Ordner ```\Warning-Messenger-Bot\source\``` navigieren
+2. bot_runner.py Datei ausführen: ```python3 bot_runner.py```
+3. Den Bot über Telegram suchen (Name oder Tag des Bots in der Suchleiste eingeben) und auf den “Start” Knopf drücken (oder "/start" eingeben) 
 → der Bot schickt direkt eine Nachricht zur Einleitung des Chats
 
 ## Konfigurationsoptionen
 - token
-- text_templates.json
+- Alle Texte, welche der Bot sendet, sind leicht konfigurierbar in der Datei: ```text_templates.json```
 
 ## Detail-Informationen
 ![image](https://user-images.githubusercontent.com/118980413/222899837-139ba5fe-0111-4ade-8db3-807b1f0d7614.png)
