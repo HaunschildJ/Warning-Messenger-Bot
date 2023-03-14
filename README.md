@@ -10,11 +10,25 @@ Der Bot wird über Texteingaben und Buttons im Telegram-Chat gesteuert und antwo
 
 Das Projekt wurde im Auftrag von PEASEC erstellt, um einen Warning Messenger Bot als konkretes Beispiel für die Forschung, also z.B. Umfragen (aktuell z.B. um sich ein Bild zu machen, ob die Bevölkerung einen Warn-Bot nutzen würde bzw. er eine gute Alternative zu den Warn-Apps darstellt), zu haben.
 
+## Vorraussetzungen
+- Python 3.9 ist auf der Maschine installiert
+
 ## Installation
-???
-Packages:
--"pyTelegramBotAPI"
--"python-decouple"
+
+1. Git Repository klonen
+2. ```.env``` Datei auf oberster Ebene hinzufügen
+3. In die in 2. erstellte Datei ```key = "Dein Telegram-Bot-Key"``` schreiben
+4. Relevante Packages installieren (siehe unten) ```pip install -r requirements.txt```
+Packages (siehe requirements.txt):
+- pyTelegramBotAPI==4.7.1
+- python-decouple==3.6
+- requests==2.28.1
+- fuzzywuzzy~=0.18.0
+- dataclasses~=0.6
+- python-Levenshtein==0.20.9
+- geopy~=2.3.0
+- shapely==2.0.1
+- mock~=5.0.1
 
 ## Erster Start
 1. bot_runner.py Datei ausführen
@@ -30,5 +44,8 @@ nohup python3 bot_runner.py
 
 ## Detail-Informationen
 ![image](https://user-images.githubusercontent.com/118980413/222899837-139ba5fe-0111-4ade-8db3-807b1f0d7614.png)
+
+Module Erklärt:
+![image](https://user-images.githubusercontent.com/118980413/224966907-14614975-8076-42b7-aa6c-8fe97cf25bea.png)
 
 
