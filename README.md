@@ -16,10 +16,12 @@ Das Projekt wurde im Auftrag von PEASEC erstellt, um einen Warning Messenger Bot
 ## Installation
 
 1. Git Repository klonen
-2. ```.env``` Datei auf oberster Ebene hinzufügen
-3. In die in 2. erstellte Datei ```key = "Dein Telegram-Bot-Key"``` schreiben
-4. Relevante Packages installieren (siehe unten) ```pip install -r requirements.txt```
-Packages (siehe requirements.txt):
+2. ```.env```-Datei auf oberster Ebene hinzufügen
+3. In ```.env```-Datei den Eintrag ```key = "Dein Telegram-Bot-Key"``` hinzufügen
+4. Relevante Packages installieren mit dem Kommandozeilenbefehl: ```pip install -r requirements.txt```
+
+
+**Packages (siehe requirements.txt):**
 - pyTelegramBotAPI==4.7.1
 - python-decouple==3.6
 - requests==2.28.1
@@ -32,18 +34,22 @@ Packages (siehe requirements.txt):
 
 ## Erster Start
 1. Über die Kommandozeile in den Ordner ```\Warning-Messenger-Bot\source\``` navigieren
-2. bot_runner.py Datei ausführen: ```python3 bot_runner.py```
+2. bot_runner.py Datei ausführen: ```pfad\zu\deiner\python\installation\python.exe bot_runner.py```
 3. Den Bot über Telegram suchen (Name oder Tag des Bots in der Suchleiste eingeben) und auf den “Start” Knopf drücken (oder "/start" eingeben) 
 → der Bot schickt direkt eine Nachricht zur Einleitung des Chats
 
 ## Konfigurationsoptionen
-- token
-- Alle Texte, welche der Bot sendet, sind leicht konfigurierbar in der Datei: ```text_templates.json```
+- In der ```.env ```-Datei wird mit ```key="BOT_TOKEN"``` der Token gesetzt, den der Bot verwenden soll.
+- Alle Texte, die der Bot sendet, sind leicht konfigurierbar in der Datei: ```text_templates.json```. Eine detailierte Erkärung dazu findet man in der Datei ```text_templates_manual.md```
 
 ## Detail-Informationen
+
+### Interne Zustände
 ![image](https://user-images.githubusercontent.com/118980413/222899837-139ba5fe-0111-4ade-8db3-807b1f0d7614.png)
 
-Module Erklärt:
+### Module erklärt:
 ![image](https://user-images.githubusercontent.com/118980413/224966907-14614975-8076-42b7-aa6c-8fe97cf25bea.png)
+
+Der Bot Start läuft über den ```bot_runner```. Mit dem Ausführen von diesem werden drei Threads erstellt. Im ersten Thread läuft der Subscription-Mechanismus, der standardmäßig alle zwei Minuten schaut, ob neue Warnungen an die entsprechenden Nutzer versendet werden müssen. Im zweiten Thread läuft der ```receiver```. Dieser wartet auf User Input im Telegram Chat und ruft dann im ```controller``` die passenden Methoden auf. Im dritten Thread läuft der ```warning_handler```. Er prozessiert die gesamten aktiven Warnungen beim erstmaligen Start des Bots. Der ```controller``` greift dann auf verschiedene weitere Module, wie ```place_converter```, ```nina_service``` und ```sender```, zu. Der sender bewirkt dann die Chat Message, die der User auf seinem Gerät sieht.
 
 
