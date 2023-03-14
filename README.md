@@ -45,9 +45,9 @@ Das Projekt wurde im Auftrag von PEASEC erstellt, um einen Warning Messenger Bot
 ## Detail-Informationen
 
 ### Interne Zustände
-![image](https://user-images.githubusercontent.com/118980413/222899837-139ba5fe-0111-4ade-8db3-807b1f0d7614.png)
-
-### Module erklärt:
+![image](https://user-images.githubusercontent.com/118980413/222899837-139ba5fe-0111-4ade-8db3-807b1f0d7614.png)  
+  
+### Moduleübersicht
 ![image](https://user-images.githubusercontent.com/118980413/224966907-14614975-8076-42b7-aa6c-8fe97cf25bea.png)
 
 Der Bot Start läuft über den ```bot_runner```. Mit dem Ausführen von diesem werden drei Threads erstellt. Im ersten Thread läuft der Subscription-Mechanismus, der standardmäßig alle zwei Minuten schaut, ob neue Warnungen an die entsprechenden Nutzer versendet werden müssen. Im zweiten Thread läuft der ```receiver```. Dieser wartet auf User Input im Telegram Chat und ruft dann im ```controller``` die passenden Methoden auf. Im dritten Thread läuft der ```warning_handler```. Er prozessiert die gesamten aktiven Warnungen beim erstmaligen Start des Bots. Der ```controller``` greift dann auf verschiedene weitere Module, wie ```place_converter```, ```nina_service``` und ```sender```, zu. Der sender bewirkt dann die Chat Message, die der User auf seinem Gerät sieht.
