@@ -244,7 +244,7 @@
       "error_not_implemented": "Diese Funktionalität wurde noch nicht implementiert.",
       "error_unknown_command": "Unbekannter Befehlt. Bitte benutze das Menü oder gib /help für Hilfe ein.",
       "error_unknown_location": "Unbekannter Ort. Bitte versuche es erneut mit einer präziseren Eingabe.",
-      "error_location_at_wrong_place": "Hier bitte keinen Ort eingeben. Nutze \/help, um mehr zu erfahren.",
+      "error_location_at_wrong_place": "Hier bitte keinen Ort eingeben. Falls du die Warnung zu diesem Ort abfragen möchtest, navigiere bitte über die Buttons ins \"Warnungen ⚠️\" Menü.\n Nutze \/help, um mehr zu erfahren.",
       "error_start": "Bitte gib /start ein, um deine Konversation mit dem Bot zu starten.",
       "error_no_input_expected": "Hier bitte nichts eingeben. Nur Buttons benutzen. Nutze /help, um mehr zu erfahren.",
       "pdf_caption": "Hier ist das PDF mit den Notfalltipps.",

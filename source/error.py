@@ -1,6 +1,7 @@
 import sender
 import text_templates
 import data_service
+import place_converter
 
 from enum_types import ErrorCodes, BotUsageHelp, Answers
 from frontend_helper import back_to_main_keyboard
@@ -19,8 +20,15 @@ def is_location(text: str) -> bool:
     Returns:
           boolean whether given string is a location
     """
-    if text == "Darmstadt":
-        return True
+    location_lower = text.lower()
+    suggestion_dicts = place_converter.get_non_covid_dict_suggestions(text)
+    for dic in suggestion_dicts:
+        place_name = place_converter.get_place_name_from_dict(dic)
+        place_name = place_name.lower()
+        district_name = place_converter.get_district_name_from_dict(dic)
+        district_name = district_name.lower()
+        if location_lower in place_name or location_lower in district_name:
+            return True
     return False
 
 
