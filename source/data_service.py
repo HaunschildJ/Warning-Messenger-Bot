@@ -7,11 +7,10 @@ from enum_types import Language
 from enum_types import ReceiveInformation
 from enum_types import WarningSeverity
 
-# See the MVP document for all possible options
-
 _USER_DATA_PATH = "../source/data/data.json"
 _WARNINGS_ALREADY_RECEIVED_PATH = "../source/data/warnings_already_received.json"
 _ACTIVE_WARNINGS_PATH = "../source/data/active_warnings.json"
+_CONFIG_PATH = "../config.json"
 
 DEFAULT_DATA = {
     "current_state": 0,
@@ -661,3 +660,11 @@ def get_user_subscription_postal_codes(chat_id: int) -> list[str]:
         return []
 
     return list(all_user[cid][Attributes.LOCATIONS.value].keys())
+
+
+def get_config() -> dict:
+    """
+    Returns:
+        Dict containing all config values
+    """
+    return _read_file(_CONFIG_PATH)
