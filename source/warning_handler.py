@@ -69,11 +69,22 @@ def write_postal_codes(warning_id: int, geo_areas, counter: int):
         all_postal_codes = []
         for area in geo_areas:
             for coordinates in area.coordinates:
-                dicts_in_polygon = place_converter.get_postal_code_dicts_in_polygon(coordinates)
-                for dict_in_polygon in dicts_in_polygon:
-                    postal_code = place_converter.get_postal_code_from_dict(dict_in_polygon)
-                    if postal_code not in all_postal_codes:
-                        all_postal_codes.append(postal_code)
+
+                # this check is needed because sometimes the nina api send us list(list(list(list(float))))
+                # instead of list(list(list(float)))
+                if isinstance(coordinates[0][0], list):
+                    for deeper_coordinates in coordinates:
+                        dicts_in_polygon = place_converter.get_postal_code_dicts_in_polygon(deeper_coordinates)
+                        for dict_in_polygon in dicts_in_polygon:
+                            postal_code = place_converter.get_postal_code_from_dict(dict_in_polygon)
+                            if postal_code not in all_postal_codes:
+                                all_postal_codes.append(postal_code)
+                else:
+                    dicts_in_polygon = place_converter.get_postal_code_dicts_in_polygon(coordinates)
+                    for dict_in_polygon in dicts_in_polygon:
+                        postal_code = place_converter.get_postal_code_from_dict(dict_in_polygon)
+                        if postal_code not in all_postal_codes:
+                            all_postal_codes.append(postal_code)
 
         data_service.write_to_active_warnings_dict(warning_id, all_postal_codes)
 
@@ -104,6 +115,7 @@ def start_warning_handler_loop():
         for active_warning in all_active_warnings:
             counter += 1
             if active_warning[0].id in all_saved_warnings:
+                print("Warning Number: " + str(counter) + " already processed")
                 continue
 
             geo_areas = nina_service.get_detailed_warning_geo(active_warning[0].id).affected_areas
