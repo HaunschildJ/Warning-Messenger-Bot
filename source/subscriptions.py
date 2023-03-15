@@ -7,7 +7,7 @@ import nina_service
 from nina_service import WarningCategory, GeneralWarning
 
 
-def start_subscriptions(minutes_to_wait: int = 2):
+def start_subscriptions():
     """
 
     This endless loop should only be started once when the main script is started.
@@ -18,9 +18,10 @@ def start_subscriptions(minutes_to_wait: int = 2):
 
     """
     print("Subscriptions running...")
+    subscription_timer_in_seconds = data_service.get_config()['subscription_timer_in_seconds']
     while True:
         warn_users()
-        time.sleep(minutes_to_wait * 60)
+        time.sleep(subscription_timer_in_seconds)
 
 
 def warn_users() -> bool:
@@ -36,7 +37,8 @@ def warn_users() -> bool:
     warnings_sent_counter = 0
     for chat_id in chat_ids_of_warned_users:
         postal_codes = data_service.get_user_subscription_postal_codes(chat_id)
-        filtered_warnings = list(filter(lambda x: not data_service.has_user_already_received_warning(chat_id, x[0].id), active_warnings_with_category))
+        filtered_warnings = list(filter(lambda x: not data_service.has_user_already_received_warning(chat_id, x[0].id),
+                                        active_warnings_with_category))
 
         for (warning, warning_category) in filtered_warnings:
 
@@ -52,7 +54,8 @@ def warn_users() -> bool:
     return warnings_sent_counter > 0
 
 
-def _any_user_subscription_matches_warning(chat_id: int, warning: GeneralWarning, warning_category: WarningCategory) -> bool:
+def _any_user_subscription_matches_warning(chat_id: int, warning: GeneralWarning,
+                                           warning_category: WarningCategory) -> bool:
     """
 
     Args:

@@ -109,7 +109,7 @@ def start_warning_handler_loop():
             geo_areas = nina_service.get_detailed_warning_geo(active_warning[0].id).affected_areas
             write_postal_codes(active_warning[0].id, geo_areas, counter)
 
-        time.sleep(120)
+        time.sleep(data_service.get_config()['warning_timer_in_seconds'])
 
 
 def init_warning_handler():
