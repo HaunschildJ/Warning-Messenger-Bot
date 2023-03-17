@@ -41,6 +41,9 @@ Das Projekt wurde im Auftrag von PEASEC erstellt, um einen Warning Messenger Bot
 ## <a name="head1234"></a>Konfigurationsoptionen
 - In der ```.env ```-Datei wird mit ```key="BOT_TOKEN"``` der Token gesetzt, den der Bot verwenden soll.
 - Alle Texte, die der Bot sendet, sind leicht konfigurierbar in der Datei: ```text_templates.json```. Eine detailierte Erkärung dazu findet man in der Datei ```text_templates_manual.md```
+- In der `config.json`-Datei kann man folgende Variablen einstellen:
+    - `subscription_timer_in_seconds` gibt das Intervall in Sekunden an, in welchem die aktuellen Warnungen, falls nicht bereits gesendet, an die User mit entsprechenden Abonnements gesendet werden
+    - `warning_timer_in_seconds` gibt das Intervall in Sekunden an, in welchem für die akutellen Warnungen, falls noch nicht gespeichert, die relevanten Postleitzahlen berechnet und gespeichert werden 
 
 ## Detail-Informationen
 
