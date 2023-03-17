@@ -1,5 +1,4 @@
 {
-    "5635169582": {
         "current_state": 0,
         "receive_warnings": true,
         "receive_covid_information": 0,
@@ -20,6 +19,5 @@
             }
         ],
         "language": "german",
-        "last_bot_message_id": 9200
     }
 }

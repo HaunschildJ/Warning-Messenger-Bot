@@ -327,7 +327,7 @@
         "favorites": "In Favoriten kannst du einen Ort eingeben oder deinen aktuellen Standort \uD83D\uDCCD schicken um einen Ort für die manuelle Abfrage von Warnungen vorgeschlagen zu bekommen.",
         "subscriptions_menu_navigation": "<b>Abonnements verwalten</b>\nKlicke dazu in den Einstellungen auf \"Abonnements verwalten\".",
         "subscriptions_menu": "Ein Abonnements bedeutet, dass du automatisch über neue Warnungen deiner Wahl für eine Stadt deiner Wahl informiert wirst.\n\nMit \"Abonnements stummschalten\" kannst du vorübergehend alle deine eingestellten Abonnements stummschalten.\n\nAbonnements haben verschiedene Warnstufen, mit denen du angeben kannst, welche Dringlichkeit die Warnungen mindestens haben müssen, damit sie dir geschickt werden. So kannst du verhindern, dass du zu viele oder triviale Warnungen erhältst. Unter \"Standard Warnstufe \uD83C\uDF9B\" kannst du die Warnstufe für alle deine zukünftigen Abos einstellen. Dann wirst du zukünftig beim Erstellen eines Abos nicht mehr nach der Warnstufe gefragt.",
-        "general": "\nSolltest du das Menü nicht sehen, musst du den Knopf mit den 4 Punkten neben dem Eingabefeld drücken."
+        "general": "\n<strong><u>Siehst du die Buttons oder das Menü nicht?</u></strong> \nKlicke hierfür auf das Viereck mit den vier Punkten neben dem Eingabefeld"
       }
     }
   }
