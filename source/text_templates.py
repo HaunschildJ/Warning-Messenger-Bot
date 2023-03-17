@@ -406,8 +406,12 @@ def get_select_location_for_one_location_messsage(district_name: str, place_name
         string with the text for one suggestion
     """
     dic = _get_complex_answer_dict("select_location")
-    if place_name is None:
-        place_name = "---"
+    if place_name is None or place_name == district_name:
+        message = dic["text_without_place"]
+        message = message.replace("%district_name", district_name)
+        message = message.replace("%button_name", corresponding_button_name)
+        message = message.replace("%postal_code", postal_code)
+        return message
     message = dic["text"]
     message = message.replace("%place_name", place_name)
     message = message.replace("%district_name", district_name)
@@ -589,4 +593,6 @@ def get_display_name_for_location(district_name: str, place_name: str, postal_co
     Returns:
         the name that should be displayed for the user
     """
+    if place_name == district_name:
+        return district_name + " (" + postal_code + ")"
     return place_name + " in " + district_name + " (" + postal_code + ")"
