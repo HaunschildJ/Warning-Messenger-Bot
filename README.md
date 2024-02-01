@@ -56,4 +56,5 @@ The bot's start is managed through the ```bot_runner```. Running this creates th
 
 ### Video Demo
 
-WarningBot_demoVideo.gif
+The video demonstrates the bot's start, making of subscriptions for a selected location and via GPS, and the querying of crisis preparedness information.
+[WarningBot_demoVideo.gif](https://github.com/PEASEC/Warning-Messenger-Bot/blob/c1bac6aadcfc324344c619ac4473d616a1535187/WarningBot_demoVideo.gif)
