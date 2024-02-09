@@ -6,7 +6,6 @@ This is a Telegram bot that retrieves population warnings through the NINA API o
 
 The bot is controlled via text inputs and buttons in the Telegram chat, responding to users through the same chat.
 
-
 ## Vorraussetzungen
 - Python 3.9 is installed on the machine
 
